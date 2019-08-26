@@ -23,6 +23,7 @@ LexdCompiler::processNextLine(FILE* input)
   bool comment = false;
   while((c = fgetwc(input)) != L'\n')
   {
+    if(c < 0 || feof(input)) break;
     if(comment) continue;
     if(escape)
     {
@@ -124,6 +125,7 @@ LexdCompiler::processNextLine(FILE* input)
             alphabet.includeSymbol(tag);
             cur.push_back(alphabet(tag));
             i = j;
+            break;
           }
         }
         if(line[i] != end) cur.push_back((int)line[i]);
@@ -200,6 +202,12 @@ LexdCompiler::process(const string& infile, const string& outfile)
   while(!feof(input))
   {
     processNextLine(input);
+  }
+  if(inLex)
+  {
+    Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
+    lexicons[currentLexiconName] = lex;
+    currentLexicon.clear();
   }
   for(unsigned int i = 0; i < patterns.size(); i++)
   {
