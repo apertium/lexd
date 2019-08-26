@@ -33,6 +33,7 @@ private:
   vector<pair<vector<int>, vector<int>>> currentLexicon;
   wstring currentLexiconName;
   int lineNumber;
+  bool doneReading;
   void die(wstring msg);
   void processNextLine(FILE* input);
   map<wstring, Transducer*> matchedParts;

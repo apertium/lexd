@@ -1,7 +1,7 @@
 #include "lexdcompiler.h"
 
 LexdCompiler::LexdCompiler()
-  : shouldAlign(false), inLex(false), inPat(false), lineNumber(0)
+  : shouldAlign(false), inLex(false), inPat(false), lineNumber(0), doneReading(false)
   {}
 
 LexdCompiler::~LexdCompiler()
@@ -23,7 +23,11 @@ LexdCompiler::processNextLine(FILE* input)
   bool comment = false;
   while((c = fgetwc(input)) != L'\n')
   {
-    if(c < 0 || feof(input)) break;
+    if(c < 0 || feof(input))
+    {
+      doneReading = true;
+      break;
+    }
     if(comment) continue;
     if(escape)
     {
@@ -202,6 +206,7 @@ LexdCompiler::process(const string& infile, const string& outfile)
   while(!feof(input))
   {
     processNextLine(input);
+    if(doneReading) break;
   }
   if(inLex)
   {
