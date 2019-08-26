@@ -1,0 +1,35 @@
+Alphabet
+
+ A B D E G I J K L M N O P R S T U V W Y Z Ŋ
+ a b d e g i j k l m n o p r s t u v w y z ŋ
+ %{A%}:a %{A%}:0 ! %>:0
+
+  %[%+1incdu%]:0 %[%+1incpl%]:0 %[%+1sg%]:0 %[%+1excdu%]:0 %[%+1excpl%]:0 %[%+2sg%]:0 %[%+2du%]:0 %[%+2pl%]:0 %[%+3sg%]:0 %[%+3du%]:0 %[%+3plhum%]:0 %[%+3plnh%]:0  %[%-1incdu%]:0 %[%-1incpl%]:0 %[%-1sg%]:0 %[%-1excdu%]:0 %[%-1excpl%]:0 %[%-2sg%]:0 %[%-2du%]:0 %[%-2pl%]:0 %[%-3sg%]:0 %[%-3du%]:0 %[%-3plhum%]:0 %[%-3plnh%]:0
+
+ %[%+appl%]:0 %[%-appl%]:0
+ %[%+caus%]:0 %[%-caus%]:0
+;
+
+Sets
+
+Prefix = %[%+1incdu%] %[%+1incpl%] %[%+1sg%] %[%+1excdu%] %[%+1excpl%] %[%+2sg%] %[%+2du%] %[%+2pl%] %[%+3sg%] %[%+3du%] %[%+3plhum%] %[%+3plnh%] %[%+appl%] %[%+caus%] ;
+
+Suffix = %[%-1incdu%] %[%-1incpl%] %[%-1sg%] %[%-1excdu%] %[%-1excpl%] %[%-2sg%] %[%-2du%] %[%-2pl%] %[%-3sg%] %[%-3du%] %[%-3plhum%] %[%-3plnh%] %[%-appl%] %[%-caus%] ;
+
+Rules
+
+"Remove paths without matching suffix feature"
+Fx:0 /<= _ ;
+   except
+       _ :* Fy:0 ;
+   where Fx in Prefix
+         Fy in Suffix
+   matched ;
+
+"Remove paths without matching prefix feature"
+Fy:0 /<= _ ;
+   except
+       Fx:0 :* _ ;
+   where Fx in Prefix
+         Fy in Suffix
+   matched ;

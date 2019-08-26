@@ -1,0 +1,382 @@
+! Morphological Transducer for wad
+
+Multichar_Symbols
+
+! Part of speech categories
+%<n%>
+%<adj%>
+%<ess%>
+%<dem%>
+%<det%>
+%<imp%>
+%<ij%>
+%<itg%>
+%<loc%>
+%<v%>
+%<num%>
+%<prt%>
+%<pr%>
+%<prn%>
+%<np%>
+%<adj%>
+%<adp%>
+%<adv%>
+%<comp%>
+%<cnj%>
+%<det%>
+%<def%>
+%<prx%>
+%<mid%>
+%<dist%>
+%<prt%>
+%<top%>
+%<dir%>
+%<asp%>
+%<ints%>
+%<neg%>
+%<dur%>
+%<cnj%>
+%<appl%>
+%<caus%>
+
+! Number morphology
+%<pl%>
+%<sg%>
+
+! Other symbols
+%>
+%{b%}
+%{B%}
+%{D%}
+%{A%}
+
+%[%+1incdu%] %[%+1incpl%] %[%+1sg%] %[%+1excdu%] %[%+1excpl%] %[%+2sg%] %[%+2du%] %[%+2pl%] %[%+3sg%] %[%+3du%] %[%+3plhum%] %[%+3plnh%]
+
+%[%-1incdu%] %[%-1incpl%] %[%-1sg%] %[%-1excdu%] %[%-1excpl%] %[%-2sg%] %[%-2du%] %[%-2pl%] %[%-3sg%] %[%-3du%] %[%-3plhum%] %[%-3plnh%]
+
+%[%+appl%] %[%-appl%]
+%[%+caus%] %[%-caus%]
+
+LEXICON Root
+
+VerbPrefix ;
+
+LEXICON VerbPrefix
+
+%[%+1incdu%]:tur VerbApplicative ;
+%[%+1incpl%]:tat VerbApplicative ;
+%[%+1sg%]:i VerbApplicative ;
+%[%+1excdu%]:amur VerbApplicative ;
+%[%+1excpl%]:amat VerbApplicative ;
+%[%+2sg%]:%{B%}u VerbApplicative ;
+%[%+2du%]:mur VerbApplicative ;
+%[%+2pl%]:met VerbApplicative ;
+%[%+3sg%]:%{D%}i VerbApplicative ;
+%[%+3du%]:sur VerbApplicative ;
+%[%+3plhum%]:set VerbApplicative ;
+%[%+3plnh%]:si VerbApplicative ;
+
+LEXICON VerbApplicative
+
+%[%+appl%]:it VerbCausative ;
+VerbCausative ;
+
+LEXICON VerbCausative
+
+%[%+caus%]:on VerbRoot ;
+VerbRoot ;
+
+LEXICON VerbInfl
+
+%<v%>%<p1%>%<du%>%<incl%>%[%-1incdu%]: VerbInflAppl ;
+%<v%>%<p1%>%<pl%>%<incl%>%[%-1incpl%]: VerbInflAppl ;
+%<v%>%<p1%>%<sg%>%[%-1sg%]: VerbInflAppl ;
+%<v%>%<p1%>%<du%>%<excl%>%[%-1excdu%]: VerbInflAppl ;
+%<v%>%<p1%>%<pl%>%<excl%>%[%-1excpl%]: VerbInflAppl ;
+%<v%>%<p2%>%<sg%>%[%-2sg%]: VerbInflAppl ;
+%<v%>%<p2%>%<du%>%[%-2du%]: VerbInflAppl ;
+%<v%>%<p2%>%<pl%>%[%-2pl%]: VerbInflAppl ;
+%<v%>%<p3%>%<sg%>%[%-3sg%]: VerbInflAppl ;
+%<v%>%<p3%>%<du%>%[%-3du%]: VerbInflAppl ;
+%<v%>%<p3%>%<pl%>%<hum%>%[%-3plhum%]: VerbInflAppl ;
+%<v%>%<p3%>%<pl%>%<nh%>%[%-3plnh%]: VerbInflAppl ;
+
+LEXICON VerbInflAppl
+
+%<appl%>%[%-appl%]: VerbInflCaus ;
+VerbInflCaus ;
+
+LEXICON VerbInflCaus
+
+%<caus%>%[%-caus%]: # ;
+# ;
+
+LEXICON VerbRoot
+
+a:a VerbInfl ;
+adiat:%{A%}diat VerbInfl ;
+adiava:%{A%}diava VerbInfl ;
+adu:%{A%}du VerbInfl ;
+amise:%{A%}mise VerbInfl ;
+ana:%{A%}na VerbInfl ;
+ananar:%{A%}nanar VerbInfl ;
+ane:%{A%}ne VerbInfl ;
+ania:%{A%}nia VerbInfl ;
+aniau:%{A%}niau VerbInfl ;
+aniwar:%{A%}niwar VerbInfl ;
+anota:%{A%}nota VerbInfl ;
+anu:%{A%}nu VerbInfl ;
+apai:%{A%}pai VerbInfl ;
+ape:%{A%}pe VerbInfl ;
+api:%{A%}pi VerbInfl ;
+ara:%{A%}ra VerbInfl ;
+ariarir:%{A%}riarir VerbInfl ;
+aririarir:%{A%}ririarir VerbInfl ;
+as:%{A%}s VerbInfl ;
+asiei:%{A%}siei VerbInfl ;
+asiwar:%{A%}siwar VerbInfl ;
+atore:%{A%}tore VerbInfl ;
+avakir:%{A%}vakir VerbInfl ;
+avi:%{A%}vi VerbInfl ;
+avute:%{A%}vute VerbInfl ;
+aware:%{A%}ware VerbInfl ;
+awawai:%{A%}wawai VerbInfl ;
+awer:%{A%}wer VerbInfl ;
+awia:%{A%}wia VerbInfl ;
+bai:b%{A%}i VerbInfl ;
+bajor:b%{A%}jor VerbInfl ;
+deriasi:deriasi VerbInfl ;
+ena:ena VerbInfl ;
+iravesie:iravesie VerbInfl ;
+iri:iri VerbInfl ;
+isa:isa VerbInfl ;
+isani:isani VerbInfl ;
+isi:isi VerbInfl ;
+ka:k%{A%} VerbInfl ;
+kadadiri:k%{A%}dadiri VerbInfl ;
+kais:k%{A%}is VerbInfl ;
+kamadiwa:k%{A%}madiwa VerbInfl ;
+kamanam:k%{A%}manam VerbInfl ;
+kamaru:k%{A%}maru VerbInfl ;
+kambarai:k%{A%}mbarai VerbInfl ;
+kanisu:k%{A%}nisu VerbInfl ;
+kapori:k%{A%}pori VerbInfl ;
+karamut:k%{A%}ramut VerbInfl ;
+karier:k%{A%}rier VerbInfl ;
+karieri:k%{A%}rieri VerbInfl ;
+karipe:k%{A%}ripe VerbInfl ;
+kariria:k%{A%}riria VerbInfl ;
+karotui:k%{A%}rotui VerbInfl ;
+karutarera:k%{A%}rutarera VerbInfl ;
+kase:k%{A%}se VerbInfl ;
+kasie:k%{A%}sie VerbInfl ;
+kasiou:k%{A%}siou VerbInfl ;
+kavera:k%{A%}vera VerbInfl ;
+kavio:k%{A%}vio VerbInfl ;
+kaye:k%{A%}ye VerbInfl ;
+kerat:kerat VerbInfl ;
+keri:keri VerbInfl ;
+kivari:kivari VerbInfl ;
+kopa:kopa VerbInfl ;
+kotar:kotar VerbInfl ;
+kubira:kubira VerbInfl ;
+kutu:kutu VerbInfl ;
+mamaya:m%{A%}maya VerbInfl ;
+mamu:m%{A%}mu VerbInfl ;
+manau:m%{A%}nau VerbInfl ;
+manggar:m%{A%}ŋgar VerbInfl ;
+marandi:m%{A%}randi VerbInfl ;
+marariat:m%{A%}rariat VerbInfl ;
+mararieti:m%{A%}rarieti VerbInfl ;
+marera:m%{A%}rera VerbInfl ;
+marera:m%{A%}rera VerbInfl ;
+mari:m%{A%}ri VerbInfl ;
+marior:m%{A%}rior VerbInfl ;
+marova:m%{A%}rova VerbInfl ;
+maroya:m%{A%}roya VerbInfl ;
+marura:m%{A%}rura VerbInfl ;
+marutu:m%{A%}rutu VerbInfl ;
+masa:m%{A%}sa VerbInfl ;
+masivaveri:m%{A%}sivaveri VerbInfl ;
+maso:m%{A%}so VerbInfl ;
+masop:m%{A%}sop VerbInfl ;
+masubat:m%{A%}subat VerbInfl ;
+matai:m%{A%}tai VerbInfl ;
+matitiotap:m%{A%}titiotap VerbInfl ;
+maye:m%{A%}ye VerbInfl ;
+mayo:m%{A%}yo VerbInfl ;
+meire:meire VerbInfl ;
+mesari:mesari VerbInfl ;
+mosi:mosi VerbInfl ;
+mun:mun VerbInfl ;
+musane:musane VerbInfl ;
+nai:n%{A%}i VerbInfl ;
+nanari:n%{A%}nari VerbInfl ;
+nanaripi:n%{A%}naripi VerbInfl ;
+naya:n%{A%}ya VerbInfl ;
+nei:nei VerbInfl ;
+newe:newe VerbInfl ;
+newi:newi VerbInfl ;
+nganggat:ŋ%{A%}ŋgat VerbInfl ;
+nomu:nomu VerbInfl ;
+nunu:nunu VerbInfl ;
+o:o VerbInfl ;
+one:one VerbInfl ;
+osa:osa VerbInfl ;
+otabia:otabia VerbInfl ;
+otara:otara VerbInfl ;
+otara:otara VerbInfl ;
+otu:otu VerbInfl ;
+oyo:oyo VerbInfl ;
+pape:p%{A%}pe VerbInfl ;
+papo:p%{A%}po VerbInfl ;
+pera:pera VerbInfl ;
+peya:peya VerbInfl ;
+poriri:poriri VerbInfl ;
+posasa:posasa VerbInfl ;
+posasiei:posasiei VerbInfl ;
+pota:pota VerbInfl ;
+pote:pote VerbInfl ;
+poya:poya VerbInfl ;
+pu:pu VerbInfl ;
+pui:pui VerbInfl ;
+ra:r%{A%} VerbInfl ;
+rama:r%{A%}ma VerbInfl ;
+rariorar:r%{A%}riorar VerbInfl ;
+rau:r%{A%}u VerbInfl ;
+rekamani:rekamani VerbInfl ;
+repe:repe VerbInfl ;
+rera:rera VerbInfl ;
+resasi:resasi VerbInfl ;
+rewas:rewas VerbInfl ;
+ri:ri VerbInfl ;
+riesa:riesa VerbInfl ;
+rina:rina VerbInfl ;
+rira:rira VerbInfl ;
+ririau:ririau VerbInfl ;
+riwan:riwan VerbInfl ;
+ro:ro VerbInfl ;
+roi:roi VerbInfl ;
+rora:rora VerbInfl ;
+rotu:rotu VerbInfl ;
+royare:royare VerbInfl ;
+ruase:ruase VerbInfl ;
+rubatai:rubatai VerbInfl ;
+rukusare:rukusare VerbInfl ;
+rure:rure VerbInfl ;
+ruri:ruri VerbInfl ;
+rusasa:rusasa VerbInfl ;
+rut:rut VerbInfl ;
+sa:s%{A%} VerbInfl ;
+sa:s%{A%} VerbInfl ;
+sabaya:s%{A%}baya VerbInfl ;
+sairara:s%{A%}irara VerbInfl ;
+samariari:s%{A%}mariari VerbInfl ;
+samuai:s%{A%}muai VerbInfl ;
+sanana:s%{A%}nana VerbInfl ;
+sanepai:s%{A%}nepai VerbInfl ;
+sanepaya:s%{A%}nepaya VerbInfl ;
+sanepaya:s%{A%}nepaya VerbInfl ;
+sanevesie:s%{A%}nevesie VerbInfl ;
+sarai:s%{A%}rai VerbInfl ;
+sario:s%{A%}rio VerbInfl ;
+sasara:s%{A%}sara VerbInfl ;
+sase:s%{A%}se VerbInfl ;
+sasera:s%{A%}sera VerbInfl ;
+sasi:s%{A%}si VerbInfl ;
+sasie:s%{A%}sie VerbInfl ;
+sasiri:s%{A%}siri VerbInfl ;
+saviori:s%{A%}viori VerbInfl ;
+sayor:s%{A%}yor VerbInfl ;
+se:se VerbInfl ;
+sera:sera VerbInfl ;
+sesa:sesa VerbInfl ;
+setawa:setawa VerbInfl ;
+seva:seva VerbInfl ;
+siar:siar VerbInfl ;
+simarai:simarai VerbInfl ;
+siorap:siorap VerbInfl ;
+siwara:siwara VerbInfl ;
+so:so VerbInfl ;
+so:so VerbInfl ;
+sobata:sobata VerbInfl ;
+soive:soive VerbInfl ;
+sokiare:sokiare VerbInfl ;
+sokiase:sokiase VerbInfl ;
+som:som VerbInfl ;
+sonini:sonini VerbInfl ;
+sora:sora VerbInfl ;
+sori:sori VerbInfl ;
+sosa:sosa VerbInfl ;
+sosoya:sosoya VerbInfl ;
+sovera:sovera VerbInfl ;
+su:su VerbInfl ;
+suetawana:suetawana VerbInfl ;
+sum:sum VerbInfl ;
+sume:sume VerbInfl ;
+suvi:suvi VerbInfl ;
+suvuan:suvuan VerbInfl ;
+suwasi:suwasi VerbInfl ;
+ta:t%{A%} VerbInfl ;
+taisu:t%{A%}isu VerbInfl ;
+tandor:t%{A%}ndor VerbInfl ;
+tapu:t%{A%}pu VerbInfl ;
+tara:t%{A%}ra VerbInfl ;
+tare:t%{A%}re VerbInfl ;
+tarisu:t%{A%}risu VerbInfl ;
+tata:t%{A%}ta VerbInfl ;
+tatare:t%{A%}tare VerbInfl ;
+tatira:t%{A%}tira VerbInfl ;
+tatopa:t%{A%}topa VerbInfl ;
+tavavu:t%{A%}vavu VerbInfl ;
+tavera:t%{A%}vera VerbInfl ;
+tavi:t%{A%}vi VerbInfl ;
+taviar:t%{A%}viar VerbInfl ;
+tawa:t%{A%}wa VerbInfl ;
+tenam:tenam VerbInfl ;
+tera:tera VerbInfl ;
+tere:tere VerbInfl ;
+tipira:tipira VerbInfl ;
+tire:tire VerbInfl ;
+tisa:tisa VerbInfl ;
+tita:tita VerbInfl ;
+titiai:titiai VerbInfl ;
+tob:tob VerbInfl ;
+topa:topa VerbInfl ;
+tota:tota VerbInfl ;
+tupar:tupar VerbInfl ;
+turu:turu VerbInfl ;
+tut:tut VerbInfl ;
+tuwa:tuwa VerbInfl ;
+ubira:ubira VerbInfl ;
+unusar:unusar VerbInfl ;
+ur:ur VerbInfl ;
+urusara:urusara VerbInfl ;
+usar:usar VerbInfl ;
+uta:uta VerbInfl ;
+utanusara:utanusara VerbInfl ;
+uvietu:uvietu VerbInfl ;
+vabara:v%{A%}bara VerbInfl ;
+varakare:v%{A%}rakare VerbInfl ;
+varo:v%{A%}ro VerbInfl ;
+vata:v%{A%}ta VerbInfl ;
+vaune:v%{A%}une VerbInfl ;
+vavou:v%{A%}vou VerbInfl ;
+vawatatar:v%{A%}watatar VerbInfl ;
+ve:ve VerbInfl ;
+vediadi:vediadi VerbInfl ;
+vedior:vedior VerbInfl ;
+vekapo:vekapo VerbInfl ;
+venadi:venadi VerbInfl ;
+veprenta:veprenta VerbInfl ;
+vereri:vereri VerbInfl ;
+vesikop:vesikop VerbInfl ;
+vesusa:vesusa VerbInfl ;
+via:via VerbInfl ;
+viviare:viviare VerbInfl ;
+vo:vo VerbInfl ;
+vori:vori VerbInfl ;
+voru:voru VerbInfl ;
+vove:vove VerbInfl ;
+vui:vui VerbInfl ;
+vuvu:vuvu VerbInfl ;
