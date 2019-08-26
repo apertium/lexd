@@ -34,7 +34,7 @@ private:
   wstring currentLexiconName;
   int lineNumber;
   void die(wstring msg);
-  void processNextLine();
+  void processNextLine(FILE* input);
   map<wstring, Transducer*> matchedParts;
   void buildPattern(int state, unsigned int pat, unsigned int pos);
 public:

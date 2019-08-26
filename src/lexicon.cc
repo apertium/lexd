@@ -6,8 +6,8 @@ Lexicon::Lexicon(vector<pair<vector<int>, vector<int>>> entries, bool shouldAlig
 
 Lexicon::~Lexicon() {}
 
-const Transducer&
-Lexicon::getMerged(const Alphabet& alpha)
+Transducer&
+Lexicon::getMerged(Alphabet& alpha)
 {
   if(hasMerged) return merged;
   //if(shouldAlign) ...
@@ -27,7 +27,7 @@ Lexicon::getMerged(const Alphabet& alpha)
 }
 
 vector<pair<Transducer*, Transducer*>>
-Lexicon::getSeparate(const Alphabet& alpha)
+Lexicon::getSeparate(Alphabet& alpha)
 {
   if(hasSeparate) return separate;
   for(auto pr : entries)

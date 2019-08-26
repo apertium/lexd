@@ -21,8 +21,8 @@ private:
 public:
   Lexicon(vector<pair<vector<int>, vector<int>>> entries, bool shouldAlign);
   ~Lexicon();
-  const Transducer& getMerged(const Alphabet& alpha);
-  vector<pair<Transducer*, Transducer*>> getSeparate(const Alphabet& alpha);
+  Transducer& getMerged(Alphabet& alpha);
+  vector<pair<Transducer*, Transducer*>> getSeparate(Alphabet& alpha);
 };
 
 #endif

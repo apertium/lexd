@@ -1,4 +1,4 @@
-#include <lexdcompiler.h>
+#include "lexdcompiler.h"
 
 int main(int argc, char *argv[])
 {

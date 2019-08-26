@@ -56,7 +56,7 @@ LexdCompiler::processNextLine(FILE* input)
     if(inLex)
     {
       Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
-      lexicon[currentLexiconName] = lex;
+      lexicons[currentLexiconName] = lex;
       currentLexicon.clear();
     }
     currentLexiconName.clear();
@@ -73,7 +73,7 @@ LexdCompiler::processNextLine(FILE* input)
     if(inLex)
     {
       Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
-      lexicon[currentLexiconName] = lex;
+      lexicons[currentLexiconName] = lex;
       currentLexicon.clear();
     }
     currentLexiconName = name;
@@ -146,7 +146,7 @@ LexdCompiler::processNextLine(FILE* input)
 void
 LexdCompiler::buildPattern(int state, unsigned int pat, unsigned int pos)
 {
-  if(pos == patterns[pat].size())
+  if(pos == patterns[pat].second.size())
   {
     transducer.setFinal(state);
     return;
@@ -158,13 +158,13 @@ LexdCompiler::buildPattern(int state, unsigned int pat, unsigned int pos)
   if(lexicons.find(lex) == lexicons.end()) die(L"Lexicon '" + lex + L"' is not defined");
   if(side == SideBoth)
   {
-    int new_state = transducer.insertTransducer(state, lexicons[lex]->getMerged());
+    int new_state = transducer.insertTransducer(state, lexicons[lex]->getMerged(alphabet));
     buildPattern(new_state, pat, pos+1);
     return;
   }
   else if(matchedParts.find(lex) == matchedParts.end())
   {
-    vector<pair<Transducer*, Transducer*>> pairs = lexicons[lex]->getSeparate();
+    vector<pair<Transducer*, Transducer*>> pairs = lexicons[lex]->getSeparate(alphabet);
     for(auto pr : pairs)
     {
       if(side == SideLeft)
@@ -191,7 +191,7 @@ LexdCompiler::buildPattern(int state, unsigned int pat, unsigned int pos)
 void
 LexdCompiler::process(const string& infile, const string& outfile)
 {
-  FILE* input = fopen(infile, "r");
+  FILE* input = fopen(infile.c_str(), "r");
   if(input == NULL)
   {
     wcerr << L"Cannot open file " << outfile.c_str() << " for reading." << endl;
@@ -207,7 +207,7 @@ LexdCompiler::process(const string& infile, const string& outfile)
     buildPattern(transducer.getInitial(), i, 0);
   }
   transducer.minimize();
-  FILE* output = fopen(outfile, "w");
+  FILE* output = fopen(outfile.c_str(), "w");
   if(output == NULL)
   {
     wcerr << L"Cannot open file " << outfile.c_str() << " for writing." << endl;
@@ -253,7 +253,7 @@ LexdCompiler::process(const string& infile, const string& outfile)
     }
   }
 
-  for(auto& it3 : finals)
+  for(auto& it3 : transducer.getFinals())
   {
     fwprintf(output, L"%d\t", it3.first);
     fwprintf(output, L"%f\n", it3.second);
