@@ -8,21 +8,37 @@
 
 using namespace std;
 
+enum Side
+{
+  SideLeft,
+  SideRight,
+  SideBoth
+};
+
 class Lexicon
 {
 private:
-  vector<pair<vector<int>, vector<int>>> entries;
+  vector<vector<pair<vector<int>, vector<int>>>> entries;
   bool hasMerged;
   bool hasSeparate;
-  Transducer merged;
-  vector<pair<Transducer*, Transducer*>> separate;
+  vector<Transducer*> merged;
+  vector<vector<pair<Transducer*, Transducer*>>> separate;
   bool shouldAlign;
+  int entryCount;
+  int partCount;
 
 public:
-  Lexicon(vector<pair<vector<int>, vector<int>>> entries, bool shouldAlign);
+  Lexicon(vector<vector<pair<vector<int>, vector<int>>>> entries, bool shouldAlign);
   ~Lexicon();
-  Transducer& getMerged(Alphabet& alpha);
-  vector<pair<Transducer*, Transducer*>> getSeparate(Alphabet& alpha);
+  Transducer* getTransducer(Alphabet& alpha, Side side, int part, int index);
+  int getEntryCount()
+  {
+    return entryCount;
+  }
+  int getPartCount()
+  {
+    return partCount;
+  }
 };
 
 #endif

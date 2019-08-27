@@ -81,6 +81,22 @@ LexdCompiler::processNextLine(FILE* input)
       lexicons[currentLexiconName] = lex;
       currentLexicon.clear();
     }
+    currentLexiconPartCount = 1;
+    if(name.size() > 1 && name.back() == L')')
+    {
+      wstring num;
+      for(unsigned int i = name.size()-2; i > 0; i--)
+      {
+        if(isdigit(name[i])) num = name[i] + num;
+        else if(name[i] == L'(' && num.size() > 0)
+        {
+          currentLexiconPartCount = stoi(num);
+          name = name.substr(0, i);
+        }
+        else break;
+      }
+      if(name.size() == 0) die(L"Unnamed lexicon");
+    }
     currentLexiconName = name;
     inLex = true;
     inPat = false;
@@ -90,14 +106,42 @@ LexdCompiler::processNextLine(FILE* input)
     // TODO: this should do some error checking (mismatches, mostly)
     if(line.back() != L' ') line += L' ';
     wstring cur;
-    vector<pair<wstring, Side>> pat;
+    vector<pair<wstring, pair<Side, int>>> pat;
     for(auto ch : line)
     {
       if(ch == L' ')
       {
-        if(cur.front() == L':') pat.push_back(make_pair(cur.substr(1), SideRight));
-        else if(cur.back() == L':') pat.push_back(make_pair(cur.substr(0, cur.size()-1), SideLeft));
-        else pat.push_back(make_pair(cur, SideBoth));
+        if(cur.size() == 0) continue;
+        int idx = 1;
+        Side s = SideBoth;
+        if(cur.front() == L':')
+        {
+          cur = cur.substr(1);
+          s = SideRight;
+        }
+        else if(cur.back() == L':')
+        {
+          cur = cur.substr(0, cur.size()-1);
+          s = SideLeft;
+        }
+        if(cur.size() == 0) die(L"Syntax error - colon without lexicon name");
+        if(cur.size() > 1 && cur.back() == L')')
+        {
+          wstring temp;
+          for(unsigned int i = cur.size()-2; i > 0; i--)
+          {
+            if(isdigit(cur[i])) temp = cur[i] + temp;
+            else if(cur[i] == L'(' && temp.size() > 0)
+            {
+              idx = stoi(temp);
+              cur = cur.substr(0, i);
+              break;
+            }
+            else break;
+          }
+        }
+        if(cur.size() == 0) die(L"Syntax error - no lexicon name");
+        pat.push_back(make_pair(cur, make_pair(s, idx)));
         cur.clear();
       }
       else cur += ch;
@@ -106,45 +150,69 @@ LexdCompiler::processNextLine(FILE* input)
   }
   else if(inLex)
   {
-    line += L':';
-    vector<vector<int>> parts;
-    vector<int> cur;
+    vector<wstring> pieces;
+    wstring cur;
     for(unsigned int i = 0; i < line.size(); i++)
     {
-      if(line[i] == L'\\') cur.push_back((int)line[++i]);
-      else if(line[i] == L':')
+      if(line[i] == L'\\')
       {
-        parts.push_back(cur);
+        cur += line.substr(i, 2);
+        i++;
+      }
+      else if(line[i] == L' ')
+      {
+        pieces.push_back(cur + L":");
         cur.clear();
       }
-      else if(line[i] == L' ') continue;
-      else if(line[i] == L'{' || line[i] == L'<')
+      else cur += line[i];
+    }
+    if(cur.size() > 0) pieces.push_back(cur + L":");
+    vector<pair<vector<int>, vector<int>>> entry;
+    for(auto ln : pieces)
+    {
+      vector<vector<int>> parts;
+      vector<int> cur;
+      for(unsigned int i = 0; i < ln.size(); i++)
       {
-        wchar_t end = (line[i] == L'{') ? L'}' : L'>';
-        for(unsigned int j = i+1; j < line.size(); j++)
+        if(ln[i] == L'\\') cur.push_back((int)ln[++i]);
+        else if(ln[i] == L':')
         {
-          if(line[j] == end)
-          {
-            wstring tag = line.substr(i, j-i+1);
-            alphabet.includeSymbol(tag);
-            cur.push_back(alphabet(tag));
-            i = j;
-            break;
-          }
+          parts.push_back(cur);
+          cur.clear();
         }
-        if(line[i] != end) cur.push_back((int)line[i]);
+        else if(ln[i] == L'{' || ln[i] == L'<')
+        {
+          wchar_t end = (ln[i] == L'{') ? L'}' : L'>';
+          for(unsigned int j = i+1; j < ln.size(); j++)
+          {
+            if(ln[j] == end)
+            {
+              wstring tag = ln.substr(i, j-i+1);
+              alphabet.includeSymbol(tag);
+              cur.push_back(alphabet(tag));
+              i = j;
+              break;
+            }
+          }
+          if(ln[i] != end) cur.push_back((int)ln[i]);
+        }
+        else cur.push_back((int)ln[i]);
       }
-      else cur.push_back((int)line[i]);
+      if(parts.size() == 1)
+      {
+        entry.push_back(make_pair(parts[0], parts[0]));
+      }
+      else if(parts.size() == 2)
+      {
+        entry.push_back(make_pair(parts[0], parts[1]));
+      }
+      else die(L"Lexicon entry contains multiple colons");
     }
-    if(parts.size() == 1)
+    if(entry.size() != currentLexiconPartCount)
     {
-      currentLexicon.push_back(make_pair(parts[0], parts[0]));
+      die(L"Lexicon entry has wrong number of components. Expected " + to_wstring(currentLexiconPartCount) + L", got " + to_wstring(entry.size()));
     }
-    else if(parts.size() == 2)
-    {
-      currentLexicon.push_back(make_pair(parts[0], parts[1]));
-    }
-    else die(L"Lexicon entry contains multiple colons");
+    currentLexicon.push_back(entry);
   }
   else die(L"Expected 'PATTERNS' or 'LEXICON'");
 }
@@ -159,37 +227,28 @@ LexdCompiler::buildPattern(int state, unsigned int pat, unsigned int pos)
   }
   int line = patterns[pat].first;
   wstring lex = patterns[pat].second[pos].first;
-  Side side = patterns[pat].second[pos].second;
+  Side side = patterns[pat].second[pos].second.first;
+  int part = patterns[pat].second[pos].second.second;
   lineNumber = line;
   if(lexicons.find(lex) == lexicons.end()) die(L"Lexicon '" + lex + L"' is not defined");
+  Lexicon* l = lexicons[lex];
   if(side == SideBoth)
   {
-    int new_state = transducer.insertTransducer(state, lexicons[lex]->getMerged(alphabet));
+    int new_state = transducer.insertTransducer(state, *(l->getTransducer(alphabet, side, part, 0)));
     buildPattern(new_state, pat, pos+1);
-    return;
   }
   else if(matchedParts.find(lex) == matchedParts.end())
   {
-    vector<pair<Transducer*, Transducer*>> pairs = lexicons[lex]->getSeparate(alphabet);
-    for(auto pr : pairs)
+    for(int index = 0, max = l->getEntryCount(); index < max; index++)
     {
-      if(side == SideLeft)
-      {
-        int new_state = transducer.insertTransducer(state, *(pr.first));
-        matchedParts[lex] = pr.second;
-        buildPattern(new_state, pat, pos+1);
-      }
-      else
-      {
-        int new_state = transducer.insertTransducer(state, *(pr.second));
-        matchedParts[lex] = pr.first;
-        buildPattern(new_state, pat, pos+1);
-      }
+      int new_state = transducer.insertTransducer(state, *(l->getTransducer(alphabet, side, part, index)));
+      matchedParts[lex] = index;
+      buildPattern(new_state, pat, pos+1);
     }
   }
   else
   {
-    int new_state = transducer.insertTransducer(state, *(matchedParts[lex]));
+    int new_state = transducer.insertTransducer(state, *(l->getTransducer(alphabet, side, part, matchedParts[lex])));
     buildPattern(new_state, pat, pos+1);
   }
 }

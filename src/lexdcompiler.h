@@ -17,26 +17,21 @@ using namespace std;
 class LexdCompiler
 {
 private:
-  enum Side
-  {
-    SideLeft,
-    SideRight,
-    SideBoth
-  };
   map<wstring, Lexicon*> lexicons;
   bool shouldAlign;
-  vector<pair<int, vector<pair<wstring, Side>>>> patterns;
+  vector<pair<int, vector<pair<wstring, pair<Side, int>>>>> patterns;
   Alphabet alphabet;
   Transducer transducer;
   bool inLex;
   bool inPat;
-  vector<pair<vector<int>, vector<int>>> currentLexicon;
+  vector<vector<pair<vector<int>, vector<int>>>> currentLexicon;
   wstring currentLexiconName;
+  unsigned int currentLexiconPartCount;
   int lineNumber;
   bool doneReading;
   void die(wstring msg);
   void processNextLine(FILE* input);
-  map<wstring, Transducer*> matchedParts;
+  map<wstring, int> matchedParts;
   void buildPattern(int state, unsigned int pat, unsigned int pos);
 public:
   LexdCompiler();

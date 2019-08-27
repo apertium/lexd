@@ -1,0 +1,10 @@
+PATTERNS
+C(1) :V(1) C(2) :V(2) C(3) V(2): V(1):
+
+LEXICON C(3)
+x y z
+n m l
+
+LEXICON V(2)
+:a <v><p3><sg>:e
+:o <v><p3><pl>:e
