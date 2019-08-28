@@ -12,28 +12,24 @@ Lexicon::~Lexicon() {}
 Transducer*
 Lexicon::getTransducer(Alphabet& alpha, Side side, int part, int index = 0)
 {
-  if(side == SideBoth)
+  if(side == SideBoth && partCount == 1)
   {
-    if(hasMerged) return merged[part-1];
+    if(hasMerged) return merged;
     // TODO: shouldAlign
-    for(int prt = 0; prt < partCount; prt++)
+    merged = new Transducer();
+    for(auto pr : entries)
     {
-      Transducer* m = new Transducer();
-      for(auto pr : entries)
+      int state = merged->getInitial();
+      for(unsigned int i = 0; i < pr[0].first.size() || i < pr[0].second.size(); i++)
       {
-        int state = m->getInitial();
-        for(unsigned int i = 0; i < pr[prt].first.size() || i < pr[prt].second.size(); i++)
-        {
-          int l = (i < pr[prt].first.size()) ? pr[prt].first[i] : 0;
-          int r = (i < pr[prt].second.size()) ? pr[prt].second[i] : 0;
-          state = m->insertSingleTransduction(alpha(l, r), state);
-        }
-        m->setFinal(state);
+        int l = (i < pr[0].first.size()) ? pr[0].first[i] : 0;
+        int r = (i < pr[0].second.size()) ? pr[0].second[i] : 0;
+        state = merged->insertSingleTransduction(alpha(l, r), state);
       }
-      merged.push_back(m);
+      merged->setFinal(state);
     }
     hasMerged = true;
-    return merged[part-1];
+    return merged;
   }
   else
   {
@@ -41,11 +37,12 @@ Lexicon::getTransducer(Alphabet& alpha, Side side, int part, int index = 0)
     {
       for(auto ent : entries)
       {
-        vector<pair<Transducer*, Transducer*>> temp;
+        vector<vector<Transducer*>> temp;
         for(auto pr : ent)
         {
           Transducer* left = new Transducer();
           Transducer* right = new Transducer();
+          Transducer* merge = new Transducer();
           int state = left->getInitial();
           for(auto l : pr.first)
           {
@@ -58,19 +55,25 @@ Lexicon::getTransducer(Alphabet& alpha, Side side, int part, int index = 0)
             state = right->insertSingleTransduction(alpha(0, r), state);
           }
           right->setFinal(state);
-          temp.push_back(make_pair(left, right));
+          state = merge->getInitial();
+          // TODO: should align
+          for(unsigned int i = 0; i < pr.first.size() || i < pr.second.size(); i++)
+          {
+            int l = (i < pr.first.size()) ? pr.first[i] : 0;
+            int r = (i < pr.second.size()) ? pr.second[i] : 0;
+            state = merge->insertSingleTransduction(alpha(l, r), state);
+          }
+          merge->setFinal(state);
+          vector<Transducer*> temp2;
+          temp2.push_back(left);
+          temp2.push_back(right);
+          temp2.push_back(merge);
+          temp.push_back(temp2);
         }
         separate.push_back(temp);
       }
       hasSeparate = true;
     }
-    if(side == SideLeft)
-    {
-      return separate[index][part-1].first;
-    }
-    else
-    {
-      return separate[index][part-1].second;
-    }
+    return separate[index][part-1][side];
   }
 }

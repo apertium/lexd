@@ -232,7 +232,7 @@ LexdCompiler::buildPattern(int state, unsigned int pat, unsigned int pos)
   lineNumber = line;
   if(lexicons.find(lex) == lexicons.end()) die(L"Lexicon '" + lex + L"' is not defined");
   Lexicon* l = lexicons[lex];
-  if(side == SideBoth)
+  if(side == SideBoth && l->getPartCount() == 1)
   {
     int new_state = transducer.insertTransducer(state, *(l->getTransducer(alphabet, side, part, 0)));
     buildPattern(new_state, pat, pos+1);
@@ -245,6 +245,7 @@ LexdCompiler::buildPattern(int state, unsigned int pat, unsigned int pos)
       matchedParts[lex] = index;
       buildPattern(new_state, pat, pos+1);
     }
+    matchedParts.erase(lex);
   }
   else
   {

@@ -10,9 +10,9 @@ using namespace std;
 
 enum Side
 {
-  SideLeft,
-  SideRight,
-  SideBoth
+  SideLeft = 0,
+  SideRight = 1,
+  SideBoth = 2
 };
 
 class Lexicon
@@ -21,8 +21,9 @@ private:
   vector<vector<pair<vector<int>, vector<int>>>> entries;
   bool hasMerged;
   bool hasSeparate;
-  vector<Transducer*> merged;
-  vector<vector<pair<Transducer*, Transducer*>>> separate;
+  Transducer* merged;
+  // index - part - side
+  vector<vector<vector<Transducer*>>> separate;
   bool shouldAlign;
   int entryCount;
   int partCount;

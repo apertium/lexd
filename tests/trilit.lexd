@@ -6,6 +6,9 @@ LEXICON V(2)
 :a <v><p3><sg>:e
 :o <v><p3><pl>:e
 
+LEXICON redup
+<redup>:
+
 PATTERNS
 C(1) :V(1) C(2) :V(2) C(3) V(2):
 # xayez/xyz<v><p3><sg>
@@ -13,8 +16,8 @@ C(1) :V(1) C(2) :V(2) C(3) V(2):
 # namel/nml<v><p3><sg>
 # nomel/nml<v><p3><pl>
 
-C(1) :V(1) C(1) :V(1) C(2) :V(2) C(3) V(2):
-# xaxayez/xyz<v><p3><sg>
-# xoxoyez/xyz<v><p3><pl>
-# nanamel/nml<v><p3><sg>
-# nonomel/nml<v><p3><pl>
+:C(1) :V(1) C(1) :V(1) C(2) :V(2) C(3) V(2): redup
+# xaxayez/xyz<v><p3><sg><redup>
+# xoxoyez/xyz<v><p3><pl><redup>
+# nanamel/nml<v><p3><sg><redup>
+# nonomel/nml<v><p3><pl><redup>
