@@ -8,6 +8,23 @@ Alphabet
 
  %[%+appl%]:0 %[%-appl%]:0
  %[%+caus%]:0 %[%-caus%]:0
+
+%<v%>
+
+! Number morphology
+%<pl%>
+%<sg%>
+%<du%>
+
+%<p1%>
+%<p2%>
+%<p3%>
+
+%<incl%>
+%<excl%>
+
+%<caus%>
+%<appl%>
 ;
 
 Sets
