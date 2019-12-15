@@ -9,6 +9,8 @@ Alphabet
 %{V1%}:ָ
 %{V2%}:ַ
 
+;
+
 Sets
 
 blah = %[perf%] %[impf%] ;

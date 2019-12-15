@@ -45,16 +45,16 @@ LEXICON VerbInflSuf
 %<v%>%<impf%>%<p3%>%<pl%>%<m%>%[%-3plm%]:ו%[impf%] # ;
 %<v%>%<impf%>%<p3%>%<pl%>%<f%>%[%-3plf%]:נָה%[impf%] # ;
 
-%<v%>%<impf%>%<p1%>%<sg%>:תִי%[perf%] # ;
-%<v%>%<impf%>%<p1%>%<pl%>:נו%[perf%] # ;
-%<v%>%<impf%>%<p2%>%<sg%>%<m%>:תָ%[perf%] # ;
-%<v%>%<impf%>%<p2%>%<sg%>%<f%>:ת%[perf%] # ;
-%<v%>%<impf%>%<p2%>%<pl%>%<m%>:תֶמ%[perf%] # ;
-%<v%>%<impf%>%<p2%>%<pl%>%<f%>:תֶנ%[perf%] # ;
-%<v%>%<impf%>%<p3%>%<sg%>%<m%>:%[perf%] # ;
-%<v%>%<impf%>%<p3%>%<sg%>%<f%>:ָה%[perf%] # ;
-%<v%>%<impf%>%<p3%>%<pl%>%<m%>:ו%[perf%] # ;
-%<v%>%<impf%>%<p3%>%<pl%>%<f%>:ו%[perf%] # ;
+%<v%>%<perf%>%<p1%>%<sg%>:תִי%[perf%] # ;
+%<v%>%<perf%>%<p1%>%<pl%>:נו%[perf%] # ;
+%<v%>%<perf%>%<p2%>%<sg%>%<m%>:תָ%[perf%] # ;
+%<v%>%<perf%>%<p2%>%<sg%>%<f%>:ת%[perf%] # ;
+%<v%>%<perf%>%<p2%>%<pl%>%<m%>:תֶמ%[perf%] # ;
+%<v%>%<perf%>%<p2%>%<pl%>%<f%>:תֶנ%[perf%] # ;
+%<v%>%<perf%>%<p3%>%<sg%>%<m%>:%[perf%] # ;
+%<v%>%<perf%>%<p3%>%<sg%>%<f%>:ָה%[perf%] # ;
+%<v%>%<perf%>%<p3%>%<pl%>%<m%>:ו%[perf%] # ;
+%<v%>%<perf%>%<p3%>%<pl%>%<f%>:ו%[perf%] # ;
 
 
 LEXICON VerbRoot
