@@ -10,3 +10,6 @@ time hfst-invert test.lexc.hfst | hfst-compose-intersect -1 - -2 test.twoc.hfst 
 
 echo ".lexd"
 time ../src/lexd test.lexd test.att
+
+echo "convert"
+time hfst-txt2fst test.att | hfst-invert -o test_d.hfst

@@ -1,0 +1,22 @@
+Alphabet
+
+ם כ ה ג ש ז צ נ ל פ ע י ב ף ץ מ ך ת ח ד ס ר א ט ק ן
+ֶ  ָ  ִ ַ
+
+%[perf%]:0
+%[impf%]:0
+
+%{V1%}:ָ
+%{V2%}:ַ
+
+Sets
+
+blah = %[perf%] %[impf%] ;
+
+Rules
+
+"imperfect vowel 1"
+%{V1%}:0 <=> _ :* %[impf%]:0 ;
+
+"imperfect vowel 2"
+%{V2%}:ֹ <=> _ :* %[impf%]:0 ;

@@ -1,0 +1,188 @@
+Multichar_Symbols
+%<v%>
+%<p1%>
+%<p2%>
+%<p3%>
+%<sg%>
+%<pl%>
+%<perf%>
+%<impf%>
+%<m%>
+%<f%>
+
+%{V1%}
+%{V2%}
+
+
+%[%+1sg%] %[%+1pl%] %[%+2sgm%] %[%+2sgf%] %[%+2plm%] %[%+2plf%] %[%+3sgm%] %[%+3sgf%] %[%+3plm%] %[%+3plf%]
+%[%-1sg%] %[%-1pl%] %[%-2sgm%] %[%-2sgf%] %[%-2plm%] %[%-2plf%] %[%-3sgm%] %[%-3sgf%] %[%-3plm%] %[%-3plf%]
+
+%[perf%]
+%[impf%]
+
+LEXICON Root
+%[%+1sg%]:%[impf%]אֶ VerbRoot ;
+%[%+1pl%]:%[impf%]נִ VerbRoot ;
+%[%+2sgm%]:%[impf%]תִ VerbRoot ;
+%[%+2sgf%]:%[impf%]תִ VerbRoot ;
+%[%+2plm%]:%[impf%]תִ VerbRoot ;
+%[%+2plf%]:%[impf%]תִ VerbRoot ;
+%[%+3sgm%]:%[impf%]יִ VerbRoot ;
+%[%+3sgf%]:%[impf%]תִ VerbRoot ;
+%[%+3plm%]:%[impf%]יִ VerbRoot ;
+%[%+3plf%]:%[impf%]תִ VerbRoot ;
+VerbRoot ;
+
+LEXICON VerbInflSuf
+%<v%>%<impf%>%<p1%>%<sg%>%[%-1sg%]:%[impf%] # ;
+%<v%>%<impf%>%<p1%>%<pl%>%[%-1pl%]:%[impf%] # ;
+%<v%>%<impf%>%<p2%>%<sg%>%<m%>%[%-2sgm%]:%[impf%] # ;
+%<v%>%<impf%>%<p2%>%<sg%>%<f%>%[%-2sgf%]:ִי%[impf%] # ;
+%<v%>%<impf%>%<p2%>%<pl%>%<m%>%[%-2plm%]:ו%[impf%] # ;
+%<v%>%<impf%>%<p2%>%<pl%>%<f%>%[%-2plf%]:נָה%[impf%] # ;
+%<v%>%<impf%>%<p3%>%<sg%>%<m%>%[%-3sgm%]:%[impf%] # ;
+%<v%>%<impf%>%<p3%>%<sg%>%<f%>%[%-3sgf%]:%[impf%] # ;
+%<v%>%<impf%>%<p3%>%<pl%>%<m%>%[%-3plm%]:ו%[impf%] # ;
+%<v%>%<impf%>%<p3%>%<pl%>%<f%>%[%-3plf%]:נָה%[impf%] # ;
+
+%<v%>%<impf%>%<p1%>%<sg%>:תִי%[perf%] # ;
+%<v%>%<impf%>%<p1%>%<pl%>:נו%[perf%] # ;
+%<v%>%<impf%>%<p2%>%<sg%>%<m%>:תָ%[perf%] # ;
+%<v%>%<impf%>%<p2%>%<sg%>%<f%>:ת%[perf%] # ;
+%<v%>%<impf%>%<p2%>%<pl%>%<m%>:תֶמ%[perf%] # ;
+%<v%>%<impf%>%<p2%>%<pl%>%<f%>:תֶנ%[perf%] # ;
+%<v%>%<impf%>%<p3%>%<sg%>%<m%>:%[perf%] # ;
+%<v%>%<impf%>%<p3%>%<sg%>%<f%>:ָה%[perf%] # ;
+%<v%>%<impf%>%<p3%>%<pl%>%<m%>:ו%[perf%] # ;
+%<v%>%<impf%>%<p3%>%<pl%>%<f%>:ו%[perf%] # ;
+
+
+LEXICON VerbRoot
+אכל:א%{V1%}כ%{V2}ל VerbInflSuf ;
+אכף:א%{V1%}כ%{V2}ף VerbInflSuf ;
+אמר:א%{V1%}מ%{V2}ר VerbInflSuf ;
+אסף:א%{V1%}ס%{V2}ף VerbInflSuf ;
+אסר:א%{V1%}ס%{V2}ר VerbInflSuf ;
+ארך:א%{V1%}ר%{V2}ך VerbInflSuf ;
+אשר:א%{V1%}ש%{V2}ר VerbInflSuf ;
+בחר:ב%{V1%}ח%{V2}ר VerbInflSuf ;
+בלע:ב%{V1%}ל%{V2}ע VerbInflSuf ;
+ברח:ב%{V1%}ר%{V2}ח VerbInflSuf ;
+גאל:ג%{V1%}א%{V2}ל VerbInflSuf ;
+גדל:ג%{V1%}ד%{V2}ל VerbInflSuf ;
+גזז:ג%{V1%}ז%{V2}ז VerbInflSuf ;
+גזר:ג%{V1%}ז%{V2}ר VerbInflSuf ;
+גנב:ג%{V1%}נ%{V2}ב VerbInflSuf ;
+גנח:ג%{V1%}נ%{V2}ח VerbInflSuf ;
+גרד:ג%{V1%}ר%{V2}ד VerbInflSuf ;
+דחס:ד%{V1%}ח%{V2}ס VerbInflSuf ;
+דעך:ד%{V1%}ע%{V2}ך VerbInflSuf ;
+היה:ה%{V1%}י%{V2}ה VerbInflSuf ;
+הלך:ה%{V1%}ל%{V2}ך VerbInflSuf ;
+הפך:ה%{V1%}פ%{V2}ך VerbInflSuf ;
+הפר:ה%{V1%}פ%{V2}ר VerbInflSuf ;
+הרג:ה%{V1%}ר%{V2}ג VerbInflSuf ;
+הרס:ה%{V1%}ר%{V2}ס VerbInflSuf ;
+זכה:ז%{V1%}כ%{V2}ה VerbInflSuf ;
+זרח:ז%{V1%}ר%{V2}ח VerbInflSuf ;
+זרק:ז%{V1%}ר%{V2}ק VerbInflSuf ;
+חבר:ח%{V1%}ב%{V2}ר VerbInflSuf ;
+חדר:ח%{V1%}ד%{V2}ר VerbInflSuf ;
+חלב:ח%{V1%}ל%{V2}ב VerbInflSuf ;
+חלה:ח%{V1%}ל%{V2}ה VerbInflSuf ;
+חלם:ח%{V1%}ל%{V2}ם VerbInflSuf ;
+חנק:ח%{V1%}נ%{V2}ק VerbInflSuf ;
+חסם:ח%{V1%}ס%{V2}ם VerbInflSuf ;
+חפר:ח%{V1%}פ%{V2}ר VerbInflSuf ;
+חפש:ח%{V1%}פ%{V2}ש VerbInflSuf ;
+חשב:ח%{V1%}ש%{V2}ב VerbInflSuf ;
+חשף:ח%{V1%}ש%{V2}ף VerbInflSuf ;
+טחן:ט%{V1%}ח%{V2}ן VerbInflSuf ;
+טעם:ט%{V1%}ע%{V2}ם VerbInflSuf ;
+טרף:ט%{V1%}ר%{V2}ף VerbInflSuf ;
+ידע:י%{V1%}ד%{V2}ע VerbInflSuf ;
+יכל:י%{V1%}כ%{V2}ל VerbInflSuf ;
+יצא:י%{V1%}צ%{V2}א VerbInflSuf ;
+יצר:י%{V1%}צ%{V2}ר VerbInflSuf ;
+ירד:י%{V1%}ר%{V2}ד VerbInflSuf ;
+ירק:י%{V1%}ר%{V2}ק VerbInflSuf ;
+ישב:י%{V1%}ש%{V2}ב VerbInflSuf ;
+ישן:י%{V1%}ש%{V2}ן VerbInflSuf ;
+כלל:כ%{V1%}ל%{V2}ל VerbInflSuf ;
+כתב:כ%{V1%}ת%{V2}ב VerbInflSuf ;
+לחץ:ל%{V1%}ח%{V2}ץ VerbInflSuf ;
+לקח:ל%{V1%}ק%{V2}ח VerbInflSuf ;
+מדד:מ%{V1%}ד%{V2}ד VerbInflSuf ;
+מחא:מ%{V1%}ח%{V2}א VerbInflSuf ;
+מכר:מ%{V1%}כ%{V2}ר VerbInflSuf ;
+מסר:מ%{V1%}ס%{V2}ר VerbInflSuf ;
+מצא:מ%{V1%}צ%{V2}א VerbInflSuf ;
+מרח:מ%{V1%}ר%{V2}ח VerbInflSuf ;
+משך:מ%{V1%}ש%{V2}ך VerbInflSuf ;
+נגע:נ%{V1%}ג%{V2}ע VerbInflSuf ;
+נזף:נ%{V1%}ז%{V2}ף VerbInflSuf ;
+נצץ:נ%{V1%}צ%{V2}ץ VerbInflSuf ;
+נשא:נ%{V1%}ש%{V2}א VerbInflSuf ;
+נשך:נ%{V1%}ש%{V2}ך VerbInflSuf ;
+נתן:נ%{V1%}ת%{V2}ן VerbInflSuf ;
+סגר:ס%{V1%}ג%{V2}ר VerbInflSuf ;
+סדק:ס%{V1%}ד%{V2}ק VerbInflSuf ;
+סחט:ס%{V1%}ח%{V2}ט VerbInflSuf ;
+סלח:ס%{V1%}ל%{V2}ח VerbInflSuf ;
+ספר:ס%{V1%}פ%{V2}ר VerbInflSuf ;
+סרח:ס%{V1%}ר%{V2}ח VerbInflSuf ;
+סתם:ס%{V1%}ת%{V2}ם VerbInflSuf ;
+עבד:ע%{V1%}ב%{V2}ד VerbInflSuf ;
+עזב:ע%{V1%}ז%{V2}ב VerbInflSuf ;
+עזר:ע%{V1%}ז%{V2}ר VerbInflSuf ;
+עכר:ע%{V1%}כ%{V2}ר VerbInflSuf ;
+עמד:ע%{V1%}מ%{V2}ד VerbInflSuf ;
+עצר:ע%{V1%}צ%{V2}ר VerbInflSuf ;
+עשה:ע%{V1%}ש%{V2}ה VerbInflSuf ;
+עשק:ע%{V1%}ש%{V2}ק VerbInflSuf ;
+פגע:פ%{V1%}ג%{V2}ע VerbInflSuf ;
+פנה:פ%{V1%}נ%{V2}ה VerbInflSuf ;
+פרם:פ%{V1%}ר%{V2}ם VerbInflSuf ;
+פרץ:פ%{V1%}ר%{V2}ץ VerbInflSuf ;
+פרק:פ%{V1%}ר%{V2}ק VerbInflSuf ;
+פשט:פ%{V1%}ש%{V2}ט VerbInflSuf ;
+פתח:פ%{V1%}ת%{V2}ח VerbInflSuf ;
+צבט:צ%{V1%}ב%{V2}ט VerbInflSuf ;
+צבע:צ%{V1%}ב%{V2}ע VerbInflSuf ;
+צחק:צ%{V1%}ח%{V2}ק VerbInflSuf ;
+צלל:צ%{V1%}ל%{V2}ל VerbInflSuf ;
+צעק:צ%{V1%}ע%{V2}ק VerbInflSuf ;
+קבל:ק%{V1%}ב%{V2}ל VerbInflSuf ;
+קבר:ק%{V1%}ב%{V2}ר VerbInflSuf ;
+קפץ:ק%{V1%}פ%{V2}ץ VerbInflSuf ;
+קצץ:ק%{V1%}צ%{V2}ץ VerbInflSuf ;
+קרא:ק%{V1%}ר%{V2}א VerbInflSuf ;
+קרב:ק%{V1%}ר%{V2}ב VerbInflSuf ;
+קרה:ק%{V1%}ר%{V2}ה VerbInflSuf ;
+קשר:ק%{V1%}ש%{V2}ר VerbInflSuf ;
+ראה:ר%{V1%}א%{V2}ה VerbInflSuf ;
+רזה:ר%{V1%}ז%{V2}ה VerbInflSuf ;
+רכב:ר%{V1%}כ%{V2}ב VerbInflSuf ;
+רעד:ר%{V1%}ע%{V2}ד VerbInflSuf ;
+רצה:ר%{V1%}צ%{V2}ה VerbInflSuf ;
+רקד:ר%{V1%}ק%{V2}ד VerbInflSuf ;
+רתח:ר%{V1%}ת%{V2}ח VerbInflSuf ;
+שאל:ש%{V1%}א%{V2}ל VerbInflSuf ;
+שבר:ש%{V1%}ב%{V2}ר VerbInflSuf ;
+שחה:ש%{V1%}ח%{V2}ה VerbInflSuf ;
+שטף:ש%{V1%}ט%{V2}ף VerbInflSuf ;
+שלח:ש%{V1%}ל%{V2}ח VerbInflSuf ;
+שלל:ש%{V1%}ל%{V2}ל VerbInflSuf ;
+שמח:ש%{V1%}מ%{V2}ח VerbInflSuf ;
+שמע:ש%{V1%}מ%{V2}ע VerbInflSuf ;
+שנא:ש%{V1%}נ%{V2}א VerbInflSuf ;
+שקט:ש%{V1%}ק%{V2}ט VerbInflSuf ;
+שקל:ש%{V1%}ק%{V2}ל VerbInflSuf ;
+שרף:ש%{V1%}ר%{V2}ף VerbInflSuf ;
+שרץ:ש%{V1%}ר%{V2}ץ VerbInflSuf ;
+שתה:ש%{V1%}ת%{V2}ה VerbInflSuf ;
+תלה:ת%{V1%}ל%{V2}ה VerbInflSuf ;
+תסס:ת%{V1%}ס%{V2}ס VerbInflSuf ;
+תפס:ת%{V1%}פ%{V2}ס VerbInflSuf ;
+תקף:ת%{V1%}ק%{V2}ף VerbInflSuf ;
+
