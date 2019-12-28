@@ -242,6 +242,10 @@ LexdCompiler::buildPattern(int state, unsigned int pat, unsigned int pos)
     for(int index = 0, max = l->getEntryCount(); index < max; index++)
     {
       int new_state = transducer.insertTransducer(state, *(l->getTransducer(alphabet, side, part, index)));
+      if(new_state == state)
+      {
+        new_state = transducer.insertNewSingleTransduction(0, state);
+      }
       matchedParts[lex] = index;
       buildPattern(new_state, pat, pos+1);
     }
