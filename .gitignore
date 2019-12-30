@@ -1,3 +1,6 @@
 *.hfst
 *.att
 *.o
+*Makefile
+*Makefile.in
+src/lexd
