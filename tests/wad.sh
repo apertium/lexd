@@ -24,6 +24,13 @@ time for x in $(seq $N); do hfst-txt2fst wad.att -o wad_d.hfst; done
 
 hfst-expand wad.hfst | sort > wad.txt
 hfst-expand wad_d.hfst | sort > wad_d.txt
-diff wad.txt wad_d.txt
+
+S=`diff wad.txt wad_d.txt`
 
 rm wad.twoc.hfst wad.lexc.hfst wad.hfst wad.att wad_d.hfst wad.txt wad_d.txt
+
+if [ -n "$S" ]
+then
+  echo $S
+  exit 1
+fi
