@@ -28,6 +28,7 @@ Lexicon::getTransducer(Alphabet& alpha, Side side, int part, int index = 0)
       }
       merged->setFinal(state);
     }
+    merged->minimize();
     hasMerged = true;
     return merged;
   }
