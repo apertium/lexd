@@ -98,7 +98,29 @@ LexdCompiler::processNextLine(FILE* input)
       if(name.size() == 0) die(L"Unnamed lexicon");
     }
     currentLexiconName = name;
+    if(lexicons.find(name) != lexicons.end()) die(L"Redefinition of lexicon '" + name + L"'");
     inLex = true;
+    inPat = false;
+  }
+  else if(line.size() >= 9 && line.substr(0,6) == L"ALIAS ")
+  {
+    if(inLex)
+    {
+      Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
+      lexicons[currentLexiconName] = lex;
+      currentLexicon.clear();
+    }
+    if(line.back() == L' ') line.pop_back();
+    wstring::size_type loc = line.find(L" ", 6);
+    if(loc == wstring::npos) die(L"Expected 'ALIAS lexicon alt_name'");
+    wstring name = line.substr(6, loc-6);
+    wstring alt = line.substr(loc+1);
+    if(alt.find(L" ") != wstring::npos) die(L"Lexicon names cannot contain spaces");
+    if(alt.find(L":") != wstring::npos) die(L"Lexicon names cannot contain colons");
+    if(lexicons.find(name) == lexicons.end()) die(L"Attempt to alias undefined lexicon '" + name + L"'");
+    if(lexicons.find(alt) != lexicons.end()) die(L"Redefinition of lexicon '" + alt + L"'");
+    lexicons[alt] = lexicons[name];
+    inLex = false;
     inPat = false;
   }
   else if(inPat)
@@ -232,6 +254,7 @@ LexdCompiler::buildPattern(int state, unsigned int pat, unsigned int pos)
   lineNumber = line;
   if(lexicons.find(lex) == lexicons.end()) die(L"Lexicon '" + lex + L"' is not defined");
   Lexicon* l = lexicons[lex];
+  if(part > l->getPartCount()) die(lex + L"(" + to_wstring(part) + L") - part is out of range");
   if(side == SideBoth && l->getPartCount() == 1)
   {
     int new_state = transducer.insertTransducer(state, *(l->getTransducer(alphabet, side, part, 0)));

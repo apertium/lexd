@@ -1,0 +1,20 @@
+PATTERNS
+NounStem NounInfl
+NounStem NounInflComp Comp NounStem2 NounInfl
+
+LEXICON Comp
+<comp>+:
+
+LEXICON NounStem
+bloop
+shoop
+blarg
+
+ALIAS NounStem NounStem2
+
+LEXICON NounInfl
+<n><sg>:
+<n><pl>:ah
+
+LEXICON NounInflComp
+<n>:a
