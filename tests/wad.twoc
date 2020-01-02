@@ -1,8 +1,8 @@
 Alphabet
 
- A B D E G I J K L M N O P R S T U V W Y Z Ŋ
- a b d e g i j k l m n o p r s t u v w y z ŋ
- %{A%}:a %{A%}:0 ! %>:0
+! A B D E G I J K L M N O P R S T U V W Y Z Ŋ
+! a b d e g i j k l m n o p r s t u v w y z ŋ
+! %{A%}:a %{A%}:0 ! %>:0
 
   %[%+1incdu%]:0 %[%+1incpl%]:0 %[%+1sg%]:0 %[%+1excdu%]:0 %[%+1excpl%]:0 %[%+2sg%]:0 %[%+2du%]:0 %[%+2pl%]:0 %[%+3sg%]:0 %[%+3du%]:0 %[%+3plhum%]:0 %[%+3plnh%]:0  %[%-1incdu%]:0 %[%-1incpl%]:0 %[%-1sg%]:0 %[%-1excdu%]:0 %[%-1excpl%]:0 %[%-2sg%]:0 %[%-2du%]:0 %[%-2pl%]:0 %[%-3sg%]:0 %[%-3du%]:0 %[%-3plhum%]:0 %[%-3plnh%]:0
 
@@ -16,15 +16,15 @@ Alphabet
 %<sg%>
 %<du%>
 
-%<p1%>
-%<p2%>
-%<p3%>
+!%<p1%>
+!%<p2%>
+!%<p3%>
 
-%<incl%>
-%<excl%>
+!%<incl%>
+!%<excl%>
 
-%<caus%>
-%<appl%>
+!%<caus%>
+!%<appl%>
 ;
 
 Sets

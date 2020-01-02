@@ -15,6 +15,30 @@ LexdCompiler::die(wstring msg)
 }
 
 void
+LexdCompiler::finishLexicon()
+{
+  if(inLex)
+  {
+    Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
+    lexicons[currentLexiconName] = lex;
+    currentLexicon.clear();
+  }
+  currentLexiconName.clear();
+  inLex = false;
+}
+
+void
+LexdCompiler::checkName(wstring& name)
+{
+  if(name.size() > 0 && name.back() == L' ') name.pop_back();
+  if(name.size() == 0) die(L"Unnamed pattern or lexicon");
+  if(lexicons.find(name) != lexicons.end()) die(L"Redefinition of name '" + name + L"'");
+  if(patterns.find(name) != patterns.end()) die(L"Redefinition of name '" + name + L"'");
+  if(name.find(L" ") != wstring::npos) die(L"Lexicon/pattern names cannot contain spaces");
+  if(name.find(L":") != wstring::npos) die(L"Lexicon/pattern names cannot contain colons");
+}
+
+void
 LexdCompiler::processNextLine(FILE* input)
 {
   wstring line;
@@ -58,29 +82,23 @@ LexdCompiler::processNextLine(FILE* input)
 
   if(line == L"PATTERNS" || line == L"PATTERNS ")
   {
-    if(inLex)
-    {
-      Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
-      lexicons[currentLexiconName] = lex;
-      currentLexicon.clear();
-    }
-    currentLexiconName.clear();
-    inLex = false;
+    finishLexicon();
+    currentPatternName = L" ";
+    inPat = true;
+  }
+  else if(line.size() > 7 && line.substr(0, 8) == L"PATTERN ")
+  {
+    wstring name = line.substr(8);
+    checkName(name);
+    finishLexicon();
+    currentPatternName = name;
     inPat = true;
   }
   else if(line.size() > 7 && line.substr(0, 8) == L"LEXICON ")
   {
     wstring name = line.substr(8);
-    if(name.size() == 0) die(L"Unnamed lexicon");
-    if(name.back() == L' ') name.pop_back();
-    if(name.find(L" ") != wstring::npos) die(L"Lexicon names cannot contain spaces");
-    if(name.find(L":") != wstring::npos) die(L"Lexicon names cannot contain colons");
-    if(inLex)
-    {
-      Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
-      lexicons[currentLexiconName] = lex;
-      currentLexicon.clear();
-    }
+    checkName(name);
+    finishLexicon();
     currentLexiconPartCount = 1;
     if(name.size() > 1 && name.back() == L')')
     {
@@ -98,27 +116,19 @@ LexdCompiler::processNextLine(FILE* input)
       if(name.size() == 0) die(L"Unnamed lexicon");
     }
     currentLexiconName = name;
-    if(lexicons.find(name) != lexicons.end()) die(L"Redefinition of lexicon '" + name + L"'");
     inLex = true;
     inPat = false;
   }
   else if(line.size() >= 9 && line.substr(0,6) == L"ALIAS ")
   {
-    if(inLex)
-    {
-      Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
-      lexicons[currentLexiconName] = lex;
-      currentLexicon.clear();
-    }
+    finishLexicon();
     if(line.back() == L' ') line.pop_back();
     wstring::size_type loc = line.find(L" ", 6);
     if(loc == wstring::npos) die(L"Expected 'ALIAS lexicon alt_name'");
     wstring name = line.substr(6, loc-6);
     wstring alt = line.substr(loc+1);
-    if(alt.find(L" ") != wstring::npos) die(L"Lexicon names cannot contain spaces");
-    if(alt.find(L":") != wstring::npos) die(L"Lexicon names cannot contain colons");
+    checkName(alt);
     if(lexicons.find(name) == lexicons.end()) die(L"Attempt to alias undefined lexicon '" + name + L"'");
-    if(lexicons.find(alt) != lexicons.end()) die(L"Redefinition of lexicon '" + alt + L"'");
     lexicons[alt] = lexicons[name];
     inLex = false;
     inPat = false;
@@ -168,7 +178,7 @@ LexdCompiler::processNextLine(FILE* input)
       }
       else cur += ch;
     }
-    patterns.push_back(make_pair(lineNumber, pat));
+    patterns[currentPatternName].push_back(make_pair(lineNumber, pat));
   }
   else if(inLex)
   {
@@ -240,45 +250,81 @@ LexdCompiler::processNextLine(FILE* input)
 }
 
 void
-LexdCompiler::buildPattern(int state, unsigned int pat, unsigned int pos)
+LexdCompiler::buildPattern(int state, Transducer* t, const vector<pair<wstring, pair<Side, int>>>& pat, unsigned int pos)
 {
-  if(pos == patterns[pat].second.size())
+  if(pos == pat.size())
   {
-    transducer.setFinal(state);
+    t->setFinal(state);
     return;
   }
-  int line = patterns[pat].first;
-  wstring lex = patterns[pat].second[pos].first;
-  Side side = patterns[pat].second[pos].second.first;
-  int part = patterns[pat].second[pos].second.second;
-  lineNumber = line;
-  if(lexicons.find(lex) == lexicons.end()) die(L"Lexicon '" + lex + L"' is not defined");
-  Lexicon* l = lexicons[lex];
-  if(part > l->getPartCount()) die(lex + L"(" + to_wstring(part) + L") - part is out of range");
-  if(side == SideBoth && l->getPartCount() == 1)
+  wstring lex = pat[pos].first;
+  Side side = pat[pos].second.first;
+  int part = pat[pos].second.second;
+  if(lexicons.find(lex) != lexicons.end())
   {
-    int new_state = transducer.insertTransducer(state, *(l->getTransducer(alphabet, side, part, 0)));
-    buildPattern(new_state, pat, pos+1);
-  }
-  else if(matchedParts.find(lex) == matchedParts.end())
-  {
-    for(int index = 0, max = l->getEntryCount(); index < max; index++)
+    Lexicon* l = lexicons[lex];
+    if(part > l->getPartCount()) die(lex + L"(" + to_wstring(part) + L") - part is out of range");
+    if(side == SideBoth && l->getPartCount() == 1)
     {
-      int new_state = transducer.insertTransducer(state, *(l->getTransducer(alphabet, side, part, index)));
-      if(new_state == state)
-      {
-        new_state = transducer.insertNewSingleTransduction(0, state);
-      }
-      matchedParts[lex] = index;
-      buildPattern(new_state, pat, pos+1);
+      int new_state = t->insertTransducer(state, *(l->getTransducer(alphabet, side, part, 0)));
+      buildPattern(new_state, t, pat, pos+1);
     }
-    matchedParts.erase(lex);
+    else if(matchedParts.find(lex) == matchedParts.end())
+    {
+      for(int index = 0, max = l->getEntryCount(); index < max; index++)
+      {
+        int new_state = t->insertTransducer(state, *(l->getTransducer(alphabet, side, part, index)));
+        if(new_state == state)
+        {
+          new_state = t->insertNewSingleTransduction(0, state);
+        }
+        matchedParts[lex] = index;
+        buildPattern(new_state, t, pat, pos+1);
+      }
+      matchedParts.erase(lex);
+    }
+    else
+    {
+      int new_state = t->insertTransducer(state, *(l->getTransducer(alphabet, side, part, matchedParts[lex])));
+      buildPattern(new_state, t, pat, pos+1);
+    }
+  }
+  else if(patterns.find(lex) != patterns.end())
+  {
+    if(side != SideBoth || part != 1) die(L"Cannot select part or side of pattern");
+    int new_state = t->insertTransducer(state, *buildPattern(lex));
+    buildPattern(new_state, t, pat, pos+1);
   }
   else
   {
-    int new_state = transducer.insertTransducer(state, *(l->getTransducer(alphabet, side, part, matchedParts[lex])));
-    buildPattern(new_state, pat, pos+1);
+    die(L"Lexicon or pattern '" + lex + L"' is not defined");
   }
+}
+
+Transducer*
+LexdCompiler::buildPattern(wstring name)
+{
+  if(patternTransducers.find(name) == patternTransducers.end())
+  {
+    Transducer* t = new Transducer();
+    patternTransducers[name] = NULL;
+    map<wstring, int> tempMatch;
+    tempMatch.swap(matchedParts);
+    for(auto& pat : patterns[name])
+    {
+      matchedParts.clear();
+      lineNumber = pat.first;
+      buildPattern(t->getInitial(), t, pat.second, 0);
+    }
+    tempMatch.swap(matchedParts);
+    t->minimize();
+    patternTransducers[name] = t;
+  }
+  else if(patternTransducers[name] == NULL)
+  {
+    die(L"Cannot compile self-recursive pattern '" + name + L"'");
+  }
+  return patternTransducers[name];
 }
 
 void
@@ -290,30 +336,21 @@ LexdCompiler::process(const string& infile, const string& outfile)
     wcerr << L"Cannot open file " << outfile.c_str() << " for reading." << endl;
     exit(EXIT_FAILURE);
   }
-  while(!feof(input))
-  {
-    processNextLine(input);
-    if(doneReading) break;
-  }
-  if(inLex)
-  {
-    Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
-    lexicons[currentLexiconName] = lex;
-    currentLexicon.clear();
-  }
-  for(unsigned int i = 0; i < patterns.size(); i++)
-  {
-    matchedParts.clear();
-    buildPattern(transducer.getInitial(), i, 0);
-  }
-  transducer.minimize();
   FILE* output = fopen(outfile.c_str(), "w");
   if(output == NULL)
   {
     wcerr << L"Cannot open file " << outfile.c_str() << " for writing." << endl;
     exit(EXIT_FAILURE);
   }
-  for(auto& it : transducer.getTransitions())
+  while(!feof(input))
+  {
+    processNextLine(input);
+    if(doneReading) break;
+  }
+  finishLexicon();
+  if(patterns.find(L" ") == patterns.end()) exit(0);
+  Transducer* transducer = buildPattern(L" ");
+  for(auto& it : transducer->getTransitions())
   {
     for(auto& it2 : it.second)
     {
@@ -353,7 +390,7 @@ LexdCompiler::process(const string& infile, const string& outfile)
     }
   }
 
-  for(auto& it3 : transducer.getFinals())
+  for(auto& it3 : transducer->getFinals())
   {
     fwprintf(output, L"%d\t", it3.first);
     fwprintf(output, L"%f\n", it3.second);
