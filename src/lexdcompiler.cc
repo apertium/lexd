@@ -1,7 +1,7 @@
 #include "lexdcompiler.h"
 
 LexdCompiler::LexdCompiler()
-  : shouldAlign(false), inLex(false), inPat(false), lineNumber(0), doneReading(false)
+  : shouldAlign(false), usingFlags(false), inLex(false), inPat(false), lineNumber(0), doneReading(false), flagsUsed(0)
   {}
 
 LexdCompiler::~LexdCompiler()
@@ -19,6 +19,7 @@ LexdCompiler::finishLexicon()
 {
   if(inLex)
   {
+    if(currentLexicon.size() == 0) die(L"Lexicon '" + currentLexiconName + L"' is empty.");
     Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
     lexicons[currentLexiconName] = lex;
     currentLexicon.clear();
@@ -291,7 +292,7 @@ LexdCompiler::buildPattern(int state, Transducer* t, const vector<pair<wstring, 
   }
   else if(patterns.find(lex) != patterns.end())
   {
-    if(side != SideBoth || part != 1) die(L"Cannot select part or side of pattern");
+    if(side != SideBoth || part != 1) die(L"Cannot select part or side of pattern '" + lex + L"'");
     int new_state = t->insertTransducer(state, *buildPattern(lex));
     buildPattern(new_state, t, pat, pos+1);
   }
@@ -327,6 +328,81 @@ LexdCompiler::buildPattern(wstring name)
   return patternTransducers[name];
 }
 
+Transducer*
+LexdCompiler::buildPatternWithFlags(wstring name)
+{
+  wstring letters = L"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  if(patternTransducers.find(name) == patternTransducers.end())
+  {
+    Transducer* t = new Transducer();
+    patternTransducers[name] = NULL;
+    for(auto& pat : patterns[name])
+    {
+      map<wstring, wstring> flags;
+      map<wstring, int> lexCount;
+      vector<wstring> clear;
+      for(auto& part : pat.second)
+      {
+        if(lexCount.find(part.first) == lexCount.end()) lexCount[part.first] = 0;
+        lexCount[part.first] += 1;
+      }
+      lineNumber = pat.first;
+      int state = t->getInitial();
+      for(auto& part : pat.second)
+      {
+        wstring& lex = part.first;
+        if(lexicons.find(lex) != lexicons.end())
+        {
+          if(lexCount[lex] == 1)
+          {
+            state = t->insertTransducer(state, *(lexicons[lex]->getTransducerWithFlags(alphabet, part.second.first, part.second.second, L"")));
+          }
+          else
+          {
+            if(flags.find(lex) == flags.end())
+            {
+              int n = flagsUsed++;
+              wstring f;
+              while(n > 0 || f.size() == 0)
+              {
+                f += letters[n%26];
+                n /= 26;
+              }
+              flags[lex] = f;
+              clear.push_back(f);
+            }
+            state = t->insertTransducer(state, *(lexicons[lex]->getTransducerWithFlags(alphabet, part.second.first, part.second.second, flags[lex])));
+          }
+        }
+        else if(patterns.find(lex) != patterns.end())
+        {
+          if(part.second.first != SideBoth || part.second.second != 1) die(L"Cannot select part or side of pattern '" + lex + L"'");
+          state = t->insertTransducer(state, *(buildPatternWithFlags(lex)));
+        }
+        else
+        {
+          die(L"Lexicon or pattern '" + lex + L"' is not defined");
+        }
+      }
+      for(auto& flag : clear)
+      {
+        wstring cl = L"@C." + flag + L"@";
+        alphabet.includeSymbol(cl);
+        int s = alphabet(cl);
+        state = t->insertSingleTransduction(alphabet(s, s), state);
+      }
+      t->setFinal(state);
+    }
+    t->minimize();
+    patternTransducers[name] = t;
+  }
+  else if(patternTransducers[name] == NULL)
+  {
+    die(L"Cannot compile self-recursive pattern '" + name + L"'");
+  }
+  return patternTransducers[name];
+}
+
 void
 LexdCompiler::process(const string& infile, const string& outfile)
 {
@@ -349,7 +425,7 @@ LexdCompiler::process(const string& infile, const string& outfile)
   }
   finishLexicon();
   if(patterns.find(L" ") == patterns.end()) exit(0);
-  Transducer* transducer = buildPattern(L" ");
+  Transducer* transducer = usingFlags ? buildPatternWithFlags(L" ") : buildPattern(L" ");
   for(auto& it : transducer->getTransitions())
   {
     for(auto& it2 : it.second)

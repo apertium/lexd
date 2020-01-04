@@ -78,3 +78,32 @@ Lexicon::getTransducer(Alphabet& alpha, Side side, int part, int index = 0)
     return separate[index][part-1][side];
   }
 }
+
+Transducer*
+Lexicon::getTransducerWithFlags(Alphabet& alpha, Side side, int part, wstring flag)
+{
+  Transducer* t = new Transducer();
+  for(unsigned int e = 0; e < entries.size(); e++)
+  {
+    int state = t->getInitial();
+    if(flag.size() > 0)
+    {
+      wstring f = L"@U." + flag + L"." + to_wstring(e) + L"@";
+      alpha.includeSymbol(f);
+      int s = alpha(f);
+      state = t->insertSingleTransduction(alpha(s, s), state);
+    }
+    pair<vector<int>, vector<int>>& ent = entries[e][part-1];
+    unsigned int max = ent.first.size();
+    if(side == SideRight || (side == SideBoth && ent.second.size() > max)) max = ent.second.size();
+    for(unsigned int i = 0; i < max; i++)
+    {
+      int l = (side != SideRight && i < ent.first.size()) ? ent.first[i] : 0;
+      int r = (side != SideLeft && i < ent.second.size()) ? ent.second[i] : 0;
+      state = t->insertSingleTransduction(alpha(l, r), state);
+    }
+    t->setFinal(state);
+  }
+  t->minimize();
+  return t;
+}

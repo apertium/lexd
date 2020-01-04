@@ -32,6 +32,7 @@ public:
   Lexicon(vector<vector<pair<vector<int>, vector<int>>>> entries, bool shouldAlign);
   ~Lexicon();
   Transducer* getTransducer(Alphabet& alpha, Side side, int part, int index);
+  Transducer* getTransducerWithFlags(Alphabet& alpha, Side side, int part, wstring flag);
   int getEntryCount()
   {
     return entryCount;

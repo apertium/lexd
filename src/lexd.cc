@@ -5,12 +5,30 @@
 int main(int argc, char *argv[])
 {
   LtLocale::tryToSetLocale();
-  if(argc != 3)
+  string infile, outfile;
+  LexdCompiler comp;
+  if(argc == 4)
   {
-    wcerr << L"Usage: lexd rule_file att_file" << endl;
+    string flag = argv[1];
+    if(flag != "-f")
+    {
+      wcerr << L"Usage: lexd [-f] rule_file att_file" << endl;
+      exit(EXIT_FAILURE);
+    }
+    infile = argv[2];
+    outfile = argv[3];
+    comp.setUsingFlags(true);
+  }
+  else if(argc == 3)
+  {
+    infile = argv[1];
+    outfile = argv[2];
+  }
+  else
+  {
+    wcerr << L"Usage: lexd [-f] rule_file att_file" << endl;
     exit(EXIT_FAILURE);
   }
-  LexdCompiler comp;
-  comp.process(argv[1], argv[2]);
+  comp.process(infile, outfile);
   return 0;
 }

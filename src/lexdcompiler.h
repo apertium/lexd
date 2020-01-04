@@ -19,6 +19,7 @@ class LexdCompiler
 private:
   map<wstring, Lexicon*> lexicons;
   bool shouldAlign;
+  bool usingFlags;
   // { name => [ ( line, [ ( lexicon, ( side, part ) ) ] ) ] }
   map<wstring, vector<pair<int, vector<pair<wstring, pair<Side, int>>>>>> patterns;
   map<wstring, Transducer*> patternTransducers;
@@ -31,6 +32,7 @@ private:
   wstring currentPatternName;
   int lineNumber;
   bool doneReading;
+  int flagsUsed;
   void die(wstring msg);
   void finishLexicon();
   void checkName(wstring& name);
@@ -38,12 +40,17 @@ private:
   map<wstring, int> matchedParts;
   void buildPattern(int state, Transducer* t, const vector<pair<wstring, pair<Side, int>>>& pat, unsigned int pos);
   Transducer* buildPattern(wstring name);
+  Transducer* buildPatternWithFlags(wstring name);
 public:
   LexdCompiler();
   ~LexdCompiler();
   void setShouldAlign(bool val)
   {
     shouldAlign = val;
+  }
+  void setUsingFlags(bool val)
+  {
+    usingFlags = val;
   }
   void process(const string& infile, const string& outfile);
 };
