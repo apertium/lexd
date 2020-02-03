@@ -1,0 +1,39 @@
+Alphabet
+
+ %[%+sg%]:0 %[%+pl%]:0 %[%+abs%]:0 %[%+def%]:0 %[%+inst%]:0 %[%+p1%]:0 %[%+p2%]:0 %[%+p3%]:0 %[%+aa%]:0 %[%+nn%]:0 %[%+fut%]:0 %[%+ref%]:0 %[%+inf%]:0 %[%+imp%]:0 %[%+cl1%]:0 %[%+cl5%]:0 %[%+cl6%]:0 %[%+cl7%]:0 %[%+cl8%]:0
+
+ %[%-sg%]:0 %[%-pl%]:0 %[%-abs%]:0 %[%-def%]:0 %[%-inst%]:0 %[%-p1%]:0 %[%-p2%]:0 %[%-p3%]:0 %[%-aa%]:0 %[%-nn%]:0 %[%-fut%]:0 %[%-ref%]:0 %[%-inf%]:0 %[%-imp%]:0 %[%-cl1%]:0 %[%-cl5%]:0 %[%-cl6%]:0 %[%-cl7%]:0 %[%-cl8%]:0
+
+
+;
+
+Rules
+
+"Match prefix"
+Sx:0 /<= _ ;
+   except
+       _ (:*) Sy:0 ;
+   where Sx in ( %[%-sg%] %[%-pl%] %[%-abs%] %[%-def%] %[%-inst%] %[%-p1%] %[%-p2%] %[%-p3%] %[%-aa%] %[%-nn%] %[%-fut%] %[%-ref%] %[%-inf%] %[%-imp%] %[%-cl1%] %[%-cl5%] %[%-cl6%] %[%-cl7%]  %[%-cl8%])
+         Sy in ( %[%+sg%] %[%+pl%] %[%+abs%] %[%+def%] %[%+inst%] %[%+p1%] %[%+p2%] %[%+p3%] %[%+aa%] %[%+nn%] %[%+fut%] %[%+ref%] %[%+inf%] %[%+imp%] %[%+cl1%] %[%+cl5%] %[%+cl6%] %[%+cl7%]  %[%+cl8%])
+   matched ;
+
+"Inverse of Match prefix for use with mismatched tags"
+Sx:0 /<= _ ;
+   except
+       Sy:0 :* _ ;
+   where Sy in ( %[%-abs%] %[%-def%] %[%-inst%] %[%-fut%] %[%-ref%] %[%-sg%] %[%-pl%])
+         Sx in ( %[%+abs%] %[%+def%] %[%+inst%] %[%+fut%] %[%+ref%] %[%+sg%] %[%+pl%])
+matched ;
+
+
+
+!Sets
+!
+!Features = %[%+sg%] %[%+pl%] %[%+abs%] %[%+def%] %[%+inst%] %[%+p1%] %[%+p2%] %[%+p3%] %[%+aa%] %[%+nn%];
+!
+!Rules
+!
+!"Match prefixes with agreement tags"
+!Fx:0 <=> _ :* Fx:0 ;
+!         Fx:0 :* _ ;
+!     where Fx in Features ;

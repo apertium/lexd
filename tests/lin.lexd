@@ -1,0 +1,2067 @@
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#!!                                                                         !!!
+#!!                   L I N G A L A   T R A N S D U C E R                   !!!
+#!!                                                                         !!!
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+#=============================================================================!
+#                         Noun Morphotactics                                  !
+#=============================================================================!
+
+PATTERNS
+:I-II I-II-Stems I-II:
+:Ia-II Ia-II-Stems Ia-II:
+:III-IV III-IV-Stems III-IV:
+:V-VI V-VI-Stems V-VI:
+:VI-Only VI-Only-Stems VI-Only:
+:VII-VIII VII-VIII-Stems VII-VIII:
+:IX-X IX-X-Stems IX-X:
+:IX-X IX-X-a-Stems IX-X:
+:IX-X IX-X-b-Stems IX-X:
+:IX-X IX-X-Var IX-X-b-Stems IX-X: # Dir/LR
+:XI-VI XI-VI-Stems XI-VI:
+:XIV XIV-Stems XIV:
+:XV XV-Stems XV:
+
+LEXICON I-II
+<n><cl1><sg>:mo>
+<n><cl1><sg><abs>:ki>mo>
+<n><cl1><pl>:ba>
+<n><cl1><pl><abs>:ki>ba>
+<n><cl1><pl><def>:ba>ba>
+
+LEXICON Ia-II
+<n><cl1a><sg>:
+<n><cl1a><sg><abs>:ki>
+<n><cl1a><pl>:ba>
+<n><cl1a><pl><abs>:ki>ba>
+<n><cl1a><pl><def>:ba>ba>
+
+LEXICON III-IV
+<n><cl3><sg>:mo>
+<n><cl3><sg><abs>:ki>mo>
+<n><cl3><pl>:mi>
+<n><cl3><pl><abs>:ki>mi>
+<n><cl3><pl><def>:ba>mi>
+
+LEXICON V-VI
+<n><cl5><sg>:li>
+<n><cl5><sg><abs>:ki>li>
+<n><cl5><pl>:ma>
+<n><cl5><pl><abs>:ki>ma>
+<n><cl5><pl><def>:ba>ma>
+
+LEXICON VI-Only
+<n><cl5><pl>:ma>
+
+LEXICON VII-VIII
+<n><cl7><sg>:e>
+<n><cl7><sg><abs>:ki>e>
+<n><cl7><pl>:bi>
+<n><cl7><pl><abs>:ki>bi>
+<n><cl7><pl><def>:ba>bi>
+
+LEXICON IX-X
+<n><cl9><sg>:
+<n><cl9><pl>:ba>
+<n><cl9><sg><abs>:ki>
+<n><cl9><pl><abs>:ki>ba>
+<n><cl9><pl><def>:ba>ba>
+
+LEXICON IX-X-Var
+:{n}
+
+LEXICON XI-VI
+<n><cl11><sg>:lo>
+<n><cl11><sg><abs>:ki>lo>
+<n><cl11><sg><inst>:ba>lo>
+<n><cl11><pl>:ma>
+<n><cl11><pl><abs>:ki>ma>
+<n><cl11><pl><def>:ba>ma>
+
+LEXICON XIV
+<n><cl14><sg>:bo>
+<n><cl14><sg><abs>:ki>bo>
+<n><cl14><sg><inst>:ba>bo>
+
+LEXICON XV
+<n><cl15><sg>:ko>
+
+LEXICON N1-Suffix
+<n><sg>:
+
+#=============================================================================!
+#                         Verb Morphotactics                                  !
+#=============================================================================!
+
+PATTERN VerbMiddle
+Verb-Stems Verb-Suffix Verb-Rad-Ex Verb-Rad-Ex2
+Verb-Stems Verb-Suffix-Caus
+Aux-Verb-Stems Aux-Verb-Suffix
+
+PATTERN VerbMiddleOrIrreg
+VerbMiddle
+Verb-Stems-Irregular1 Verb-Suffix
+
+PATTERN VerbMiddleTense
+:VerbRef VerbMiddle VerbRef: VerbTense
+:VerbRef Verb-Stems-Irregular2 Verb-Irreg2-Suffix VerbRef: VerbTense
+VerbFut(1) :VerbRef VerbMiddleOrIrreg VerbRef: VerbFut(2)
+VerbFutIntns(1) VerbMiddleOrIrreg VerbFutIntns(2)
+
+PATTERNS
+VerbInfImp(1) VerbMiddleOrIrreg VerbInfImp(2)
+:VerbPersNum VerbMiddleTense VerbPersNum:
+
+#PATTERNS
+#:VerbPersNum :VerbRef VerbMiddle VerbRef: VerbTense VerbPersNum:
+#:VerbPersNum VerbFut(1) :VerbRef VerbMiddle VerbRef: VerbFut(2) VerbPersNum:
+#:VerbPersNum VerbFutIntns(1) VerbMiddle VerbFutIntns(2) VerbPersNum:
+#VerbInfImp(1) VerbMiddle VerbInfImp(2)
+
+#:VerbPersNum :VerbRef Verb-Stems-Irregular2 Verb-Irreg2-Suffix VerbRef: VerbTense VerbPersNum:
+#:VerbPersNum VerbFut(1) :VerbRef Verb-Stems-Irregular1 Verb-Suffix VerbRef: VerbFut(2) VerbPersNum:
+#:VerbPersNum VerbFutIntns(1) Verb-Stems-Irregular1 Verb-Suffix VerbFutIntns(2) VerbPersNum:
+#VerbInfImp(1) Verb-Stems-Irregular1 Verb-Suffix VerbInfImp(2)
+
+LEXICON VerbPersNum
+<p1><sg><aa>:na>
+<p2><sg><aa>:o>
+<p3><sg><aa>:a>
+<p3><sg><aa>:ma>
+<p3><sg><aa>:bi>
+<p3><sg><aa>:mu>
+<p3><sg><aa>:li>
+<p3><sg><aa>:mo>
+<p1><pl><aa>:to>
+<p2><pl><aa>:bo>
+<p3><pl><aa>:ba>
+<p3><sp><nn>:e>
+
+LEXICON VerbInfImp(2)
+:ko> <inf>:a
+:ko> <inf><intns>:áká
+: <imp>:a
+: <imp><intns>:áká
+
+LEXICON VerbFutIntns(2)
+:ko <intns><fut>:áká
+
+LEXICON VerbFut(2)
+:ko <fut>:a
+
+LEXICON VerbTense
+<pres>:{í}
+<past>:áká
+<dpres>:á
+<urp>:ákí
+
+LEXICON VerbRef
+<refl>:mí>
+:
+
+LEXICON Verb-Suffix
+<vblex>:>
+
+LEXICON Verb-Suffix-Caus
+<vblex><caus><rev>:>ol>
+
+LEXICON Verb-Rad-Ex
+<appl>:el>
+<caus>:is>
+<recip>:an>
+<rev>:w>
+<pass>:am>
+:
+
+ALIAS Verb-Rad-Ex Verb-Rad-Ex2
+
+LEXICON Aux-Verb-Suffix
+<vaux>:
+
+LEXICON Verb-Irreg2-Suffix
+:>
+
+#=============================================================================!
+#                         Misc. Morphotactics                                 !
+#=============================================================================!
+
+LEXICON Quant-Suffix
+<det><qnt>:
+
+LEXICON Prep-Suffix
+<pr>:
+
+LEXICON Conj-Coord-Suffix
+<cnjcoo>:
+
+LEXICON Conj-Subord-Suffix
+<cnjsub>:
+
+LEXICON Conn-Suffix
+<conn>:
+
+LEXICON Neg-Suffix
+<neg>:
+
+LEXICON AdjInfl
+<adj><sg>:mo>
+<adj><pl>:mi>
+<adj><sg><cl1>:mu>
+<adj><sg><cl5>:li>
+<adj><sg><cl6>:ma>
+<adj><sg><cl7>:e>
+<adj><sg><cl8>:bi>
+
+LEXICON Adjective-Invar-Suffix
+<adj>:
+
+LEXICON Adverb-Suffix
+<adv>:
+
+LEXICON Numeral-Suffix
+<num><ord>:
+<num><card>:
+
+LEXICON Focus-Suffix
+<foc>:
+
+LEXICON Interjection-Suffix
+<ij>:
+
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#!!                          L E X I C O N                                  !!!
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+#=============================================================================!
+#                               Nouns                                         !
+#=============================================================================!
+
+LEXICON I-II-Stems
+mobɛ́ti:bɛ́ti     # "Beater, drummer"
+motúli:túli     # "Blacksmith"
+motóngi:tóngi     # "Tailor, builder"
+mokónzi:kónzi     # "King"
+monanga:nanga     # "Chief"
+moyékoli:yékoli     # "Disciple"
+motíkí:tíkí     # "Heir"
+molɔ́mí:lɔ́mí     # "Husband"
+mosí:sí     # "Habitant"
+mosémboli:sémboli     # "Just man"
+mobekisi:bekisi     # "Judge, a just man"
+mobáli:báli     # "Husband"
+motɛ́kisi:tɛ́kisi     # "Merchant"
+mobóti:bóti     # "Mother, person who gives birth"
+mokilo:kilo     # "Mother-in-law"
+mosɛnjí:sɛnjí     # "Native"
+molúki:lúki     # "Paddler"
+motómbí:tómbí     # "Porter"
+mokangámí:kangámí     # "Prisoner"
+mokuli:kuli     # "Receiver"
+motómí:tómí     # "Sender"
+mobateli:bateli     # "Guard, Protector"
+mosáli:sáli     # "Labourer, worker"
+monyalí:nyalí     # "Sister-in-law"
+moómbó:ómbó     # "Slave"
+motéyi:téyi     # "Preacher, teacher"
+mojímbí:jímbí     # "Trickster"
+moboma:boma     # "Victim"
+molɔki:lɔki     # "Witch"
+mobátísi:bátísi     # "Person who baptises"
+mobíkisi:bíkisi     # "Savior"
+mokambi:kambi     # "Chief, boss"
+mokristo:kristo     # "A Christian"
+molakisi:lakisi     # "Teacher"
+molóni:lóni     # "Sower"
+monguna:nguna     # "Enemy"
+moníngá:níngá     # "Friend"
+mopǎgánu:pǎgánu     # "Pangan"
+mopaya:paya     # "Visitor"
+mosántu:sántu     # "Saint"
+moto:to     # "Person"
+mɔ̌tɔ:tɔ     # Dir/LR
+mutu:tu     # "Person"
+moúmbu:úmbu     # "Slave"
+moyémbi:yémbi     # "Singer"
+moyíbi:yíbi     # "Thief"
+moyángeli:yángeli     # "Governor"
+molɔngɔ́:lɔngɔ́     # "Line, genealogy"
+mopiko:piko     # "Heap"
+mondúle:ndúle     # "Music, sound"
+
+LEXICON Ia-II-Stems
+anjelu     # "Angel"
+léki     # "Younger sibling"
+kelasi     # "School"
+kíti     # "Chair, throne"
+kóko     # "Grandparent"
+kómbo     # "Broom"
+mama     # "Mom"
+mbuta-múntu     # "Guard"
+mbwá     # "Dog"
+ndáko     # "House"
+ndeko     # "Sibling"
+ndeko\ mwasi     # "Sister"
+ngando     # "Crocodile, transport controller"
+nganga     # "Expert, magician, healer"
+nkísi     # "Amulet, medicine, drug"
+nókó     # "Uncle"
+nsómí     # "Free person"
+ntoma     # "Apostle"
+nzói     # "Bee"
+profete     # "Prophet"
+sángó     # "Priest"
+sodá     # "Soldier"
+tatá     # "Dad"
+zábolo     # "Demon"
+sanduku     # "Box"
+bugumési     # "Mayor"
+sani     # "Plate"
+moske     # "Mosque"
+wɛnzɛ     # "Outdoor market"
+mbísi     # "Fish"
+gilípi     # "Flu"
+kanton     # "Province"
+mumpɛ́     # "Catholic, catholicism"
+ewutéli     # "Origin"
+ekélami     # "Creation"
+ebénéli     # "Functioning"
+
+LEXICON III-IV-Stems
+mosisa:sisa     # "Artery, vein"
+mozisa:zisa     # "Artery, vein" Dir/RL
+moláto:láto     # "Dress"
+molangi:langi     # "Bottle"
+mokulu:kulu     # "Cable, string"
+monzɔ́tɔ:nzɔ́tɔ     # "Star"
+monsinga:nsinga     # "Canon"
+monyɔlɔ:nyɔlɔ     # "Chain"
+molangi:langi     # "Bottle"
+motíndo:tíndo     # "Rule, commandment"
+mokɔli:kɔli     # "Cord"
+motúya:túya     # "Price, cost"
+molɔndú:lɔndú     # "Cotton-free"
+monkaka:nkaka     # "Crack"
+mobóka:bóka     # "Dam"
+mombalé:mbalé     # "Debt"
+molímó:límó     # "Spirit, soul"
+molɔki:lɔki     # "Witch"
+monɔkɔ:nɔkɔ     # "Mouth, language, entrance"
+mokúka:kúka     # "Drum"
+monguna:nguna     # "Enemy"
+bolimbisi:limbisi     # "Excuse, pardon"
+mosío:sío     # "File"
+monsai:nsai     # "Toe"
+mosapi:sapi     # "Finger"
+moláko:láko     # "Camp"
+mololi:loli     # "Flame"
+mobóko:bóko     # "Foundation"
+mombemba:mbemba     # "Frog"
+mombúndo:mbúndo     # "Funnel"
+mokwéla:kwéla     # "Heron"
+monsoli:nsoli     # "Jackal"
+mobémbo:bémbo     # "Trip, travel, journey"
+molɔ́ngɔ́:lɔ́ngɔ́     # "Line, row"
+mole:le     # "Rafter"
+mombuma:mbuma     # "Seed, pill"
+mongenzu:ngenzu     # "Tube, pipe"
+moswá:swá     # "Ramrod"
+mopanzí:panzí     # "Rib, side"
+mótɛkɛ     # "Root, flour"
+mofuku:fuku     # "Sack"
+mosómáni:sómáni     # "Saw"
+mombóto:mbóto     # "Seed"
+mobɛmbɛ́:bɛmbɛ́     # "Snail"
+monzúbɛ:nzúbɛ     # "Thorn"
+mombai:mbai     # "Toothpick"
+mombóngo:mbóngo     # "Trade"
+mongololo:ngololo     # "Trench"
+mondule:ndule     # "Trumpet"
+monjímbilíkí:njímbilíkí     # "Vine"
+monsekeleke:nsekeleke     # "White ant"
+mondɛ́lɛ́:ndɛ́lɛ́     # ""
+mompé:mpé     # "Wind"
+mompɛpɛ:mpɛpɛ     # "Wind" Dir/RL
+mɔpɛpɛ:pɛpɛ     # "Wind"
+miko:ko     # No singular form
+mobali:bali     # "Boy, man, husband"
+mobéko:béko     # "Law, command"
+mobú:bú     # "Year"
+mobúlú:búlú     # "Disorder"
+mokandá:kandá     # "Book"
+mokano:kano     # "Commitment"
+mokapo:kapo     # "Section of law"
+mokíla:kíla     # "Tail"
+mokili:kili     # "Earth"
+mokɔlɔ:kɔlɔ     # "Day"
+mokúwa:kúwa     # "Bone"
+moléndé:léndé     # "Determination, energy"
+molili:lili     # "Nothing, darkness"
+molóngó:lóngó     # "World, international community"
+molúká:lúká     # "River"
+molúlú:lúlú     # "Meet"
+mondélé:ndélé     # "White man"
+mongóngó:ngóngó     # "Throat, voice, sound"
+monyɛlɛ:nyɛlɛ     # "East"
+monyókoli:nyókoli     # "Torment"
+mosálá:sálá     # "Work, occupation"
+mosíká:síká     # "Far away"
+mosolo:solo     # "Dowry, money"
+motámbo:támbo     # "Trap"
+motáné:táné     # "Light color"
+motéma:téma     # "Heart, strength of character"
+motíndo:tíndo     # "Reason"
+motu:tu     # "Head" (can also be motó)
+mótuka:tuka     # "Car"
+moyíbi:yíbi     # "Theft"
+mozindó:zindó     # "Depth"
+motuna:tuna     # "Question"
+mokakatano:kakatano     # "Challenge, problem"
+mosani:sani     # "Athlete"
+motango:tango     # "Number, estimate"
+monkɔ́lɔ́tɔ́:nkɔ́lɔ́tɔ́     # "Line(geometry)"
+mosɔpɔ́:sɔpɔ́     # "Gut, intestine"
+mótuka:tuka     # "Car"
+
+LEXICON V-VI-Stems
+litukú:tukú     # "Abcess"
+libenga:benga     # "Bag, purse, pocket"
+linkɛké:nkɛké     # "Bamboo"
+libumu:bumu     # "Stomach"
+litíngbo:tíngbo     # "Bow"
+libɛ́lɛ:bɛ́lɛ     # "Breast"
+lisási:sási     # "Gun, cartridge"
+libóbó:bóbó     # "Case(to sheath)"
+lisanola:sanola     # "Comb"
+lisanga:sanga     # "Beer, wine"
+likoba:koba     # "Pillow"
+lisbata:bata     # "Duck"
+lifúlu:fúlu     # "Dust"
+libɛngɛ́:bɛngɛ́     # "Potato(sweet)"
+lilita:ta     # "Grave"
+libeke:beke     # "Shoulder"
+litambála:tambála     # "Scarf, towel, handkerchief"
+lilelɛmbɛ́:lelɛmbɛ́     # "Hawk"
+lilóngo:lóngo     # "Hip"
+lidúsu:dúsu     # "Hole"
+libula:bula     # "inheritance"
+lisopɔ́:sopɔ́     # "intestine, entrail"
+libeki:beki     # "Jar, pot"
+lifúngola:fúngola     # "Key"
+litongo:tongo     # "Knot"
+litútu:tútu     # "Bruise, tumour"
+litéya:téya     # "Sermon"
+lingóla:ngóla     # "Mango"
+libóngo:bóngo     # "Beach, shore"
+libóndo:bóndo     # "Heap"
+liyɛbu:yɛbu     # "Mushroom"
+litungúlu:tungúlu     # "Onion"
+lilála:lála     # "Orange(fruit)"
+libanza:banza     # "Parable"
+likáká:káká     # "Paw"
+lilingí:ngí     # "Picture"
+lingató:ngató     # "Crab"
+likómbɔ́kɔ:kómbɔ́kɔ     # "Plane"
+libáíya:báíya     # "Plank(wood)"
+likémba:kémba     # "Banana, plantain"
+lisalá:salá     # "Field, garden"
+likabo:kabo     # "Portion"
+likonjí:konjí     # "Post"
+likonzi:konzi     # "Stake, pole"
+lisasú:sasú     # "Saucepan"
+litwáya:twáya     # "Serviette"
+lingɔngɔ:ngɔngɔ     # "Sheet"
+libobe:bobe     # "Spider"
+likómbe:kómbe     # "Bachelor, single"
+liziba:ziba     # "Spring"
+litádi:tádi     # "Rock"
+litámbí:támbí     # "Footprint, stride"
+likololɔ:kololɔ     # "Toad"
+likáíya:káíya     # "Tobacco"
+likánga:kánga     # "Watch"
+lipapú:papú     # "Wing"
+libála:bála     # "Marriage"
+libanda:banda      # "Outisde"
+libángá:bángá     # "Pebble, stone"
+libela:bela     # "Eternity, forever"
+libóko:bóko     # "Fireplace"
+libóndeli:bóndeli     # "Prayer"
+libonza:bonza     # "Gift"
+libóta:bóta     # "Family, lineage"
+libulu:bulu     # "Hole, well"
+lifuta:futa     # "Salary"
+ligóródó:góródó     # "Toad"
+likabo:kabo     # "Offering, gift"
+likama:kama     # "Incident"
+likambo:kambo     # "Case, problem"
+likámwisi:kámwisi     # "Miracle"
+likanisi:kanisi     # "Thought"
+likí:kí     # "Egg"
+likita:kita     # "Meeting, assembly, conspiracy"
+likokí:kokí     # "The means, resources, the right"
+likoló:koló     # "Sky, above"
+liloki:loki     # "Demonology"
+liloba:loba     # "Talk, speech (word)"
+limemya:memya     # "Respect"
+limpiká:mpiká     # "Worm"
+limpúlututú     # "Spider"
+lingolo:ngolo     # "Mango"
+lingomba:ngomba     # "Community"
+lino:no     # "Tooth"
+lipa:pa     # "Bread"
+lipandá:pandá     # "Independence"
+lipata:pata     # "Cloud"
+lisakoli:sakoli     # "Declaration"
+lisálísí:sálísí     # "Help"
+lisangá:sangá     # "Meeting"
+lisángó:sángó     # "Corn"
+lisapo:sapo     # "Tale"
+lisúmu:súmu     # "Sin, crime"
+lisungi:sungi     # "Aid"
+litáma:táma     # "Cheek"
+litéya:téya     # "Lesson"
+litíti:títi     # "Grass'
+litói:tói     # "Ear"
+liwá:wá     # "Death"
+liyebisi:yebisi     # "Press"
+lizalí:zalí     # "Existence"
+lininisa:ninisa     # "Window"
+lisano:sano     # "Game"
+lingómbá:ngómbá     # "(political) party"
+litatoli:tatoli     # "Testimony"
+likindo:kindo     # "Seminary(school)"
+litámbwisi:támbwisi     # "Guidance"
+linyɔ́kɔ:nyɔ́kɔ     # "Manioc"
+lipása:pása     # "Twin"
+
+LEXICON VI-Only-Stems
+mabélé:bélé     # "Sand, earth"
+mafúta:fúta     # "Oil"
+malási:lási     # "Perfume"
+máí:í     # "Water"
+máyí:yí     # Dir/LR
+makilá:kilá     # "Blood"
+mambénga:mbénga     # "Equator"
+masúwa:súwa     # "Ship"
+mayɛ́lɛ:yɛ́lɛ     # "Intelligence"
+mapɔnɔmi:pɔnɔmi     # "Voting season"
+manáka:náka     # "Calendar"
+mambí     # "Study"
+
+LEXICON VII-VIII-Stems
+elálelo:lálelo     # "Bedroom"
+elémá:lémá     # "Mad, fool"
+ekómo:kómo     # "Bracelet"
+etápi:tápi     # "Branch(tree)"
+ekango:kango     # "Bunch(bananas)"
+ekútu:kútu     # "Pumpkin"
+epásu:pásu     # "Chip"
+etakoleli:takoleli     # "Custom house"
+étónga:tónga     # "Flock"
+elobélí:lobélí     # "Fishing rights"
+étuka:tuka     # "Group, department"
+etubeli:tubeli     # "Hammer"
+etumbeli:tumbeli     # "Oven"
+enkoti:nkoti     # "Cap, crown"
+emekeli:mekeli     # "Ruler, measure"
+ebakoleli:bakoleli     # "Nail puller"
+elékéla:lekela     # "Passage, way"
+etimeli:timeli     # "Pickaxe"
+eyotoleli:yotoleli     # "Screwdriver"
+esamba:samba     # "Shed(animal)"
+esende:sende     # "Squirrel"
+esaléli:saléli     # "Tool"
+etuna:tuna     # "Tsete fly"
+eyémbu:yémbu     # "Weed"
+eyenga:yenga     # "Sunday, holiday, festival"
+ekombeli:kombeli     # "Broom, brush"
+ekangilu:kangilu     # "Parcel"
+ebembe:bembe     # "Corpse"
+ebumbeli:bumbeli     # "Cover"
+embotu:mbotu     # "Fist"
+eloli:loli     # "Flame"
+engasa:ngasa     # "Fork"
+etanda:tanda     # "Bench"
+ebende:bendé     # "Metal"
+engomeli     # "Iron"
+ebóngá:bóngá     # "Seat"
+esóngí:sóngí     # "Torch"
+étɛ́kɛ:tɛ́kɛ     # "Eyelid"
+elɛngɛ́     # "Young"
+ejáleli:jáleli     # "Custom, habit"
+elɛ́ngí:lɛ́ngí     # "Good(taste), sweet"
+etombá:tombá     # "Morsel"
+eboka:boka     # "Mortar"
+ebimba:bimba     # "Package, bundle"
+ekomélí:komélí     # "Pen, pencil"
+ebengá:bengá     # "Pigeon, dove"
+ekɔ́mbá:kɔ́mbá     # "Impotent(woman)"
+esóbé:sóbé     # "Meadow, plain"
+etálángu:tálángu     # "Scaffold"
+elembo:lembo     # "Sign, symptom, seal, mark"
+esakángo:sakángo     # "Shed"
+ekoto:koto     # "Shoe"
+elímo:límo     # "Spirit"
+etáláká:táláká     # "Display"
+ekúmbakɛ:kúmbakɛ     # "Storm"
+etutú:tutú     # "Wall"
+efelo:felo     # "Wall"
+eyíká:yíká     # "Wheel"
+ebale:bale     # "River"
+ebandeli:bandeli     # "Beginning"
+ebangá:bangá     # "Wave"
+ebekú:bekú     # "Chin"
+ebelo:belo     # "Thigh"
+ekakoli:kakoli     # "Article"
+ekelamo:kelamo  # "Living being"
+ekila:kila     # "Abstinence"
+eklézia:klézia     # "Church"
+eklézia:klézya     #  Dir/LR
+ekeléziya:keléziya     #  Dir/LR
+ekelézia:kelézia     #  Dir/LR
+ekólo:kólo     #"Measuring unit, country," depending on tone
+ekomele:komele     # "Pencil"
+elambá:lambá     # "Costume, dress, garment"
+elanga:langa     # "Garden"
+eleko:leko     # "Period, time, weather"
+elikya:likya     # "Hope"
+elóko:lóko     # "Thing, object"
+elɔ́kɔ:lɔ́kɔ      # This is elóko in 7-vowel orthography. Included so that words with ɔ́ can tokenize properly
+elongi:longi     # "Face"
+engúmba:ngúmba     # "City"
+epái:pái     # "Place, location"
+esalelo:salelo     # "Work material"
+esambiselo:sambiselo     # "Court"
+esanga:sanga     # "Island, lake"
+esɛngɔ:sɛngɔ     # "Happiness"
+esíká:síká  # "Location, place, site, zone"
+esóbé:sóbé     # "Savannah, desert"
+esóngó:sóngó     # "Opposition"
+etando:tando     # "Flat surface"
+etápe:tápe     # "Branch"
+etebu:tebu     # Unknown
+eténi:téni     # "Piece, fragment"
+etímá:tímá     # "Pond, lake"
+etumba:tumba     # "Battle"
+etúmbu:túmbu     # "Furnace, punishment"
+eyano:yano     # "Answer"
+eyékwelo:yékwelo     # "School"
+ezaleli:zaleli     # "Conduct"
+ezibele:zibele     # "Door, lid"
+etúká:túká     # "Province"
+ebengeli:bengeli     # "Telephone"
+elenge:lenge     # "Youth"
+epískɔ́pɔ:pískɔ́pɔ     # "Bishop"
+esé:sé     # "Country"
+efúku:fúku     # "Million"
+
+LEXICON IX-X-Stems
+#! take m
+mángá     # "Mango"
+mbálá     # "Tuber"
+mbángá     # "Jaw"
+mbele     # "Procelain"
+mbelí     # "Knife"
+mbíla     # "Palm tree"
+mbóka     # "Village, country"
+mbongo     # "Money"
+mbótama     # "Birth"
+mbóte     # "Greetings"
+mbóto     # "Gamete"
+mbúla     # "Rain, year"
+mvúla     # "Rain, year"
+mbuma     # "Fruit"
+mémé     # "Sheep"
+mesa     # "Table"
+mpáku     # "Tax"
+mói     # "Sun"
+mweté     # "Tree"
+mpanzi     # "Rib"
+mokongo     # "Back(body)"
+mukongo     # DIR/LR
+mabendé     # Other way of writing "Metal"
+mpɔndú     # "Cassave leaf"
+mbólókó     # "Antelope"
+mpɛ́pɔ     # "Plane"
+mpiko     # "Endurance"
+mbɛbú     # "Lip"
+mpóko     # "Mouse"
+
+#! take n
+ndakisa     # "Example"
+ndámbo     # "Part"
+ndímo     # "Citrus fruit"
+ndingisa     # "Authorization"
+ndóto     # "Dream, hallucination"
+ndúmba     # "Prostitute"
+ndúnda     # "Vegetable"
+ngámbo     # "The other side"
+nganda     # "Bar, restaurant"
+ngolu     # "Grace"
+ngómbá     # "Mountain"
+ngonga     # "Bell"
+ngungi     # "Mosquito"
+nguyá     # "Inner strength"
+nkéma     # "Ape"
+nkita     # "Economy, business"
+nkoi     # "Leopard"
+nkóli     # "Crocodile"
+nkóna     # "Seed"
+nkɔ́si     # "Lion"
+ntáká     # "Miles" (more generally, distance)
+ntambwe     # "Cheetah"
+nyama     # "Animal, tapeworm"
+nyaú     # "Cat"
+nyoka     # "Snake"
+nzala     # "Hunger"
+nzélá     # "Street, road, opening"
+nzémbo     # "Song"
+nzeté     # "Tree, wood"
+nzɔku     # "Elephant"
+nzɔ́to     # "Body"
+nkémbo     # "Glory"
+ngúma     # "Python"
+ngóla     # "Red"
+nkunza     # "Hair"
+ngɛngɛ     # "Poison"
+nzinzi     # "Insect"
+nkóto     # "Thousand"
+
+#!! Never takes n/m
+LEXICON IX-X-a-Stems
+balé     # "Ball"
+batísimo     # "Baptism"
+bozó     # "Care"
+búku     # "Book"
+butú     # "Night"
+bwátu     # "Dugout canoe, boat" (guessing this is class IX?)
+fétí     # "Party"
+kemi     # "Chemistry"
+kosákosá     # "Shrimp"
+kurúze     # "Cross"
+maládi     # "Disease"
+pálaki     # "Plate"
+porte     # "Door"
+sánzá     # "Moon, month"
+sekelé     # "Secret"
+séléká     # "In truth"
+simetiere     # "Cemetary" (unsure if acutally class IX)
+sukáli     # "Sugar"
+vile     # "City"
+víno     # "Wine"
+víno:vinu     # "Wine" Dir/LR
+zélo     # "Sand"
+ndɛkɛ     # "Bird"
+zuluná     # "Newspaper"
+komíni     # "Communes"
+sapáto     # "Shoe"
+afabɛ́     # "Alphabet"
+dyosɛ́zi     # "Diocese"
+mángwɛlɛ́     # "Vaccine"
+zemi     # "Pregnancy"
+zándo     # "Market"
+kɔ́ngɔ     # "Congo"
+klísto     # "Christian"
+
+#!! Can take n/m or not
+LEXICON IX-X-b-Stems
+#! Can take m or not
+mpámba:pámba     # "Nothing"
+mpási:pási     # "Suffering"
+mpembéni:pembéni     # "Close"
+mpókwa:pókwa     # "Twilight, evening"
+mpongí:pongí     # "Sleep"
+mpósá:pósá     # "Envy"
+mpúnda:púnda     # "Horse"
+mbulamatari:bulamatari     # "Government"
+mpúku:púku     # "Rat"
+
+#! Can take n or not
+nkándá:kándá     # "Anger"
+nkáké:káké     # "Thunder"
+nkímyá:kímyá     # "Calm"
+nkímyá:kimia     # "Calm" Dir/LR
+nkínga:kínga     # "Bicycle"
+nkómbó:kómbó     # "Name"
+nsangó:sangó     # "Information"
+nsima:sima     # "Behind" (often followed by na for preposition-like usage)
+nsé:sé     # "The ground"
+nsinga:singa     # "Wire"
+nsómo:sómo     # "Terror"
+nsóni:sóni     # "Shame"
+nsúka:súka     # "Target, end"
+ntálo:tálo     # "Number"
+ntángo:tángo     # "Time"
+ntóngó:tóngó     # "Morning"
+ntína:tína     # "Reason, cause"
+ntembe:tembe     # "Doubt"
+ntolí:tolí     # "Advice"
+ntólo:tólo     # "Torso"
+nzámba:zámba     # "Forest"
+nkíngó:kíngó     # "Neck"
+nkíngá:kíngá     # "Bike"
+ntángawisi:tángawisi     # "Ginger"
+nkóló:kóló     # "Owner, Lord"
+nkɔ́kɔ:kɔ́kɔ     # "Ancestor"
+
+LEXICON XI-VI-Stems
+lobebo:bebo     # "Lip"
+lobíko:bíko     # "Life, existence"
+lobɔ́kɔ:bɔ́kɔ     # "Arm, hand"
+lofundu:fundu     # "Vanity"
+lokásá:kásá     # "Leaf, page"
+lokolo:kolo     # "Foot, leg"
+lokúmu:kúmu     # "Glory, honor, respect"
+lokutá:kutá     # "Lie"
+lóla:la     # "Paradise"
+loléndo:léndo     # "Pride"
+loléngé:léngé     # "Method"
+londende:ndende     # Translated waves, not sure if this is actually class XI but the prefix matches...
+lopángo:pángo     # "Residential parcel"
+loposo:poso     # "Skin"
+lomposo:mposo     # "Skin"
+loyémbo:yémbo     # "Song"
+lombú:mbú     # "Sea, ocean"
+
+LEXICON XIV-Stems
+bobé:bé     # "Evil, ugliness"
+bobóto:bóto     # "Friendship"
+bokási:kási     # "Power"
+bokɔnɔ:kɔnɔ     # "Illness"
+bolaí:laí     # "Length"
+bolámu:lámu     # "Kindness"
+bolingo:lingo     # "Love, friendship"
+boloko:loko     # "Prison, lack of freedom"
+bokóló:kóló     # "Adulthood"
+bokulaka:kulaka     # "Direction, rule"
+bolúmbú:lúmbú     # "Nudity"
+bomengo:mengo     # "Wealth"
+bómoí:moí     # "Life, existence"
+bomɔi:mɔi     # "Life, existence"
+bomoyi:moyi     # "Life, existence"
+bomoto:moto     # "Human personality"
+bonéne:néne     # "Size, height"
+bondeko:ndeko     # "Friendship"
+bondoki:ndoki     # "Witchcraft"
+bongó:ngó     # "Brain"
+bopekisi:pekisi     # "Prohibition"
+bonsɔ́mí:nsɔ́mí     # "Freedom"
+bosántu:sántu     # "Holiness"
+bosémbo:sémbo     # "Truth, peace, justic, goodness"
+bosó     # "In front of"
+bosolo:solo     # "Truth"
+botutu:tutu     # "Curse, bad luck"
+boúmbu:úmbu     # "Slavery"
+boúmeli:úmeli     # "Duration"
+boyíké:yíké     # "Many"
+bozóba:zóba     # "Ignorance, stupidity"
+bozwi:zwi     # "Possession, acquisition"
+bowéyi:wéyi     # "Death"
+bowéi:wéi     # "Death"
+bonkámá:nkámá     # "Century"
+bobɔngɔ́:bɔngɔ́     # "University"
+
+LEXICON XV-Stems
+kolinga:linga     # "To love"
+kotála:tála     # "To watch"
+kokɛndɛ:kɛndɛ     # "To go"
+kopɛsɛ:pɛsɛ     # "To give"
+
+LEXICON ProperNouns(2)
+Abel <ant><m><sg>:    # "Abel"
+Jonasi <ant><m><sg>:    # "Jonas"
+Sefasi <ant><m><sg>:    # "Cephas"
+Andele <ant><m><sg>:    # "Andrew"
+Abraham <ant><m><sg>:    # "Abraham"
+Adam <ant><m><sg>:    # "Adam
+Afríka <top><sg>:    # "Africa"
+Alama <ant><m><sg>:    # "Alma"
+Ameríka <top><sg>:    # "America"
+Angola <top><sg>:    # "Angola"
+Antioshe <top><sg>:    # "Antioch"
+Asaf <ant><m><sg>:    # "Asaph"
+Asulia <top><sg>:    # "Assyria"
+Azía <top><sg>:    # "Asia"
+Barnabas <ant><m><sg>:    # "Barnabas"
+Bayuda <al><sg>:    # "Judaism" (?)
+Birmani <top><sg>:    # "Myanmar"
+Brazzaville <top><sg>:    # "Brazzaville"
+Burundi <top><sg>:    # "Burundi"
+Cain <ant><m><sg>:    # "Cain"
+Ciluba <al><sg>:    # "Ciluba"
+Congo <top><sg>:    # "Congo"
+Charle <ant><m><sg>:    # "Charlie"
+David <ant><m><sg>:    # "David"
+Demokratíki <al><sg>:    # "Democratic"
+Efeze <al><sg>:    # "Ephesians"
+Ejipte <top><sg>:    # "Egypt"
+Elamani <ant><m><sg>:    # "Helaman"
+Eliya <ant><m><sg>:    # "Elijah"
+Erode <ant><m><sg>:    # "Herod"
+Erópa <top><sg>:    # "Europe"
+Eva <ant><f><sg>:    # "Eve"
+Ezaya <ant><m><sg>:    # "Isaiah"
+Falansia <top><sg>:    # "France"
+Ingɛlɛ́tɛlɛ <top><sg>:    # "England"
+Gabon <top><sg>:    # "Gabon"
+Galilé <top><sg>:    # "Galilee"
+Gihona <top><sg>:    # "Gihon"
+Gracia <ant><f><sg>:    # "Grace"
+Farizé:ba-Farizé <top><sg>:    # "Pharisees"
+Filipe <ant><m><sg>:    # "Phillip"
+Filipo <ant><m><sg>:    # "Phillip"
+Hawila <ant><m><sg>:    # "Havilah"
+Hidekele <ant><m><sg>:    # "Hiddekel"
+India <top><sg>:    # "India"
+Israel <ant><m><sg>:    # "Israel"
+Jake <ant><m><sg>:    # "Jake"
+Jozef <ant><m><sg>:    # "Joseph"
+Zozefi <ant><m><sg>:    # "Joseph" Dir/LR
+Yozefu <ant><m><sg>:    # "Joseph" Dir/LR
+Joseph <ant><m><sg>:    # "Joseph" Dir/LR
+Kabila <ant><m><sg>:    # "Kabila" Dir/LR
+Katanga <top><sg>:    # "Katanga"
+Kenya <top><sg>:    # "Kenya"
+Kikongó <top><sg>:    # "Kikongo"
+Kinsásá <top><sg>:    # "Kinshasa"
+Kinshasa <top><sg>:    # "Kinshasa"
+Kivu <top><sg>:    # "Kivu"
+kiswahili <top><sg>:    #
+Klisto <ant><m><sg>:    # "Christ"
+Kɔ́ngɔ <top><sg>:    # "Congo"
+Kongó <top><sg>:    # "Congo"
+Korente <top><sg>:    # "Corinth"
+Kristo <ant><m><sg>:    # "Christ"
+Kusi <top><sg>:    # "Ethiopia"
+Lamani <ant><m><sg>:    # "Laman"
+Lehi <ant><f><sg>:    # "Lehi"
+Lifalansé <top><sg>:    # "France"
+Swisi <top><sg>:    # "Switzerland"
+Bɛ́lɛjika <top><sg>:    # "Belgium"
+Bɛ́ljika <top><sg>:    # "Belgium"
+Lingála <top><sg>:    # "Lingala"
+Luanda <top><sg>:    # "Luanda"
+Mariya <ant><f><sg>:    # "Mary"
+Zakariya <ant><m><sg>:    # "Zechariah"
+Mark <ant><m><sg>:    # "Mark"
+Mat <ant><m><sg>:    # "Matt"
+Matie <ant><m><sg>:    # "Matthew"
+Mesia <ant><m><sg>:    # "Messiah"
+Moize <ant><m><sg>:    # "Moses"
+Moyize <ant><m><sg>:    # "Moses"
+Nazaret <top><sg>:    # "Nazareth"
+Nazareti <top><sg>:    # "Nazareth"
+Nefi <ant><m><sg>:    # "Nefi"
+Nkolo <ant><m><sg>:    # "Lord"
+Noé <ant><m><sg>:    # "Noah"
+Nzámbe <al><sg>:    # "God, Lord"
+Pake <al><sg>:    # "Passover"
+Pelata <top><sg>:    # "Euphrates"
+Pólo <ant><m><sg>:    # "Paul"
+Paul <ant><m><sg>:    # "Paul"
+Piere <ant><m><sg>:    # "Peter"
+Pierre <ant><m><sg>:    # "Pierre"
+Pilate <ant><m><sg>:    # "Pilate"
+Pisoni <top><sg>:    # "Pison"
+Rome <top><sg>:    # "Romans"
+Rwanda <top><sg>:    # "Rwanda"
+Sadusé:ba-Sadusé <top><sg>:    # "Sadducees"
+Sam <ant><m><sg>:    # "Sam"
+Satan <ant><m><sg>:    # "Satan"
+Saul <ant><m><sg>:    # "Saul"
+Simon <ant><m><sg>:    # "Simon"
+Sion <top><sg>:    # "Sion"
+Tanzania <top><sg>:    # "Tanzania"
+Timote <ant><m><sg>:    # "Timothy"
+Tshiluba <top><sg>:    # "Tshiluba"
+Uganda <top><sg>:    # "Uganda"
+Wikipedia <al><sg>:    # "Wikipedia"
+Zaki <ant><m><sg>:    # "James"
+Tshombe <ant><m><sg>:    # "Tshombe"
+Natanayele <ant><m><sg>:    # "Nathanael"
+Yawe <ant><m><sg>:    # "God"
+Santu <ant><m><sg>:    # "Saint"
+Yelusaleme <top><sg>:    # "Jerusalem" (Book of Mormon)
+Yeruzalem <top><sg>:    # "Jerusalem" (New Testament)
+Yesu <ant><m><sg>:    # "Jesus"
+Yézu <ant><m><sg>:    # "Jesus"
+Yisalaele <top><sg>:    # "Israel"
+Isalayele <top><sg>:    # "Israel"
+Yoane <ant><m><sg>:    # "John"
+Yuda <ant><m><sg>:    # "Judah"
+Yudas <ant><m><sg>:    # "Judas"
+Zaíre <top><sg>:    # "Zaire"
+Zalayemila <al><sg>:    # ?
+Désiré <ant><m><sg>:    # "Désiré"
+Cyrille <ant><m><sg>:    # "Cyrille"
+Ilunga <ant><m><sg>:    # "Ilunga" (Common name in Lingala-speaking regions)
+Kambundji <ant><m><sg>:    # "Kambundji"
+Guérin <ant><m><sg>:    # "Guérin"
+Lumumba <ant><m><sg>:    # "Lumumba"
+Evariste <ant><m><sg>:    # "Evariste"
+Kasa-Vubu <ant><m><sg>:    # "Kasa-Vubu"
+Kasa-Vubu <ant><m><sg>:    # DIR/LR
+Kasa\ Vubu <ant><m><sg>:    # DIR/LR
+Kabinda <top><sg>:    # "Kabinda"
+Lubumbashi <top><sg>:    # "Lubumbashi"
+Kisangani <top><sg>:    # "Kisangani"
+Wenge <al><sg>:    # "Wenge" (Popular music in Kinshasa)
+Léopoldville <top><sg>:    # "Léopoldville"
+Léopold <ant><m><sg>:    # "Leopold"
+Kamerun <top><sg>:    # "Cameroon"
+Nizeria <top><sg>:    # "Nigeria"
+Kotdivuar <top><sg>:    # "Cote d'Ivoire"
+Wɛlɛ <top><sg>:    # "Cote d'Ivoire"
+Mozambíki <top><sg>:    # "Mozambique"
+Ɛntɛrnɛ́tɛ <top><sg>:    # "Internet"
+Alémani <top><sg>:    # "Germany"
+Otrish <top><sg>:    # "Austria"
+Pulutugal <top><sg>:    # "Portugal"
+Londoni <top><sg>:    # "London"
+Kasai <top><sg>:    # "Kasai(region in the DRC)"
+Bandundu <top><sg>:    # "Bandundu(region in the DRC)"
+Italya <top><sg>:    # "Italy"
+Katumbi <ant><m><sg>:    # "Katumbi"
+Mbándáká <top><sg>:    # "Mbándáká"
+Mpiana <top><sg>:    # "Mpiana"
+Vietnami <top><sg>:    # "Vietnam"
+Krie <al><sg>:    # "Traditional dance"
+Kipushi <top><sg>:    # "Kipushi"
+Mvemba <ant><m><sg>:    # "Chief"
+Wemba <ant><m><sg>:    # "Wemba"
+Nziem <ant><m><sg>:    # "Nziem"
+Nizer <top><sg>:    # "Niger"
+Santrafríka <top><sg>:    # "Central Africa"
+Gresi <top><sg>:    # "Greece"
+
+LEXICON NP-Infl
+<np>:
+
+PATTERNS
+ProperNouns(1) NP-Infl ProperNouns(2)
+NoClassNouns N1-Suffix
+
+LEXICON NoClassNouns
+# These words are not preceded by 'ba' and appear only in this form.
+sánzá\ ya\ yambo    # "January"
+yanwáli    # "January"
+sánzá\ ya\ míbalé    # "February"
+febwáli    # "February"
+sánzá\ ya\ mísáto    # "March"
+mársi    # "March"
+sánzá\ ya\ mwambe    # "August"
+ogusiti    # "August"
+sánzá\ ya\ libwa    # "September"
+septembere    # "September"
+sánzá\ ya\ motóbá    # "June"
+yúni    # "June"
+sánzá\ ya\ nsambo    # "July"
+yúli    # "July"
+sánzá\ ya\ mítáno    # "May"
+máyí    # "May"
+sánzá\ ya\ mínei    # "April"
+apríli    # "April"
+sánza\ ya\ zómi    # "Ocotober"
+ɔkɔtɔ́bɛ    # "October"
+novɛ́mbɛ    # "November"
+sánzá\ ya\ zómi\ na\ míbalé    # "December"
+alpi    #\ "Alps"
+Nɔ́ɛlɛ    # "Christmas"
+ɛntɛrnɛ́tɛ    # "Internet"
+oksijɛ́ní    # "Oxygen"
+pulupulu    # "Diarrhea"
+bilili    # "Image"
+lángi    # "Color"
+boklísto    # "Christianity"
+mái    # "Water"
+
+#=============================================================================!
+#                               Verbs                                         !
+#=============================================================================!
+
+LEXICON Verb-Stems
+kobungisa:bungis   # "To lose"
+kokundwa:kundw   # "To rise"
+kobumba:bumb   # "To save, hide"
+kopasola:pasol   # "To cleave, break"
+kobákola:bákol   # "To dismount"
+koyókela:yókel   # "To grant"
+kokúfwa:kúfw   # "To die"
+komekisa:mekis   # "To encourage"
+kotámbwisa:támbwis   # "To publish, move"
+kobɔtɔlɔ:bɔtɔl   # "To dispossess, take away"
+komotúya:motúy   # "To value"
+komosɔlo:mosɔl   # "To value"
+kosangela:sangel   # "To inform, acquaint, enjoin"
+kodima:dim   # "To assent"
+koyanginya:yanginy   # "To assemble, renounce"
+koséba:séb   # "To sharpen"
+kopombwa:pombw   # "To skip"
+kosílisa:sílis   # "To finish, complete, accomplish"
+kosukola:sukol   # "To wash, bathe, shower"
+kotúna:tún   # "To ask,interrogate"
+kojelinginya:jelinginy   # "To whirl"
+kofíba:fíb   # "To lick"
+kokámola:kámol   # "To squeeze"
+kolongola:longol   # "To remove, subtract"
+kolumba:lumb   # "To smell"
+kokamata:kamat   # "To take, clutch, grasp, receive"
+kosimba:simb   # "To touch, grasp"
+kopɛngɔá:pɛngɔ   # "To shun, ignore"
+kopɛngwa:pɛngw   # "To shun"
+kokósa:kós   # "To lie, cheat, deceive"
+kobótama:bótam   # "To born"
+kotúmola:túmol   # "To contradict"
+kotómbola:tómbol   # "To lift"
+konetola:netol   # "To exalt"
+kosakola:sakol   # "To proclaim, announce, inform, acquaint
+kosɔ́kía:sɔ́kí   # "To humiliate"
+kokwisa:kwis   # "To humiliate"
+kofungola:fungol   # "To open, unlock"
+kobɔ́ndɔ:bɔ́nd   # "To pacify"
+komuka:muk   # "To pluck"
+konúka:núk   # "To pluck"
+kobénda:bénd   # "To pull, haul, drag"
+kokololɔ:kolol   # "To snore"
+kopúlola:púlol   # "To strip"
+koángana:ángan   # "To deny, disavow"
+kotóndisa:tóndis   # "To fill, satiate"
+konyálisa:nyális   # "To fill"
+kosɔsɔlɔ:sɔsɔl   # "To scrutinise"
+kotungisa:tungis   # "To trouble"
+kotilimisa:tilimis   # "To calm"
+kobátela:bátel   # "To guard, protect"
+kolɛ́nga:lɛ́ng   # "To tremble"
+kobánza:bánz   # "To apply, join"
+konyangisa:nyangis   # "To shake"
+kosɛkisa:sɛkis   # "To joke, amuse"
+kobɔ́ndɛla:bɔ́ndɛl   # "To pray, implore"
+kosúkisa:súkis   # "To accomplish"
+kobɔ́íya:bɔ́íy   # "To refuse, renounce, annul"
+komokɛ́ngéla:mokɛ́ngél   # "To spy"
+kokabela:kabel   # "To bestow"
+kolúla:lúl   # "To covet"
+kolabwa:labw   # "To land"
+kobíka:bík   # "To survive"
+kolángisa:lángis   # "To intoxicate"
+koswána:swán   # "To argue, wrangle"
+kosuána:suán   # "To argue, wrangle"
+kolemwa:lemw   # "To worry"
+kosepelisa:sepelis   # "To amuse"
+kotánisa:tánis   # "To polish"
+kobɛ́ta:bɛ́t   # "To beat(up), strike"
+kobéka:bék   # "To borrow"
+kolóna:lón   # "To plant, cultivate"
+kokɔna:kɔn   # "To plant"
+komɔ́mo:mɔ́m   # "To grope"
+kokamba:kamb   # "To guide, lead"
+kotóngola:tóngol   # "To demolish, untie"
+kopɛ́tɔla:pɛ́tɔl   # "To purify, cleanse"
+kotɛ́tá:tɛ́t   # "To float"
+kotépa:tép   # "To float"
+kopɛngɔla:pɛngɔl   # "To divert"
+kopɛndɛ:pɛnd   # "To divert"
+kokúla:kúl   # "To rub"
+koyamba:yamb   # "To receive, adopt, believe, accept, agree"
+koámba:ámb   # "To adopt"
+kosímbísa:símbís   # "To restrain, help(me), simbisa"
+konúngisa:núngis   # "To suckle"
+kolámba:lámb   # "To cook, prepare(dinner)"
+kosálisa:sális   # "To employ"
+kotákola:tákol   # "To collect, recruit"
+kotɔ́nɔ:tɔ́n   # "To collect"
+kolimbola:limbol   # "To interpret, explain"
+kofunga:fung   # "To fasten"
+kopusola:pusol   # "To detach"
+kolútola:lútol   # "To detach, loosen, relax"
+kolutwa:lutw   # "To detached"
+kokɛ́ngɛlɛ:kɛ́ngɛl   # "To protect"
+kongánga:ngáng   # "To shout, exclaim"
+kobɛ́tɛlɛ:bɛ́tɛl   # "To knock"
+kotúya:túy   # "To quote"
+kobutwisa:butwis   # "To return"
+kozónga:zóng   # "To return, come back"
+kozóngisa:zóngis   # "To return"
+komosálí:mosál   # "To enter"
+komabáíya:mabáíy   # "To enter"
+kokapintá:kapint   # "To enter"
+kobibuma:bibum   # "To lower"
+kondúnda:ndúnd   # "To lower"
+kokanisa:kanis   # "To think"
+kokeka:kek   # "To gaze"
+komanyolela:manyolel   # "To meditate"
+kolimba:limb   # "To pretend"
+kokútínya:kútíny   # "To pretend, swindle"
+kobúka:búk   # "To break, crack"
+kobánga:báng   # "To fear"
+kobɔ́ngisa:bɔ́ngis   # "To adapt, arrange"
+kokokisa:kokis   # "To adapt, complete"
+koyéngíbinya:yéngíbiny   # "To adapt"
+kosúka:súk   # "To limit"
+kosopa:sop   # "To pour, spill"
+koswela:swel   # "To pour"
+konyɔ́kɔla:nyɔ́kɔl   # "To provoke, harass"
+koténgía:téngí   # "To lean"
+kokwété:kwét   # "To chop"
+kobukola:bukol   # "To diminish"
+kobótisa:bótis   # "To fertilise"
+kodéfisa:défis   # "To lend"
+koyambisa:yambis   # "To persuade"
+kobúlinginya:búlinginy   # "To complicate"
+kopúmbwa:púmbw   # "To fly"
+kobángisa:bángis   # "To scare, frighten, alarm, intimidate"
+kolámbola:lámbol   # "To plaster"
+kopata:pat   # "To accuse"
+kotuba:tub   # "To accuse"
+kolátisa:látis   # "To dress, clothe"
+koláta:lát   # "To dress oneself"
+kosólola:sólol   # "To converse, narrate"
+kotálisa:tális   # "To expose"
+komɔ́nana:mɔ́nan   # "To appear"
+kobimela:bimel   # "To appear"
+kokengisa:kengis   # "To clarify"
+kobébisa:bébis   # "To damage, disfigure"
+kosémbola:sémbol   # "To straighten, smooth, level"
+kokamwa:kamw   # "To wonder, be astonished"
+kokabola:kabol   # "To split"
+kobóngwinya:bóngwiny   # "To transform"
+kobongwana:bongwan   # "To transform"
+komínyola:mínyol   # "To powder"
+kojikámisá:jikámis   # "To terrify"
+kobwáka:bwák   # "To throw"
+kolɛmbisa:lɛmbis   # "To tire, soften, (become weary)"
+kolekisa:lekis   # "To omit"
+kofátákí:fáták   # "To flint"
+kokáta:kát   # "To cut"
+kosúmbutána:súmbután   # "To exchange"
+koyina:yin   # "To hate, loathe,despise, abhor"
+koyébana:yéban   # "To become known"
+kosásá:sás   # "To sift"
+kotɔkɔ:tɔk   # "To grind"
+koténa:tén   # "To amputate"
+kotúngóla:túngól   # "To loosen"
+kobándola:bándol   # "To loosen"
+koyâ:y   # "To come"
+kokúmisa:kúmis   # "To honour, praise, glorify"
+kokamwisa:kamwis   # "To astonish"
+koúmela:úmel   # "To (dwell a long time)"
+kobakía:bakí   # "To suspend"
+kobongola:bongol   # "To convert"
+kosunga:sung   # "To help"
+kotála:tál   # "To look"
+kolángwa:lángw   # "To be drunk, tipsy"
+kokundola:kundol   # "To discover, find, uncover, recover"
+kolibola:libol   # "To discover"
+kobumbóla:bumból   # "To discover, uncover"
+kotándola:tándol   # "To expose(for sale)"
+kotánga:táng   # "To calculate, studdy, reckon"
+kobéba:béb   # "To spoil"
+kolindísa:lindís   # "To sink, submerge"
+kozindisa:zindis   # "To submerge, immerge, trip(fall)"
+kokólisa:kólis   # "To lengthen"
+kotimba:timb   # "To faint"
+kokila:kil   # "To abstain"
+kokékisa:kékis   # "To dry"
+kopalela:palel   # "To scold"
+kongɛnga:ngɛng   # "To sparkle"
+konyanya:nyany   # "To swim"
+koɔndɔ́:ɔndɔ   # "To dwindle"
+koyúnzóla:yúnzól   # "To revolt"
+kokɔ́mba:kɔ́mb   # "To sweep"
+kolongwa:longw   # "To quit"
+kokɔsɔla:kɔsɔl   # "To cough"
+kolemisá:lemis   # "To cripple"
+kobutisa:butis   # "To reply"
+kotónga:tóng   # "To build"
+kobɔ́ndisa:bɔ́ndis   # "To appease, calm"
+koléndisa:léndis   # "To assure"
+kofúta:fút   # "To reimburse, indemnify"
+kobɔkɔla:bɔkɔl   # "To nourish"
+kondinkana:ndinkan   # "To stained"
+kopekelé:pekel   # "To beg"
+koɔnga:ɔng   # "To beg"
+kosánza:sánz   # "To vomit"
+kojíka:jík   # "To scald"
+kokwela:kwel   # "To embark(people)"
+kokwésízá:kwésíz   # "To embark(goods)"
+kozalisa:zalis   # "To establish"
+kotíkala:tíkal   # "To stay"
+kosakana:sakan   # "To play"
+tóngá:ng   # "To sew"
+kosámbela:sámbel   # "To plead"
+kobimisa:bimis   # "To expose, pull out, issue, show"
+koyuma:yum   # "To issue"
+kobótola:bótol   # "To snatch"
+kobómba:bómb   # "To store"
+konyatélá:nyatél   # "To bruise"
+kobola:bol   # "To bruise"
+kokíma:kím   # "To run, escape"
+konyíngána:nyíngán   # "To shake, vacillate, agitate"
+kopíma:pím   # "To repulse"
+kobíkisa:bíkis   # "To save, cure"
+kopunza:punz   # "To plunder"
+kolíkia:líki   # "To hope"
+konánola:nánol   # "To enlarge"
+kobéngisa:béngis   # "To hunt"
+kozala:zal   # "To dwell"
+koyíkinya:yíkiny   # "To accumulate"
+kosála:sál   # "To make, manufacture"
+kotúbia:túbi   # "To penetrate"
+koíngisa:íngis   # "To fit in"
+kolɛ́ngɛlɛ:lɛ́ngɛl   # "To smooth"
+koyéba:yéb   # "To understand, know"
+kokwakola:kwakol   # "To wrench"
+koyósɔla:yósɔl   # "To wrench"
+kopɛ́sa:pɛ́s   # "To give, offer, bestow"
+kopɛsɛ:pɛs   # "To give, offer, bestow" Dir/RL
+kokabwa:kabw   # "To branch(out)"
+kotúla:túl   # "To forge"
+kobúngitinya:búngitiny   # "To roll"
+kokwákíya:kwákíy   # "To bestride"
+kowála:wál   # "To scrape"
+kowalola:walol   # "To scrape"
+komɔ́nisa:mɔ́nis   # "To show(me), exhibit"
+kolímbisa:límbis   # "To forgive, absolve"
+ndisa:is   # "To let(down)"
+koyambola:yambol   # "To confess"
+kosɔ́ndéme:sɔ́ndém   # "To squat(kneel)"
+kosotóma:sotóm   # "To squat"
+kokakitínya:kakitíny   # "To prevaricate(beat around the bush)"
+kosisola:sisol   # "To mock"
+koyɔ́nsɔ:yɔ́ns   # "To total"
+kojimba:jimb   # "To deceive"
+kolingóla:lingól   # "To unravel"
+kobáká:bák   # "To pose"
+kobanda:band   # "To begin"
+kobanda:band   # "To attach, sew"
+kobánga:báng   # "To be scared"
+kobánza:bánz   # "To think, believe, remember"
+kobatá:bat   # "To watch"
+kobatáma:batam   # "To hide(oneself)"
+kobéba:béb   # "To damage"
+kobɛla:bɛl   # "To cook"
+kobélela:bélel   # "To hail"
+kobénga:béng   # "To call, name"
+kobɛ́ta:bɛ́t   # "To beat,rain"
+kobianga:biang   # "To call"
+kobíka:bík   # "To be saved"
+kobima:bim   # "To go out, exit, appear"
+koboma:bom   # "To kill"
+kobɔ́nga:bɔ́ng   # "To improve oneself, prepare, arrange, adapt"
+kobúka:búk   # "To break"
+kobwáka:bwák   # "To throw"
+kolimwa:limw   # "To disappear" (lexicaled reversive extension)
+kobómba:bómb   # "To hide"
+kobɔ́nda:bɔ́nd   # "To separate in smaller prits, explain, expose"
+kobóta:bót   # "To give birth"
+kobóya:bóy   # "To refuse, disdain, deny, drop"
+kobuáka:buák   # "To throw"
+kobunda:bund   # "To fight"
+kofánda:fánd   # "To sit, stay, live"
+kofínga:fíng   # "To insult"
+kofúnda:fúnd   # "To accuse"
+kogánga:gáng   # "To shout"
+kogúmba:gúmb   # "To bend"
+kokaba:kab   # "To give, donate"
+kokákola:kákol   # "To negotiate a bargain"
+kokamwa:kamw   # "To be surprised, amazed"
+kokána:kán   # "To decide"
+kokanga:kang   # "To close, catch, grab, imprison"
+kokáta:kát   # "To cut, hang up, shave"
+kokauka:kauk   # "To dry"
+kokéba:kéb   # "To pay attention"
+kokɛla:kɛl   # "To generate, give live, create, invent"
+kokɛsɛna:kɛsɛn   # "To compare"
+kokíma:kím   # "To avoid, run, run away"
+kokita:kit   # "To land"
+kokoba:kob   # "To advance"
+kokóla:kól   # "To grow, increase, ripe, mature:
+kokóma:kóm   # "To arrive, happen, become, write, start to"
+komɛla:mɛl   # "To drink, swallow"
+kokónza:kónz   # "To monopolize, occupy by force"
+kokósa:kós   # "To lie, fool"
+kokɔ́ta:kɔ́t   # "To enter"
+kokúfa:kúf   # "To die, fail"
+kokúkúla:kúkúl   # "To dismantle, remove"
+kokúma:kúm   # "To win, dominate"
+kokúmba:kúmb   # "To drive, pilot, transport, carry"
+kokunda:kund   # "To bury"
+kokúta:kút   # "To find"
+kokwâ:kw   # "To take, snatch, catch, capture, recover"
+kokwéya:kwéy   # See kokwéya Dir/LR
+kokwéya:kwéy   # "To fall"
+kolaka:lak   # "To warn, predict, advise"
+kolanda:land   # "To follow"
+kolánga:láng   # "To get drunk"
+kolela:lel   # "To cry, whine"
+kotambola:tambol   # "To walk"
+kotatola:tatol   # "To testify"
+koleka:lek   # "To pass, surpass, exceed"
+kolɛ́mba:lɛ́mb   # "To be tired"
+kolénda:lénd   # "To be able to"
+kolikya:liky   # "To hope"
+kolimba:limb   # "To reach"
+kolinga:ling   # "To love, want desire"
+koloba:lob   # "To speak, talk, whisper"
+kolɔkɔta:lɔkɔt   # "To pick up"
+kolónga:lóng   # "To defeat, win"
+kolɔ́ta:lɔ́t   # "To dream, think"
+koluka:luk   # "To search, seek"
+kolútá:lút   # "To excel"
+komáta:mát   # "To climb"
+komeka:mek   # "To try, test,taste, attempt, persevere"
+komɛma:mɛm   # "To wear, carry, transport"
+komɔ́na:mɔ́n   # "To see"
+kondima:ndim   # "To accept, admit, believe"
+koniátá:niát   # "To trample"
+koninga:ning   # "To shake"
+kongala:ngal   # "To speak loud"
+konyanga:nyang   # "To plan a plot"
+kopakola:pakol   # "To put on oil"
+kopalangana:palangan   # "To disperse, spread, diffuse"
+kopanza:panz   # "To spread, scatter"
+kopekisa:pekis   # "To prohibit, forbid, prevent"
+kopéma:pém   # "To breathe"
+kopíma:pím   # "To refuse"
+koyéba:yéb   # "To know"
+kopambola:pambol   # "To bless, transfer good influences"
+kopɔla:pɔl   # "To get wet, soak (caus.)"
+kopɔna:pɔn   # "To choose"
+kosála:sál   # "To work, do"
+kosálema:sálem   # "To happen"
+kosámba:sámb   # "To plead (a case), appear in court"
+kosánga:sáng   # "To meet"
+kosɛka:sɛk   # "To laugh"
+kosɛ́nga:sɛ́ng   # "To ask"
+kosepela:sepel   # "To rejoice, enjoy, have fun"
+kosikola:sikol   # "To recite, liberate, deliver, remove"
+kosíla:síl   # "To finish, terminate"
+kosilika:silik   # "To get angry"
+kosimba:simb   # "To hold"
+kosolola:solol   # "To discuss, chat"
+kosɔsɔla:sɔsɔl   # "To analyze, discern"
+kosúka:súk   # "To reach the end"
+kotála:tál   # "To watch"
+kotámba:támb   # "To advance, go forward"
+kotánga:táng   # "To read, count, study"
+kotɛ́ka:tɛ́k   # "To sell, sell out"
+kotelema:telem   # "To stand up, halt"
+kotéya:téy   # "To teach"
+kotíka:tík   # "To leave"
+kotima:tim   # "To plow"
+kotínda:tínd   # "To ship, send"
+kotóka:tók   # "To boil, draw(water), pour"
+kotɔmbɔka:tɔmbɔk   # "To rebel"
+kotónda:tónd   # "To saturate"
+kotósa:tós   # "To obey, submit"
+kotúka:túk   # "Abuse"
+kotúna:tún   # "To ask"
+koúma:úm   # "To take a long time"
+koúta:út   # Alternative form of kowúta
+kovánda:vánd   # Alternative form of kofánda
+kowúta:wút   # "To come"
+konyata:nyat   # "To trample"
+koyékola:yékol   # "To learn"
+koyémba:yémb   # "To sing"
+koyíba:yíb   # "To steal"
+koyíka:yík   # "Increase, multiply"
+koyímayima:yímayim   # "To comply"
+koyóka:yók   # "To understand, listen, hear"
+kozánga:záng   # "To miss"
+kozela:zel   # "To wait"
+koínga:íng   # "To tie up, cross, warp"
+kozúa:zú   # "To earn, get, take, receive"
+kozwa:zw   # Alternate form of kozua
+kozónga:zóng   # "To return, go back"
+koyánola:yánol   # "To reply, answer"
+kolála:lál   # "To sleep, nap"
+kolia:li   # "To eat"
+kotia:ti   # "To put," may have irregular form but used regularly in corpus
+kobína:bín   # "To dance"
+kovímba:vímb   # "To inflate, puff(up)"
+kosómba:sómb   # "To buy"
+
+kolia:liy   # "To eat" Dir/LR
+
+kokoka:kok   # "To be able, can, fit(clothes)"
+kozala:zal   # Copula, must also analyze as aux verb
+
+
+LEXICON Aux-Verb-Stems
+# These 3 are the main Auxiliary verbs in Lingala
+kozala:zal
+kokoka:kok    # "Can, may"
+kosɛngɛle:sɛngɛl    # "(I) must" should only be conjugated at p3
+
+LEXICON Verb-Stems-Irregular1
+koya:y      # "To come"
+
+LEXICON Verb-Stems-Irregular2
+koya:ye     # "To come"
+kolia:le    # See kolia
+
+LEXICON VerbIrregImp
+koya<imp>:yaka    # Irregular irregular imperative. The incorrect imperative from above entry is removed using CG
+koya<imp><intns>:yakáká
+
+PATTERNS
+VerbIrregImp
+
+#=============================================================================!
+#                           Everything Else                                   !
+#=============================================================================!
+
+PATTERNS
+Adj-Invar Adjective-Invar-Suffix
+:AdjInfl Adjective-Stems AdjInfl:
+
+LEXICON Adjective-Stems
+mokɛ́:kɛ́    # "Small"
+mokúsé:kúsé    # "Short"
+molaí:laí    # "Long"
+molayi:layi    # "Tall, long"
+molalanda:lalanda    # "Blind"
+monɛ́nɛ:nɛ́nɛ    # "Big"
+mobola:bola    # "Poor"
+mosíká:síká    # "Far"
+molémbu:lémbu    # "Easy, weak"
+
+LEXICON Adj-Invar
+bokúsé    # "Short"
+bánsɔ    # "All"
+bínsɔ    # "All" Dir/RL
+bobele    # "Only"
+bololo    # "Bitter, sour"
+ngáí    # "Sour"
+mabé    # "Bad"
+makási    # "Strong, hard, difficult"
+malámu    # "Good"
+mobésu    # "Raw"
+mobimba    # "All, whole"
+mwá    # Generally means "small," "some," etc.
+mua    # "some, small" DIR/LR
+mwíndo    # "Black, African"
+ntéi    # "Middle, central"
+kitóko    # "Beautiful"
+pɛ́mbɛ́    # "White"
+mpɛ́mbɛ́    # "White" Dir/LR
+pɛnɛ    # "Close to"
+polele    # "Open, clear"
+seko    # "Eternal"
+sika    # "New"
+solo    # "True"
+yambo    # "First"
+mpembéni    # "Close"
+kala    # "Old"
+molungé    # "Warm, hot"
+malílí    # "Cold"
+esengo    # "Happy"
+bonzido    # "Deep"
+mpío    # "Cold"
+petwa    # "Clean"
+moíndo    # "Black, dark"
+bulo    # "Blue"
+langí\ la\ káwa    # "Brown"
+libáta    # "Bald"
+noki    # "Quick"
+sambá    # "Correct"
+yaya    # "Elder"
+téla    # "Ripe"
+súdi    # "South"
+sidi    # "South"
+nordi    # "North"
+nola    # "North"
+ɛ́sita    # "East"
+wɛ́sita    # "West, occidental"
+límbe    # "Occidental"
+séí    # "Comfortable"
+bómoí    # "Alive"
+ngáí\ mókó    # "Alone"
+soni    # "Ashamed"
+nsoni    # "Ashamed"
+nsomo    # "Awful"
+libata    # "Bald-headed"
+loko    # "Deaf"
+ekeseni    # "Different"
+ngoi\ ngoi    # "Cowardly"
+kifwafwa    # "Epileptic"
+lifalansé    # "French"
+falansé    # "French"
+lingɛlɛ́sa    # "Lingala"
+lingála    # Dir/LR
+lialémani    # "German"
+ngóla    # "Red"
+ngɛngɛ    # "Poisonous"
+zémi    # "Pregnant"
+ligreki    # "Greek"
+ligresi    # "Greek" Dir/LR
+liputrugɛ́shi    # "Portuguese"
+libándá    # "Outside"
+bondɔbɔ́    # "Yellow"
+mbwé    # "Gray"
+mayɛ́lɛ    # "Intelligent, smart"
+mumpɛ́    # "Catholic"
+bozitó    # "Heavy, fatness"
+
+#=============================================================================!
+#                         Pronoun Morphotactics                               !
+#=============================================================================!
+
+LEXICON Pronouns(2)
+ngáí <prn><pers><p1><sg><aa>:    # "I"
+yó <prn><pers><p2><sg><aa>:    # "You"
+yé <prn><pers><p3><sg><aa>:    # "He/She/It"
+ye <prn><pers><p3><sg><aa>:    # "He/She/It" DIR/LR
+bísó <prn><pers><p1><pl><aa>:    # "We"
+bínó <prn><pers><p2><pl><aa>:    # "You" (pl)
+bangó <prn><pers><p3><pl><aa>:    # "They"
+
+ya\ ngáí <prn><pos><p1><sg><aa>: # "Mine, my"
+ya\ ngáí <det><pos><sp>:
+ya\ yó <prn><pos><p2><sg><aa>: # "Yours, your"
+ya\ yó <det><pos><sp>:
+ya\ yé <prn><pos><p3><sg><aa>:    # "His, hers, its"
+ya\ yé <prn><pos><p3><sg><nn>:
+ya\ yé <det><pos><sp>:
+ya\ bísó <prn><pos><p1><pl><aa>: # "Ours, our"
+ya\ bísó <det><pos><sp>:
+ya\ bínó <prn><pos><p2><pl><aa>: # "Yours, your" (pl)
+ya\ bínó <det><pos><sp>:
+ya\ bangó <prn><pos><p3><pl><aa>: # "Theirs, their"
+ya\ bangó <det><pos><sp>:
+
+baóyo <prn><dem><pl>:
+wâná <prn><dem><sg>:    # "That one"
+wâná <det><dem>:    # "That one"
+náni <prn><itg><sg><aa>:    # "Who?"
+banáni <prn><itg><pl><aa>:    # "Who?" (pl)
+níni <prn><itg><sg><nn>:    # "What?"
+níni <prn><itg><pl><nn>:    # "What?"
+
+elóko\ mókó <prn><ind><nt><sg>:     # "Something, one thing, anything"
+elóko\ nyɔ́nsɔ <prn><ind><nt><sg>:   # "Everything"
+songolo <prn><ind><nt><sg>:    # "Someone" (old Lingala)
+elóko\ mókó\ tɛ́ <prn><ind><nt><sg>:    # "Nothing"
+elóko\ tɛ́ <prn><ind><nt><sg>:    # "Nothing"
+mosúsu <prn><ind><mf><pl>:    # "Others" cl1
+basúsu <prn><ind><mf><pl>:    # "Others" cl2
+
+ngáí\ mókó <prn><ref><p1><mf><sg>f:    # "Myself"
+yó\ mókó <prn><ref><p2><mf><sg>:    # "Yourself"
+yé\ mókó <prn><ref><p3><mf><sg>:    # "He/She/Itself"
+yě\ mókó <prn><ref><p3><mf><sg>:    # "He/She/Itself"
+bísó\ mókó <prn><ref><p1><mf><pl>:    # "Ourselves"
+bínó\ mókó <prn><ref><p2><mf><pl>:    # "Yourselves"
+bangó\ mókó <prn><ref><p3><mf><pl>:    # "Themselves"
+
+
+PATTERNS
+PRON-Oyo-Stems PRON-Oyo
+PRON-Yango-Stems PRON-Yango
+
+LEXICON PRON-Oyo
+<det><dem>: #    # If used as determiner
+<prn><dem><sg>: #    # If used as nominal
+<prn><rel>: #    # If used as relative
+
+LEXICON PRON-Oyo-Stems
+# See https://fr.wiktionary.org/wiki/C3B3yo#Lingala
+# Apparently "óyo" can agree in noun class, but this is contrary to mosto grammars (see
+# Meeuswis, 2010). These will analyze with some tags since they appear in some literature, but
+# probably would not want to generate these. Can revisit and add more robust support if that turns
+# out not to be the case.
+óyo     # "This one"
+óyo<cl1><pl>:baye
+óyo<cl3><sg>:moye
+óyo<cl3><pl>:miye
+óyo<cl5><sg>:liye
+óyo<cl5><pl>:maye
+óyo<cl7><sg>:eye
+óyo<cl7><pl>:biye
+óyo<cl9><pl>:iye
+óyo<cl11><sg>:loye
+óyo<cl14><sg>:boye
+
+LEXICON PRON-Yango
+<prn><dem><mf><sg><nn>: #    # That
+<prn><obj><p3><nt><sg><nn>: #    # It
+<det><dem>: #    # Determiner
+
+LEXICON PRON-Yango-Stems
+# See https://fr.wiktionary.org/wiki/yangC3B3
+# Apparently "yangó" can agree in noun class, but this is contrary to mosto grammars (see
+# Meeuswis, 2010). These will analyze with some tags since they appear in some literature, but
+# probably would not want to generate these. Can revisit and add more robust support if that turns
+# out not to be the case.
+yangó
+yangó<cl3><sg>:mwangó
+yangó<cl3><pl>:myangó
+yangó<cl5><sg>:lyangó
+yangó<cl5><pl>:mangó
+yangó<cl7><pl>:byangó
+yangó:<cl11><sg>lwangó
+yangó<cl14><sg>:bwangó
+
+PATTERNS
+Pronouns(1) Pronouns(2)
+Det-Pos-Stems Det-Pos
+:DetInfl Determiner-Stems DetInfl:
+
+LEXICON DetInfl
+<det><ind><sp>:mo>
+<det><ind><sp><cl1>:mu>
+<det><ind><sp><cl5>:li>
+<det><ind><sp><cl5>:i>
+<det><ind><sp><cl6>:ma>
+<det><ind><sp><cl7>:e>
+<det><ind><sp><cl8>:bi
+#<det><ind><sp>:ba> # cl10
+
+LEXICON Det-Pos
+<det><pos><sp>:
+
+LEXICON Determiner-Stems
+mosúsu:súsu     # "Other"
+ekoki:koki      # "Enough"
+moké:ké         # "Few"
+#nyɔ́nsɔ:ɔ́nsɔ    # "All"
+
+LEXICON Det-Pos-Stems
+# In all of these, 'na' can be replaced by 'ya'
+na\ ngáí    # "My"
+na\ yó      # "Your"
+na\ yé      # "His, her, its"
+na\ yě      # "His, her, its"
+na\ bísó    # "Our"
+na\ bínó    # "Your" (pl)
+na\ bangó   # "Their"
+
+
+LEXICON Prepositions
+na    # Many translations
+ná    # Many translations Dir/RL
+na\ káti    # Inside, between
+káti    # Inside, between
+lokóla    # "Like, as"
+o    # Used in Book of Mormon
+tíí   # "Up, until"
+tíí:téé    # "Up, until" (see tii above) Dir/LR
+kíno    # "Until"
+kín'o    # "Until"
+libándá    # "Outside"
+libosó    # "Before"
+libosó\ ya    # "In front of"
+yambo    # "Before"
+zingazinga    # "Around"
+nzinga\ nzinga    # Dir/LR
+nzinganzinga    # Dir/LR
+mpó\ na    # "To"
+ntéi    # "Among"
+útá    # "From"
+bandá    # "From"
+
+LEXICON Conjunctions-C
+bɔngɔ́   # "So"
+kasi   # "But"
+mpé   # "And"
+mpɔ   # "For"
+mpó   # "For" Dir/LR
+mpô   # "For" Dir/LR
+na   # "And"
+pámba\ te   # "Because"
+pé   # "And"
+po   # "For"
+to   # "Or"
+tó   # "Or" DIR/LR
+zambi   # "For, because"
+tíí   # "Until"
+kíno   # "Until"
+mpó\ ete   # "So that"
+mpɔ\ na   # "For"
+
+LEXICON Conjunctions-S
+sɔ́kɔ́     # "If"
+sɔ́kí     # "If" (alternative spelling)
+éte     # "That"
+
+LEXICON Connective
+ya
+o     # No exact meaning
+e     # Frequently used before a loan word. Also indicates the 3rd person
+a     # Used to indicate p3. Comes before verbs
+
+ya<cl1><sg>:wá
+ya<cl1><pl>:ba
+ya<cl3><sg>:mwa
+mya<cl3><pl>:mya
+ya<cl5><sg>:lya
+ya<cl5><pl>:ma
+ya<cl7><pl>:bya
+ya<cl11><sg>:la
+ya<cl14><sg>:bwa
+ya<cl15><sg>:za
+
+PATTERNS
+Connective Conn-Suffix
+Conjunctions-C Conj-Coord-Suffix
+Conjunctions-S Conj-Subord-Suffix
+Prepositions Prep-Suffix
+
+LEXICON Adverb
+míngi\ míngi   # "Often"
+atá   # "Even"
+atako   # "Even if"
+áwa   # "Here"
+bandá   # "Since"
+boye   # "Like this"
+buye   # "Like this"
+ee   # "Yes"
+tɛ́   # "No"
+elɔngɔ́   # "Together"
+iyo   # "Yes"
+káka   # "Only, still"
+se   # "Still"
+kala   # "Once upon a time"
+kuna   # "Over there"
+wâná   # "There"
+kútu   # "Rather, moreover"
+lɛlɔ́   # "Today"
+lolo   # "Today" (Infrequently used)
+lobi   # "Yesterday, tomorrow" Same word
+lisúsu   # "Again"
+mbele   # "Then" (only if soki "if" precedes it)
+mpenzá   # "Really"
+nanu   # "Already"
+neti   # "As if"
+malembe   # "Slowly"
+kasi   # "However"
+nzokande   # "However"
+nzoka\ nde   # "Yet, however"
+penzá   # "Really, very"
+penepene   # "Near"
+sikawa   # "Now" (sikoyo is a synonym)
+sik'oyo   # "Now, immediately"
+wápi   # "Where?"
+tangó   # "When?"
+nsima   # "Behind"
+na\ nsima   # "Behind"
+boyé   # "Thus, so"
+na\ nsé   # "Under"
+malámu   # "Well"
+mpé   # "Also"
+likólo   # "Upstairs, up"
+mikɔlɔ\ minso   # "Always"
+libándá   # "Outside"
+mikɔlɔ\ nyɔ́nsɔ   # "Everyday"
+mokɔlɔ\ mókó\ tɛ́   # "Never"
+bisíká\ binso   # "Everywhere"
+esíká\ esusu   # "Elsewhere"
+yambo   # "Before"
+libosó   # "Before"
+bobele   # "Only, permanently"
+lobi\ eleki   # "Yesterday"
+míngi   # "Too, very"
+noki   # "Quickly, immediately"
+kalakala   # "Also, already"
+mbele   # "Almost"
+ntóngó\ nyɔ́nsɔ   # "Daily"
+mbala\ míngi   # "Often"
+mbala\ mókó   # "Once"
+ekoki   # "Enough"
+nye   # "Quite"
+boni   # "How"
+ndé   # "Therefore"
+na\ butú   # "Tonight"
+mbala\ míbalé   # "Twice"
+pona\ nini   # "Why?"
+ndenge\ nini   # "How?"
+zingazinga   # "Around"
+nzinganzinga   # Dir/LR
+
+PATTERNS
+Adverb Adverb-Suffix
+
+LEXICON YesNo
+tɛ́<neg>:tɛ́    # "No"
+nzinga\ nzinga<pr>:nzinga\ nzinga # wrong lexicon, but I'm lazy
+
+LEXICON Numerals-Irreg
+mókó<num><ord>:mókó #    # "One" (has different cardinal form)
+mɔ̌kɔ́<num><ord>:mɔ̌kɔ́ #    # DIR/LR
+yɔ̌kɔ́<num><ord>:mɔ̌kɔ́ #    # DIR/LR
+libosó<num><card>:libosó #    # "First"
+
+LEXICON Numerals
+míbalé     # "Two"
+mísáto     # "Three
+mínei      # "Four"
+mítáno     # "Five"
+motóbá     # "Six"
+sambo      # "Seven"
+mwambe     # "Eight"
+libwá      # "Nine"
+zómi       # "Ten"
+túkú       # "A ten"
+ntúkú      # "A ten"
+kámá       # "A hundred"
+nkámá      # Dir/LR
+nkóto:kóto # "A Thousand"
+:efúku     # "Million(sg)"
+bifúku     # "Million(pl)"
+
+PATTERNS
+Numerals-Irreg
+Numerals Numeral-Suffix
+YesNo
+Quantifiers Quant-Suffix
+
+LEXICON Quantifiers
+ebelé     # "Many"
+míngi     # "A lot of"
+nyɔ́nsɔ    # "Each, all"
+nionso    # "Each, all"
+
+LEXICON FocusMarkers
+ndé<foc>:ndé  # "Focus marker with 'copula capacity'"
+
+LEXICON Interjections
+aleluya    # "Hallelujah"
+mbɔ́tɛ      # "Hello"
+losako     # "Hello"
+kende\ malamu     # "Bye"
+limbisa\ ngáí     # "Excuse me"
+
+PATTERNS
+LoanWords
+FocusMarkers
+Interjections Interjection-Suffix
+
+LEXICON LoanWords
+# These words frequently appear in the corpus but rarely in literature
+# They are uncommented specifically for coverage analysis
+bapolice<n><pl>:bapolice #    # "Police"
+de<pr>:de #    # "Of" (French)
+des<pr>:des #    # "Of" (French)
+du<pr>:du #    # "Of" (French)
+le<det><def><sg>:le #    # "The" (French)
+les<det><def><pl>:les #    # "The" (French)
+mersi<n><sg>:mersi #    # "Thanks"
+région<n><sg>:région #    # "Region"
+politíki<n><sg>:politíki #    # "Politic"
+fɛ́tí<n><sg>:fɛ́tí #    # "Party"
+letá<n><sg>:letá #    # "State"
+lopitalo<n><sg>:lopitalo #    # "Hospital"
+au<pr>:au #    # "At, to" (French)
+cas<n><sg>:cas #    # "Case"
+pápa<n><sg>:pápa #    # "Father"
+radio<n><sg>:radio #    # "Radio"
+temwe<n><sg>:temwe #    # "Witness" (Fr)
+varicelle<n><sg>:varicelle #    # "Chickenpox" (Fr)
+masíni<n><sg>:masíni #    # "Machine"
+musica<n><sg>:musica #    # "Music"
+Jean<np><ant><m><sg>:Jean #    # "John"
+Jean\ Batiste<np><ant><m><sg>:Jean\ Batiste #    # "John the Baptist"
+mizíki<n><sg>:mizíki #    # "Music"
+million<n><sg>:million #    # "Million" frequently used in corpus
+provinci<n><sg>:provinci #    # "Province"
+pɔlɔvɛ́si<n><sg>:pɔlɔvɛ́si #    # "Province"
+Atlantíki<np><top><sg>:Atlantíki #    # "Atlantic"
+dɛsɛ́mbɛ<n><sg>:dɛsɛ́mbɛ #    # "December"
+Febwáli<n><sg>:febwáli #    # "February"
+guvɛnɛmá<n><sg>:guvɛnɛmá #    # "Gouvernement"
+biló<n><sg>:biló #    # "Office"
+vɔ́ti<n><sg>:vɔ́ti #    # "Votes(electoral)"
+tetanɔ́si<n><sg>:tetanɔ́si #    # "Tetanus"
+katolike<n><sg>:tetanɔ́si #    # "Catholic"
+bakatolike<n><pl>:tetanɔ́si #    # "Catholics"
+vilúsu<n><sg>:vilúsu #    # "Virus"
+kompaní<n><sg>:kompaní #    # "Company"
+tibélekilosi<n><sg>:tibélekilosi #    # "Tuberculosis"
+prostáti<n><sg>:prostáti #    # "Prostate"
+espania<np><top><sg>:espania #    # "Spain"
+fízíkí<n><sg>:fízíkí #    # "Physics"
+tomáti<n><sg>:tomáti #    # "Tomatoe"
+republíki<n><sg>:republíki #    # "Republic"
+Rusí<np><top><sg>:Rusí #    # "Russia"
+
+LEXICON Irregular
+# Class 1 mwa to ba
+mwana<n><cl1><sg>:mwana    # "Child"
+mwana<n><cl1><pl>:bana 
+mwasi<n><cl1><sg>:mwasi    # "Girl, daughter, wife"
+mwasi<n><cl1><pl>:basi
+
+# Class 3 mw to mi
+mwinda<n><cl3><sg>:mwinda  # "Light"
+mwinda<n><cl3><pl>:minda
+
+# Class 1 plural only
+banzambe<n><cl1><pl>:banzambe   # "Gods"
+
+# Class 5 li to mi instead of ma when root starts with i
+liso<n><cl5><sg>:liso      # "Eye"
+liso<n><cl5><pl>:miso
+
+# Class 7 no singular
+biléi<n><cl7><pl>:biléi    # "Food"
+
+# Class 4 no plural
+lialémani<n><cl5><sg>:lialémani     # "German"
+
+# Class 11 lo to nd
+loléngé<n><cl11><sg>:loléngé        # "Method"
+loléngé<n><cl11><pl>:ndéngé
+
+# Class 11 lo to ns
+losámbo<n><cl11><sg>:losámbo        # "Prayer"
+losámbo<n><cl11><pl>:nsámbo
+
+# Class 11 lo to m
+lobángu<n><cl11><sg>:lobángu        # "Speed"
+lobángu<n><cl11><pl>:mbángu
+
+# Class 11 lo to n
+lokótá<n><cl11><sg>:lokótá         # "Language, dialect"
+lokótá<n><cl11><pl>:nkótá
+lokásá<n><cl11><pl>:nkásá    # Dir/LR
+
+# Class 14 bw
+bwányá<n><cl14><sg>:bwányá         # "Wisdom"
+
+
+LEXICON Tentative
+mauti<prn><rel>:mauti # Translated "which", so guess a relative pronoun. Need to confirm.
+boye<prn><dem>:boye   # "Often takes the translation "this" before a quote, so guessing this can act as a demonstrative pronoun.
+asi<vaux>:asi         # "Seems to come before verbs sometimes. Unclear exactly how it affects meaning" See https://glosbe.com/ln/en/asi
+bosi<vaux>:bosi       # Also seems to come before verbs sometimes. Unclear exactly how it affects meaning.
+esi<vaux>:esi         # "Seems to come before verbs sometimes. Unclear exactly how it affects meaning"
+
+LEXICON Punctuation
+.<sent>:.
+..<sent>:..
+...<sent>:...
+;<sent>:;
+\:<sent>:\:
+!<sent>:!
+-<guio>:-
+—<guio>:—
+,<cm>:,
+?<sent>:?
+'<apos>:'
+"<sent>:"
+«<lquot>:«
+»<rquot>:»
+”<rquot>:”
+“<lquot>:“
+(<lpar>:(
+]<rpar>:]
+[<lpar>:[
+)<rpar>:)
+\\<sent>:\\
+/<sent>:/
+
+PATTERNS
+Punctuation
+Tentative
+Irregular

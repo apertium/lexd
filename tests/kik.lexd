@@ -1,0 +1,1142 @@
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#!!!                          L E X I C O N                                  !!!
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+LEXICON NounLocative
+<loc>:inĩ
+<loc>:-inĩ
+:
+
+LEXICON NounRootCl1
+ndũ:nd{Ũ}  # person
+arimũ:arim{Ũ}  # teacher
+rĩmi:{R}ĩm{I}  # farmer
+timia:{T}imi{A}  # woman
+tumia:{T}umi{A}  # woman, alternate spelling
+nyina:nyin{A}  # mother
+thomi:thom{I}  # student
+thuri:thur{I}  # man
+arĩ:{A}r{Ĩ}  # daughter
+
+LEXICON NounRootCl1Irr
+wagui:wagu{I}
+
+LEXICON Cl1
+<n><cl1>:{NULL}
+
+LEXICON NounRootCl3
+aki:{A}k{I}  # fire
+ithikiri:{I}thikir{I}  # bicycle
+bira:bir{A}  # ball
+rango:rang{O}  # door
+ciĩ:{C}i{Ĩ}  # home
+tĩ:{T}{Ĩ}  # tree
+cuha:{C}uh{A}  # swing
+rũthi:{R}ũth{I}  # lion
+thanga:thang{A}  # sand
+ĩkĩre:{Ĩ}kĩr{E}  # method
+thenya:theny{A}  # day; also gap
+gũnda:gũnd{A}  # garden
+gambĩre:gambĩre  # voice
+
+LEXICON Cl3
+<n><cl3>:{NULL}
+
+LEXICON NounRootCl5
+hũa:hũ{A}  # flower
+tunda:{T}und{A}  # fruit
+rima:{R}im{A}  # hole
+ria:{R}i{A}  # milk, or lake/pond
+bera:ber{A}  # pear
+gũrũ:gũr{Ũ}  # sky
+aĩ:{BLOCK}{A}{BLOCK}{Ĩ}  # water
+higa:hig{A}  # stone
+embe:{E}mb{E}  # mango
+rigũ:{R}ig{Ũ}  # banana
+inabu:{I}nab{U}
+ĩciria:{Ĩ}ciri{A}
+taha:{T}ah{A}  # mataha (a food made with corn and beans!)
+thangũ:thang{Ũ}  # leaf
+mithimithi:mithimith{I}  # twilight, always plural
+twa:{T}w{A}  # name
+thaga:thag{A}  #
+itho:{I}th{O}  # eye
+rwa:{R}w{A}  # letter
+
+LEXICON Cl5
+<n><cl5>:{NULL}
+
+LEXICON NounRootCl7
+rĩma:{R}ĩm{A}  # mountain
+tĩ:{T}{Ĩ}  # chair
+rio:{R}i{O}  # food
+kombe:{K}omb{E}  # cup
+ũra:{Ũ}r{A}  # frog
+rot:{R}ot  # dream
+rathi:{R}ath{A}  # class
+boko:bok{O}
+imba:{I}mb{A}
+ana:{A}n{A}  # child
+ambĩrĩria:{A}mbĩrĩri{A}  # beginning
+ndũ:nd{Ũ}  # nothing
+tũmi:{T}ũm{I}  # reason
+ũria:{Ũ}ri{A}  # problem
+rumi:rum{I}  # curse
+thama:tham{A}  # island
+roto:rot{O}  # dream (nominalized)
+ongo:{O}ng{O}  # head 
+roko:{R}ok{O}  # morning
+ndo:nd{O}  # thing
+
+LEXICON Cl7
+<n><cl7>:{NULL}
+
+LEXICON NounRootCl9p10
+bata:bat{A}
+buku:buk{U}  # book
+bembe:bemb{E}  # corn
+gathĩ:gath{Ĩ}  # ladder
+gui:gu{I}  # dog, plural category uncertain
+nyamũ:nyam{Ũ}  # animal, plural category uncertain
+cukuru:{C}ukur{U}  # school, plural category uncertain
+ca:{C}{A}  # outside, plural category uncertain
+kari:{K}ar{I}  # car, plural category uncertain
+benjũ:benj{Ũ}  # pencil
+timũ:{T}im{Ũ}  # lime
+koma:{K}om{A}  # spirit, singular category uncertain
+metha:meth{A}  # table
+tũmĩrĩri:{T}ũmĩrĩr{I}  # message, plural category uncertain
+thimũ:thim{Ũ}  # phone, plural category uncertain
+thitembũ:thitemb{Ũ}  # stamp, plural category uncertain
+bahaca:bahac{A}  # envelope, plural category uncertain
+yama:yam{A}  # meat, plural category uncertain
+gũkũ:gũk{Ũ}  # chicken, plural category uncertain
+thaa:tha{A}  # hour
+bakũri:bakũr{I}
+dahi:dah{I}
+thia:thi{A}
+thĩ:thĩ  # not sure if this actually belongs here but it's my best guess based on agreement
+tuma:{T}um{A}  # darkness
+yoka:y{O}k{A}  # snake
+goga:gog{A}  # grace
+goro:gor{O}  # heart
+guo:gu{O}  # garment
+muoy{O}:muoy{O}  # life
+tiihũ:{T}iih{Ũ}  # wave
+tihũ:{T}ih{Ũ}  # wave
+doo:do{O}  # bucket
+nuthu:{N}uth{U}  # half
+hĩndĩ:hĩnd{Ĩ}  # time (instance)
+dagĩka:dagĩk{A}  # minute
+bathi:bath{I}  # bus
+
+LEXICON NounRootCl9p10Irr
+rumu:rumu  # room
+batĩ:bat{Ĩ}
+
+
+LEXICON Cl9p10
+<n><cl9p10>:{NULL}
+
+LEXICON NounRootCl11p10
+rũigi:{R}ũig{I}
+gĩrĩ:gĩr{Ĩ}  # fence, plural category uncertain
+imbo:{I}mb{O}  # song, plural category uncertain
+ũĩ:{Ũ}{BLOCK}{Ĩ}  # river, plural category uncertain
+ĩgĩ:{Ĩ}g{Ĩ}  # eagle, plural category uncertain
+teto:tet{O}  # word
+gano:gan{O}  # story 
+
+LEXICON Cl11p10
+<n><cl11p10>:{NULL}
+
+LEXICON NounRootCl11p6
+guoya:guoy{A}
+
+LEXICON Cl11p6
+<n><cl11p6>:{NULL}
+
+LEXICON NounRootCl12p13
+nua:nu{A}
+ana:{A}n{A}  # child
+ihũri:{I}hũr{I}  # gourd
+hũa:hũ{A}  # coffee
+hĩĩ:hĩ{Ĩ}  # boy
+hiũ:hi{Ũ}  # knife
+gui:gu{I}  # dog
+hinda:hind{A}  # time (as in one time)
+
+LEXICON Cl12p13
+<n><cl12p13>:{NULL}
+
+LEXICON NounRootCl14
+wendi:wend{I}
+cũrũ:{C}ũr{Ũ}  # porridge
+goro:gor{O}  # expense
+menyi:menyi  # information
+
+LEXICON Cl14
+<n><cl14>:{NULL}
+
+LEXICON NounRootCl15
+tũ:{T}{Ũ}
+rug:{R}ug  # cook/cooking
+theka:theka  # laugh
+oko:{O}k{O}
+gũrũ:gũr{Ũ}  # leg
+
+LEXICON Cl15
+<n><cl15>:{NULL}
+
+PATTERNS
+NounRootCl16
+NounRootCl17
+NounSg NounLocative
+NounPl NounLocative
+NounDimSg(1) NounSg NounDimSg(2) NounLocative
+NounDimPl(1) NounPl NounDimPl(2) NounLocative
+NounDimSg(1) NounSg-NoPre NounDimSg(2) NounLocative
+NounDimPl(1) NounPl-NoPre NounDimPl(2) NounLocative
+
+LEXICON NounRootCl16
+ndũ<n><cl16><sg><def>:hand{Ũ}{NULL} # place
+
+LEXICON NounRootCl17
+ndũ<n><cl17><sg><indef>:kũnd{Ũ}{NULL}
+
+LEXICON NounDimPl(2)
+:{T}{Ũ} <dim>:{NULL}
+
+LEXICON NounDimSg(2)
+:{K}{A} <dim>:{NULL}
+
+LEXICON NounNumberSg
+<sg>:{NULL}
+
+LEXICON NounNumberPl
+<pl>:{NULL}
+
+PATTERN NounSg
+NumberCl1-Sg NounRootCl1 Cl1 NounNumberSg
+NumberCl1Irr-Sg NounRootCl1Irr Cl1 NounNumberSg
+NumberCl3-Sg NounRootCl3 Cl3 NounNumberSg
+NumberCl5-Sg NounRootCl5 Cl5 NounNumberSg
+NumberCl7-Sg NounRootCl7 Cl7 NounNumberSg
+NumberCl9p10-Sg NounRootCl9p10 Cl9p10 NounNumberSg
+NumberCl9p10Irr-Sg NounRootCl9p10Irr Cl9p10 NounNumberSg
+NumberCl11p10-Sg NounRootCl11p10 Cl11p10 NounNumberSg
+NumberCl11p6-Sg NounRootCl11p6 Cl11p6 NounNumberSg
+NumberCl12p13-Sg NounRootCl12p13 Cl12p13 NounNumberSg
+NumberCl14-Sg NounRootCl14 Cl14 NounNumberSg
+NumberCl15-Sg NounRootCl15 Cl15 NounNumberSg
+
+PATTERN NounSg-NoPre
+NounRootCl1 Cl1 NounNumberSg
+NounRootCl1Irr Cl1 NounNumberSg
+NounRootCl3 Cl3 NounNumberSg
+NounRootCl5 Cl5 NounNumberSg
+NounRootCl7 Cl7 NounNumberSg
+NounRootCl9p10 Cl9p10 NounNumberSg
+NounRootCl9p10Irr Cl9p10 NounNumberSg
+NounRootCl11p10 Cl11p10 NounNumberSg
+NounRootCl11p6 Cl11p6 NounNumberSg
+NounRootCl12p13 Cl12p13 NounNumberSg
+NounRootCl14 Cl14 NounNumberSg
+NounRootCl15 Cl15 NounNumberSg
+
+PATTERN NounPl
+NumberCl1-Pl NounRootCl1 Cl1 NounNumberPl
+NumberCl1Irr-Pl NounRootCl1Irr Cl1 NounNumberPl
+NumberCl3-Pl NounRootCl3 Cl3 NounNumberPl
+NumberCl5-Pl NounRootCl5 Cl5 NounNumberPl
+NumberCl7-Pl NounRootCl7 Cl7 NounNumberPl
+NumberCl9p10-Pl NounRootCl9p10 Cl9p10 NounNumberPl
+NumberCl9p10Irr-Pl NounRootCl9p10Irr Cl9p10 NounNumberPl
+NumberCl11p10-Pl NounRootCl11p10 Cl11p10 NounNumberPl
+NumberCl11p6-Pl NounRootCl11p6 Cl11p6 NounNumberPl
+NumberCl12p13-Pl NounRootCl12p13 Cl12p13 NounNumberPl
+NumberCl14-Pl NounRootCl14 Cl14 NounNumberPl
+NumberCl15-Pl NounRootCl15 Cl15 NounNumberPl
+
+PATTERN NounPl-NoPre
+NounRootCl1 Cl1 NounNumberPl
+NounRootCl1Irr Cl1 NounNumberPl
+NounRootCl3 Cl3 NounNumberPl
+NounRootCl5 Cl5 NounNumberPl
+NounRootCl7 Cl7 NounNumberPl
+NounRootCl9p10 Cl9p10 NounNumberPl
+NounRootCl9p10Irr Cl9p10 NounNumberPl
+NounRootCl11p10 Cl11p10 NounNumberPl
+NounRootCl11p6 Cl11p6 NounNumberPl
+NounRootCl12p13 Cl12p13 NounNumberPl
+NounRootCl14 Cl14 NounNumberPl
+NounRootCl15 Cl15 NounNumberPl
+
+LEXICON NumberCl1-Sg
+:m{Ũ}>
+LEXICON NumberCl1-Pl
+:{A}>
+
+LEXICON NumberCl1Irr-Sg
+:{NULL}>
+LEXICON NumberCl1Irr-Pl
+:{NULL}>
+
+LEXICON NumberCl3-Sg
+:m{Ũ}>
+LEXICON NumberCl3-Pl
+:m{Ĩ}>
+
+LEXICON NumberCl5-Sg
+:{RRI}{IRI}>
+LEXICON NumberCl5-Pl
+:m{A}>
+
+LEXICON NumberCl7-Sg
+:{K}{Ĩ}>
+LEXICON NumberCl7-Pl
+:{C}{I}>
+
+LEXICON NumberCl9p10-Sg
+:{N}{N2}{N3}>
+LEXICON NumberCl9p10-Pl
+:{N}{N2}{N3}>
+
+LEXICON NumberCl9p10Irr-Sg
+:{NULL}
+LEXICON NumberCl9p10Irr-Pl
+:{NULL}
+
+LEXICON NumberCl11p10-Sg
+:{R}{Ũ}>
+LEXICON NumberCl11p10-Pl
+:{N}{N2}{N3}>
+
+LEXICON NumberCl11p6-Sg
+:{R}{Ũ}>
+LEXICON NumberCl11p6-Pl
+:m{A}>
+
+LEXICON NumberCl12p13-Sg
+:{K}{A}>
+LEXICON NumberCl12p13-Pl
+:{T}{Ũ}>
+
+LEXICON NumberCl14-Sg
+:{NULL}
+:{Ũ}
+LEXICON NumberCl14-Pl
+:m{A}>
+
+LEXICON NumberCl15-Sg
+:{K}{Ũ}>
+LEXICON NumberCl15-Pl
+:m{A}>
+
+PATTERNS
+IrregCopNoClass
+IrregularCopula IrregularCopulaClass IrregularCopulaNumber
+
+LEXICON IrregularCopula
+rĩ<cop><pres><p3>:nĩ
+rĩ<cop><pres><neg><p3>:ti
+
+LEXICON IrregCopNoClass
+rĩ<cop><pres><p1><sg>:ndĩ
+
+LEXICON IrregularCopulaNumber
+<sg>:{NULL}
+<pl>:{NULL}
+
+LEXICON IrregularCopulaClass
+<cl1>:{NULL}
+<cl3>:{NULL}
+<cl5>:{NULL}
+<cl7>:{NULL}
+<cl9p6>:{NULL}
+<cl9p10>:{NULL}
+<cl11p6>:{NULL}
+<cl11p10>:{NULL}
+<cl12p6>:{NULL}
+<cl12p13>:{NULL}
+<cl14>:{NULL}
+<cl15>:{NULL}
+<cl16>:{NULL}
+<cl17>:{NULL}
+
+PATTERNS
+CopVerbNeg1(1) CopPersNum(1) CopVerbTense CopVerbNeg1(2) CopPersNum(2)
+CopVerbNeg1(1) CopPersNumNoNeg(1) CopVerbTense CopVerbNeg1(2) CopPersNumNoNeg(2)
+CopPersNum(1) CopVerbNeg2(1) CopVerbTense CopVerbNeg2(2) CopPersNum(2)
+
+LEXICON CopVerbNeg1(2)
+:n{D}> <neg>:{NULL}
+: :
+
+LEXICON CopPersNumNoNeg(2)
+:{Ũ}> <p2><sg>:{NULL}{NULL}
+:{A}> <cl1><sg>:{NULL}{NULL}
+:{Ũ}> <cl3><sg>:{NULL}{NULL}
+:{yĨ}> <cl3><pl>:{NULL}{NULL}
+:{Ĩ}> <cl9p6><sg>:{NULL}{NULL}
+:{Ĩ}> <cl9p10><sg>:{NULL}{NULL}
+:{Ũ}> <cl14><sg>:{NULL}{NULL}
+
+LEXICON CopPersNum(2)
+:{N}{N2}{N3}> <p1><sg>:{NULL}{NULL}
+:{T}{Ũ}> <p1><pl>:{NULL}{NULL}
+:m{Ũ}> <p2><pl>:{NULL}{NULL}
+:m{A}> <cl1><pl>:{NULL}{NULL}
+:r{Ĩ}> <cl5><sg>:{NULL}{NULL}
+:m{A}> <cl5><pl>:{NULL}{NULL}
+:{K}{Ĩ}> <cl7><sg>:{NULL}{NULL}
+:{C}{I}> <cl7><pl>:{NULL}{NULL}
+:m{A}> <cl9p6><pl>:{NULL}{NULL}
+:{C}{I}> <cl9p10><pl>:{NULL}{NULL}
+:{R}{Ũ}> <cl11p6><sg>:{NULL}{NULL}
+:m{A}> <cl11p6><pl>:{NULL}{NULL}
+:{R}{Ũ}> <cl11p10><sg>:{NULL}{NULL}
+:{C}{I}> <cl11p10><pl>:{NULL}{NULL}
+:{K}{A}> <cl12p6><sg>:{NULL}{NULL}
+:m{A}> <cl12p6><pl>:{NULL}{NULL}
+:{K}{A}> <cl12p13><sg>:{NULL}{NULL}
+:{T}{Ũ}> <cl12p13><pl>:{NULL}{NULL}
+:m{A}> <cl14><pl>:{NULL}{NULL}
+:{K}{Ũ}> <cl15><sg>:{NULL}{NULL}
+:m{A}> <cl15><pl>:{NULL}{NULL}
+:ha>  <cl16><sg>:{NULL}{NULL}
+:k{Ũ}> <cl17><sg>:{NULL}{NULL}
+
+LEXICON CopVerbNeg2(2)
+:{T}{I}> <neg>:{NULL}
+
+LEXICON CopVerbTense
+ri<cop><currpast>:{NULL}{U}ma{NULL}
+rĩ<cop><pres>:{NULL}{Ĩ}
+rĩ<cop><rempast>:{A}>{NULL}
+rĩ<cop><nearpast>:r{A}>{NULL}
+rĩ<cop><pres>:{NULL}{NULL}
+
+PATTERNS
+VerbInfImp(1) VerbStem VerbInfImp(2)
+VerbFoc(1) VerbNeg1(1) VerbSubject(1) VerbWithTense VerbNeg1(2) VerbSubject(2) VerbFoc(2)
+VerbFoc(1) VerbNeg1(1) VerbSubjectNoNeg(1) VerbWithTense VerbNeg1(2) VerbSubjectNoNeg(2) VerbFoc(2)
+VerbFoc(1) VerbSubject(1) VerbNeg2(1) VerbWithTense VerbNeg2(2) VerbSubject(2) VerbFoc(2)
+
+PATTERN VerbWithTense
+VerbTenseAspect-A(1) VerbReflexive(1) VerbStem VerbTenseAspect-A(2) VerbSuffix VerbTenseAspect-A(3) VerbTrans VerbFinalVowel-A VerbReflexive(2)
+VerbTenseAspect-E(1) VerbReflexive(1) VerbStem VerbTenseAspect-E(2) VerbSuffix VerbTenseAspect-E(3) VerbTrans VerbFinalVowel-E VerbReflexive(2)
+
+LEXICON VerbInfImp(2)
+:{NULL}> <imp>:{A}
+:{K}{Ũ}> <inf>:{A}
+
+LEXICON VerbFoc(2)
+:n{Ĩ}> <foc>:{NULL}
+: :
+
+LEXICON VerbSubjectNoNeg(2)
+:{Ũ}> <p2><sg>:{NULL}{NULL}
+:{A}> <cl1><sg>:{NULL}{NULL}
+:{Ũ}> <cl3><sg>:{NULL}{NULL}
+:{Ĩ}> <cl3><pl>:{NULL}{NULL}
+:{Ĩ}> <cl9p6><sg>:{NULL}{NULL}
+:{Ĩ}> <cl9p10><sg>:{NULL}{NULL}
+:{Ũ}> <cl14><sg>:{NULL}{NULL}
+
+LEXICON VerbSubject(2)
+:{N}{N2}{N3}> <p1><sg>:{NULL}{NULL}
+:{T}{Ũ}> <p1><pl>:{NULL}{NULL}
+:m{Ũ}> <p2><pl>:{NULL}{NULL}
+:m{A}> <cl1><pl>:{NULL}{NULL}
+:r{Ĩ}> <cl5><sg>:{NULL}{NULL}
+:m{A}> <cl5><pl>:{NULL}{NULL}
+:{K}{Ĩ}> <cl7><sg>:{NULL}{NULL}
+:{C}{I}> <cl7><pl>:{NULL}{NULL}
+:m{A}> <cl9p6><pl>:{NULL}{NULL}
+:{C}{I}> <cl9p10><pl>:{NULL}{NULL}
+:{R}{Ũ}> <cl11p6><sg>:{NULL}{NULL}
+:m{A}> <cl11p6><pl>:{NULL}{NULL}
+:{R}{Ũ}> <cl11p10><sg>:{NULL}{NULL}
+:{C}{I}> <cl11p10><pl>:{NULL}{NULL}
+:{K}{A}> <cl12p6><sg>:{NULL}{NULL}
+:m{A}> <cl12p6><pl>:{NULL}{NULL}
+:{K}{A}> <cl12p13><sg>:{NULL}{NULL}
+:{T}{Ũ}> <cl12p13><pl>:{NULL}{NULL}
+:m{A}> <cl14><pl>:{NULL}{NULL}
+:{K}{Ũ}> <cl15><sg>:{NULL}{NULL}
+:m{A}> <cl15><pl>:{NULL}{NULL}
+
+LEXICON VerbNeg2(2)
+:{T}{I}> <neg>:{NULL}
+
+LEXICON VerbTenseAspect-A(3)
+:{A}> <v><rempast>:{NULL} <hab>:>{A}g
+:{BLOCK}{A}> <v><rempast>:{NULL} <hab>:>{A}g
+:{R}{A}> <v><nearpast>:{NULL} <hab>:>{A}g
+:{R}{A}> <v><nearpast>:{NULL} :{NULL}
+:{BLOCK}{A}> <v><currpast>:{NULL} :{NULL}
+:{K}{A}> <v><pres>:{NULL} :{NULL}
+:{RAR}{A}> <v><pres>:{NULL} :{NULL}
+:{RAR}{A}> <v><pres>:{NULL} <proc>:>{Ĩ}r
+:{NULL} <v><pres>:{NULL} <hab>:>{A}g
+:{K}{Ũ}> <v><currfut>:{NULL} :{NULL}
+:{K}{A}> <v><remfut>:{NULL} :{NULL}
+:{K}{Ĩ}> <v><seq>:{NULL} :{NULL}
+:{K}{I}> <v><seq>:{NULL} :{NULL}
+
+LEXICON VerbTenseAspect-E(3)
+:{A}> <v><rempast>:{NULL} <perf>:>{Ĩ}t
+:{A}> <v><rempast>:{NULL} <compl>:>{I}r
+:{BLOCK}{A}> <v><rempast>:{NULL} <perf>:>{Ĩ}t
+:{BLOCK}{A}> <v><rempast>:{NULL} <compl>:>{I}r
+:{R}{A}> <v><nearpast>:{NULL} <perf>:>{Ĩ}t
+:{R}{A}> <v><nearpast>:{NULL} <compl>:>{I}r
+:{K}{Ũ}> <v><currpast>:{NULL} <perf>:>{Ĩ}t
+:{NULL} <v><currpast>:{NULL} <compl>:>{I}r
+:{NULL} <v><pres>:{NULL} <perf>:>{Ĩ}t
+
+LEXICON VerbFinalVowel-A
+:>{AA}
+<pass>:>wo
+
+LEXICON VerbFinalVowel-E
+:>{EE}
+<pass>:>wo
+
+LEXICON VerbReflexive(2)
+:{Ĩ}> <refl>:{NULL}
+: :
+
+PATTERN VerbSuffix
+VerbRecip VerbIntens VerbMid VerbCaus VerbApp
+
+LEXICON VerbRecip
+<recip>:>{A}n
+:
+
+LEXICON VerbIntens
+<intens>:>{Ĩ}rĩr
+<intens>:>{Ũ}rũr
+:
+
+LEXICON VerbMid
+<mid>:>{Ĩ}k
+<mid><rev>:>{Ĩ}k>{Ũ}r
+<mid><rev>:>{Ũ}k
+<rev>:>{Ũ}r
+:
+
+LEXICON VerbCaus
+<caus>:>{I}th
+:
+
+LEXICON VerbApp
+<appl>:>{Ĩ}r
+:
+
+LEXICON VerbTrans
+<trans>:>{I}
+:
+
+LEXICON VerbNeg1(2)
+:n{D}> <neg>:{NULL}
+: :
+
+LEXICON VerbStem
+cab:cab   # print
+har:har   # prepare
+ũkĩr:{Ũ}kĩr   # wake.up
+tega:tega   # 
+gan:gan   # narrate
+rũg:{R}ũg   # jump
+ag:{A}g   # fail
+um:{U}m   # come.out
+kiny:{K}iny   # arrive
+kũr:{K}ũr   # grow
+ũk:{Ũ}k   # come
+in:{I}n   # sing
+thi:th{II}   # go
+thi:th{I}   # go
+thom:thom   # read
+thamb:thamb
+rĩm:{R}ĩm   # cultivate
+haic:haic
+on:{O}n
+ror:{R}or
+gũ:g{Ũ}   # fall
+ũr:{Ũ}r   # run away
+cok:{C}ok   # return
+cooker:{C}ooker   # say(?) (meaning is  fairly confusing, but common in Bible)
+ik:{I}k   # throw
+nyit:nyit   # catch
+tin:tin   # cut
+hanyũk:hanyũk   # run
+ikar:ikar   # stay/sit
+rĩ:{R}{Ĩ}   # eat
+ririkan:{R}irikan   # remember
+ĩtĩk:{Ĩ}tĩk   # believe
+iy:{I}y   # steal
+igu:{I}g{U}   # hear / obey
+ug:{U}g   # say
+ĩr:{Ĩ}r   # tell
+dũm:dũm   # send
+tuĩk:{T}uĩk   # become
+end:{E}nd   # want
+thambĩr:thambĩr   # swim
+ringĩr:{R}ingĩr   # persuade
+hing:hing   # close
+amb:{A}mb   # start
+ĩrĩgĩr:{Ĩ}rĩgĩr   # intend
+ĩtĩkĩr:{Ĩ}tĩkĩr   # allow
+rut:{R}ut   # learn, teach, or remove
+ribot:{R}ibot   # report
+anĩrĩr:{A}nĩrĩr   # announce
+ĩcir:{Ĩ}cir   # think
+ĩtu:{Ĩ}t{U}   # pretend
+rot:{R}ot   # dream
+ĩrir:{Ĩ}rir   # regret
+ken:{K}en   # be happy
+rakar:{R}akar   # be angry
+ĩhok:{Ĩ}hok   # hope
+no:n{O}   # can/must (?)
+hot:hot   # might
+tũm:{T}ũm
+ũm:{Ũ}m   # dry
+h[-fvE]:h   # give
+hith:hith   # hide
+humb:humb   # cover
+ĩk:{tĨ}k   # put
+thek:thek   # laugh
+tah:tah   # fetch
+ihũg:{I}hũg   # to get wet
+heenere:heenere   # deceive
+tũũr:tũũr   # live (or live somewhere)
+nyu:nyu   # drink
+it:{I}t   # pour
+ur:{U}r   # rain
+hũr:hũr   # beat
+tig:{T}ig   # leave
+on:{O}n   # see
+ĩt:{Ĩ}t   # call
+hĩtũki:hĩtũk{I}   # pass (exceed)
+twar:{T}war   # take, or drive
+ku:k{U}   # die
+ũri:{Ũ}r{I}   # ask
+maki:mak{I}   # scare
+hot:hot   # can (as in be able)
+ig:ig   # put
+rath:rath   # predict
+ĩk:{Ĩ}k   # do
+bay:bay   # wrap
+thir:thir   # fail
+onek:{O}nek   # appear
+meny:meny   # know
+ambatĩri:{A}mbatĩr{I}   # advance (in status)
+rũgam:rũgam   # stand
+ken:ken   # rejoice
+maki:mak{I}   # surprise
+cari:car{I}   # search
+amũkĩr:{A}mũkĩr   # accept
+reki:rek{I}   # send
+ũmb:{Ũ}mb   # create (make)
+ari:{A}r{I}   # discuss
+tu:t{U}   # decide
+ĩhũg:{Ĩ}hũg   # watch
+reg:reg   # refuse
+iki:{I}k{I}   # throw
+tigithani:tigithan{I}   # separate
+buĩri:buĩr{I}   # disappear
+end:{E}nd   # love
+ĩti:{Ĩ}t{I}   # to plead (as in plead guilty)
+niin:niin   # finish
+ĩhumb:{Ĩ}humb   # wear
+kuu:ku{U}   # carry
+thuurũkani:thuurũkan{I}   # analyse
+haragani:haragan{I}   # disperse
+kaani:kaan{I}   # prohibit
+geri:ger{I}   # try
+cay:{C}ay   # complain
+rathim:rathim   # bless
+rĩmi:rĩm{I}   # earn
+giũr:giũr   # trample
+rot:rot   # dream
+kor:{K}or   # find
+
+PATTERNS
+AdjPrefix(1) AdjRoot AdjAgree AdjPrefix(2)
+
+LEXICON AdjPrefix(2)
+:m{Ũ} <cl1><sg>:{NULL}{NULL}
+:a <cl1><pl>:{NULL}{NULL}
+:m{Ũ} <cl3><sg>:{NULL}{NULL}
+:mĩ <cl3><pl>:{NULL}{NULL}
+:{RRI}{IRI} <cl5><sg>:{NULL}{NULL}
+:ma <cl5><pl>:{NULL}{NULL}
+:{K}ĩ <cl7><sg>:{NULL}{NULL}
+:{N}{N2}{N3} <cl7><pl>:{NULL}{NULL}
+:{N}{N2}{N3} <cl9p6><sg>:{NULL}{NULL}
+:ma <cl9p6><pl>:{NULL}{NULL}
+:{N}{N2}{N3} <cl9p10><sg>:{NULL}{NULL}
+:{N}{N2}{N3} <cl9p10><pl>:{NULL}{NULL}
+:rũ <cl11p6><sg>:{NULL}{NULL}
+:ma <cl11p6><pl>:{NULL}{NULL}
+:rũ <cl11p10><sg>:{NULL}{NULL}
+:{N}{N2}{N3} <cl11p10><pl>:{NULL}{NULL}
+:ka <cl12p6><sg>:{NULL}{NULL}
+:ma <cl12p6><pl>:{NULL}{NULL}
+:{K}a <cl12p13><sg>:{NULL}{NULL}
+:t{Ũ} <cl12p13><pl>:{NULL}{NULL}
+:m{Ũ} <cl14><sg>:{NULL}{NULL}
+:{Ũ} <cl14><sg>:{NULL}{NULL}
+:ma <cl14><pl>:{NULL}{NULL}
+:{K}{Ũ} <cl15><sg>:{NULL}{NULL}
+:ma <cl15><pl>:{NULL}{NULL}
+:h{A} <cl16><sg>:{NULL}{NULL}
+:{K}{Ũ} <cl17><sg>:{NULL}{NULL}
+:g{U} <cl17><sg>:{NULL}{NULL}
+
+LEXICON AdjRoot
+nene:nene  # big
+kũrũ:{K}ũrũ  # old
+ega:{E}ga  # good
+tune:{T}une  # red
+rũarũ:rũarũ  # sick
+nini:nini  # small/young
+erũ:{E}rũ  # neq
+ũru:{Ũ}ru  # bad
+erũ:{E}rũ  # white
+athĩki:{A}thĩki  # obedient
+kuhĩ:{K}uhĩ  # short
+kenge:{K}enge  # baby
+thaka:thaka  # beautiful
+irũ:{I}rũ  # black
+raihu:raihu  # tall
+mata:mata  # thick, creamy (possibly sour?)
+ingĩ:{I}ngĩ  # many
+othe:{O}the  # all
+
+LEXICON AdjAgree
+<adj>:{NULL}
+
+LEXICON Assoc
+
+a<assoc><cl1><sg>:wa
+a<assoc><cl1><pl>:a
+a<assoc><cl3><sg>:wa
+a<assoc><cl3><pl>:ya
+a<assoc><cl5><sg>:rĩa
+a<assoc><cl5><pl>:ma
+a<assoc><cl9p6><pl>:ma
+a<assoc><cl11p6><pl>:ma
+a<assoc><cl7><sg>:kĩa
+a<assoc><cl7><pl>:cia
+a<assoc><cl9p6><sg>:ya
+a<assoc><cl9p10><sg>:ya
+a<assoc><cl9p10><pl>:cia
+a<assoc><cl11p10><pl>:cia
+a<assoc><cl11p6><sg>:rũa
+a<assoc><cl11p6><sg>:rwa # alternate, possibly biblical form 
+a<assoc><cl11p10><sg>:rũa
+a<assoc><cl12p13><sg>:ka
+a<assoc><cl12p13><pl>:tũa
+a<assoc><cl14><sg>:wa
+a<assoc><cl14><pl>:ma
+a<assoc><cl15><sg>:kũa
+a<assoc><cl15><pl>:ma
+
+PATTERNS
+Assoc
+PersPro # personal pronouns
+DepPro DepProEnds # dependent pronouns ("and/with X")
+PossPro PossProOwner # possessive pronouns (follow nouns)
+RelPro # relative pronouns (relativize nouns)
+#DemPro # demonstrative pronouns (that one, etc.)
+DistDem
+ProxDem
+AnaDem
+
+LEXICON PersPro
+
+pro<prn><pers><p1><sg>:niũ
+pro<prn><pers><p1><pl>:ithuĩ
+pro<prn><pers><p2><sg>:weũ
+pro<prn><pers><p2><pl>:inyuũ
+pro<prn><pers><p3><cl1><sg>:we
+pro<prn><pers><p3><cl1><pl>:mo
+pro<prn><pers><p3><cl3><sg>:guo
+pro<prn><pers><p3><cl3><pl>:yo
+pro<prn><pers><p3><cl5><sg>:rĩo
+pro<prn><pers><p3><cl5><pl>:mo
+pro<prn><pers><p3><cl7><sg>:kĩo
+pro<prn><pers><p3><cl7><pl>:cio
+pro<prn><pers><p3><cl9p10><sg>:yo
+pro<prn><pers><p3><cl9p10><pl>:cio
+pro<prn><pers><p3><cl11p6><sg>:ruo
+pro<prn><pers><p3><cl11p6><pl>:mo
+pro<prn><pers><p3><cl11p10><sg>:ruo
+pro<prn><pers><p3><cl11p10><pl>:cio
+pro<prn><pers><p3><cl12p13><sg>:ko
+pro<prn><pers><p3><cl12p13><pl>:tuo
+pro<prn><pers><p3><cl14><sg>:guo
+pro<prn><pers><p3><cl14><pl>:mo
+pro<prn><pers><p3><cl15><sg>:kuo
+pro<prn><pers><p3><cl15><pl>:mo
+
+LEXICON DepProEnds
+
+<p1><sg>:niĩ
+<p1><pl>:ithuĩ
+<p2><sg>:we
+<p2><pl>:inyuĩ
+<p3><cl1><sg>:ke
+<p3><cl1><sg>:ake # alternate form, possibly biblical
+<p3><cl1><pl>:o
+<p3><cl3><sg>:guo
+<p3><cl3><pl>:yo
+<p3><cl5><sg>:rĩo
+<p3><cl5><pl>:mo
+<p3><cl7><sg>:kĩo
+<p3><cl7><pl>:cio
+<p3><cl9p10><sg>:yo
+<p3><cl9p10><pl>:cio
+<p3><cl11p6><sg>:ruo
+<p3><cl11p6><pl>:mo
+<p3><cl11p10><sg>:ruo
+<p3><cl11p10><pl>:cio
+<p3><cl12p13><sg>:ko
+<p3><cl12p13><pl>:tuo
+<p3><cl14><sg>:guo
+<p3><cl14><pl>:mo
+<p3><cl15><sg>:kuo
+<p3><cl15><pl>:mo
+
+LEXICON DepPro
+
+pro<prn><dep>:na
+
+LEXICON PossPro
+
+pro<prn><poss><cl1><sg>:w{A}>
+pro<prn><poss><cl1><pl>:{A}>
+pro<prn><poss><cl3><sg>:w{A}>
+pro<prn><poss><cl3><pl>:y{A}>
+pro<prn><poss><cl5><sg>:rĩ{A}>
+pro<prn><poss><cl5><pl>:m{A}>
+pro<prn><poss><cl7><sg>:gĩ{A}>
+pro<prn><poss><cl7><pl>:ci{A}>
+pro<prn><poss><cl9p6><sg>:y{A}>
+pro<prn><poss><cl9p6><pl>:m{A}>
+pro<prn><poss><cl9p10><sg>:y{A}>
+pro<prn><poss><cl9p10><pl>:ci{A}>
+pro<prn><poss><cl11p6><sg>:rũ{A}>
+pro<prn><poss><cl11p6><pl>:m{A}>
+pro<prn><poss><cl11p10><sg>:rũ{A}>
+pro<prn><poss><cl11p10><pl>:ci{A}>
+pro<prn><poss><cl12p6><sg>:g{A}>
+pro<prn><poss><cl12p6><pl>:m{A}>
+pro<prn><poss><cl12p13><sg>:g{A}>
+pro<prn><poss><cl12p13><pl>:tũ{A}>
+pro<prn><poss><cl14><sg>:w{A}>
+pro<prn><poss><cl14><pl>:m{A}>
+pro<prn><poss><cl15><sg>:gũ{A}>
+pro<prn><poss><cl15><pl>:m{A}>
+
+LEXICON PossProOwner
+
+<sp1><ssg>:{A}kwa
+<sp1><spl>:{I}tũ
+<sp2><ssg>:{A}ku
+<sp2><spl>:{A}nyu
+<sp3><scl1><ssg>:{A}ke
+<sp3><scl1><spl>:{A}o
+
+LEXICON RelPro
+
+pro<prn><rel><cl1><sg>:ũrĩa
+pro<prn><rel><cl1><pl>:{A}rĩa
+pro<prn><rel><cl3><sg>:ũrĩa
+pro<prn><rel><cl3><pl>:ĩrĩa
+pro<prn><rel><cl5><sg>:rĩrĩa
+pro<prn><rel><cl5><pl>:m{A}rĩa
+pro<prn><rel><cl7><sg>:kĩrĩa
+pro<prn><rel><cl7><pl>:irĩa
+pro<prn><rel><cl9p6><sg>:ĩria
+pro<prn><rel><cl9p6><pl>:m{A}rĩa
+pro<prn><rel><cl9p10><sg>:irĩa
+pro<prn><rel><cl9p10><pl>:iria
+pro<prn><rel><cl11p6><sg>:rũrĩa
+pro<prn><rel><cl11p6><pl>:m{A}rĩa
+pro<prn><rel><cl11p10><sg>:rũrĩa
+pro<prn><rel><cl11p10><pl>:iria
+pro<prn><rel><cl12p6><sg>:k{A}rĩa
+pro<prn><rel><cl12p6><pl>:m{A}rĩa
+pro<prn><rel><cl12p13><sg>:k{A}rĩa
+pro<prn><rel><cl12p13><pl>:tũrĩa
+pro<prn><rel><cl14><sg>:ũrĩa
+pro<prn><rel><cl14><pl>:m{A}rĩa
+pro<prn><rel><cl15><sg>:kũrĩa
+pro<prn><rel><cl15><pl>:m{A}rĩa
+
+LEXICON DistDem
+
+pro<prn><dem><dist><cl1><sg>:ũrĩa
+pro<prn><dem><dist><cl1><pl>:{A}rĩa
+pro<prn><dem><dist><cl3><sg>:ũrĩa
+pro<prn><dem><dist><cl3><pl>:ĩrĩa
+pro<prn><dem><dist><cl5><sg>:rĩrĩa
+pro<prn><dem><dist><cl5><pl>:m{A}rĩa
+pro<prn><dem><dist><cl7><sg>:kĩrĩa
+pro<prn><dem><dist><cl7><pl>:irĩa
+pro<prn><dem><dist><cl9p6><sg>:ĩria
+pro<prn><dem><dist><cl9p6><pl>:m{A}rĩa
+pro<prn><dem><dist><cl9p10><sg>:irĩa
+pro<prn><dem><dist><cl9p10><pl>:iria
+pro<prn><dem><dist><cl11p6><sg>:rũrĩa
+pro<prn><dem><dist><cl11p6><pl>:m{A}rĩa
+pro<prn><dem><dist><cl11p10><sg>:rũrĩa
+pro<prn><dem><dist><cl11p10><pl>:iria
+pro<prn><dem><dist><cl12p6><sg>:k{A}rĩa
+pro<prn><dem><dist><cl12p6><pl>:m{A}rĩa
+pro<prn><dem><dist><cl12p13><sg>:k{A}rĩa
+pro<prn><dem><dist><cl12p13><pl>:tũrĩa
+pro<prn><dem><dist><cl14><sg>:ũrĩa
+pro<prn><dem><dist><cl14><pl>:m{A}rĩa
+pro<prn><dem><dist><cl15><sg>:kũrĩa
+pro<prn><dem><dist><cl15><pl>:m{A}rĩa
+
+LEXICON ProxDem
+
+pro<prn><dem><prox><cl1><sg>:ũyũ
+pro<prn><dem><prox><cl1><pl>:aya
+pro<prn><dem><prox><cl3><sg>:ũyũ
+pro<prn><dem><prox><cl3><pl>:ĩno
+pro<prn><dem><prox><cl5><sg>:rĩrĩ
+pro<prn><dem><prox><cl5><pl>:maya
+pro<prn><dem><prox><cl7><sg>:gĩkĩ
+pro<prn><dem><prox><cl7><pl>:ici
+pro<prn><dem><prox><cl9p6><sg>:ĩno
+pro<prn><dem><prox><cl9p6><pl>:maya
+pro<prn><dem><prox><cl9p10><sg>:ĩno
+pro<prn><dem><prox><cl9p10><pl>:ici
+pro<prn><dem><prox><cl11p6><sg>:rũrũ
+pro<prn><dem><prox><cl11p6><pl>:maya
+pro<prn><dem><prox><cl11p10><sg>:rũrũ
+pro<prn><dem><prox><cl11p10><pl>:ici
+pro<prn><dem><prox><cl12p6><sg>:gaka
+pro<prn><dem><prox><cl12p6><pl>:maya
+pro<prn><dem><prox><cl12p13><sg>:gaka
+pro<prn><dem><prox><cl12p13><pl>:tũtũ
+pro<prn><dem><prox><cl14><sg>:ũyũ
+pro<prn><dem><prox><cl14><pl>:maya
+pro<prn><dem><prox><cl15><sg>:gũkũ
+pro<prn><dem><prox><cl15><pl>:maya
+
+LEXICON AnaDem
+
+pro<prn><dem><ana><cl1><sg>:ũcio
+pro<prn><dem><ana><cl1><sg>:ũu
+pro<prn><dem><ana><cl1><pl>:acio
+pro<prn><dem><ana><cl1><pl>:au
+pro<prn><dem><ana><cl3><sg>:ũcio
+pro<prn><dem><ana><cl3><sg>:ũu
+pro<prn><dem><ana><cl3><pl>:ĩyo
+pro<prn><dem><ana><cl3><pl>:ĩu
+pro<prn><dem><ana><cl5><sg>:rĩu
+pro<prn><dem><ana><cl5><pl>:macia
+pro<prn><dem><ana><cl5><pl>:mau
+pro<prn><dem><ana><cl7><sg>:kĩu
+pro<prn><dem><ana><cl7><pl>:icio
+pro<prn><dem><ana><cl7><pl>:iu
+pro<prn><dem><ana><cl9p6><sg>:ĩyo
+pro<prn><dem><ana><cl9p6><sg>:ĩu
+pro<prn><dem><ana><cl9p6><pl>:macio
+pro<prn><dem><ana><cl9p6><pl>:mau
+pro<prn><dem><ana><cl9p10><sg>:ĩyo
+pro<prn><dem><ana><cl9p10><sg>:macio
+pro<prn><dem><ana><cl9p10><pl>:icio
+pro<prn><dem><ana><cl9p10><pl>:iu
+pro<prn><dem><ana><cl11p6><sg>:rũu
+pro<prn><dem><ana><cl11p6><pl>:macio
+pro<prn><dem><ana><cl11p6><pl>:mau
+pro<prn><dem><ana><cl11p10><sg>:rũu
+pro<prn><dem><ana><cl11p10><pl>:icio
+pro<prn><dem><ana><cl11p10><pl>:iu
+pro<prn><dem><ana><cl12p6><sg>:kau
+pro<prn><dem><ana><cl12p6><pl>:macio
+pro<prn><dem><ana><cl12p6><pl>:mau
+pro<prn><dem><ana><cl12p13><sg>:kau
+pro<prn><dem><ana><cl12p13><pl>:tũu
+pro<prn><dem><ana><cl14><sg>:ũcio
+pro<prn><dem><ana><cl14><sg>:ũu
+pro<prn><dem><ana><cl14><pl>:macio
+pro<prn><dem><ana><cl14><pl>:mau
+pro<prn><dem><ana><cl15><sg>:kũu
+pro<prn><dem><ana><cl15><pl>:macio
+pro<prn><dem><ana><cl15><pl>:mau
+
+PATTERNS
+SpecialOrdinal
+LargeNumber
+NumeralPrefixSg(1) NumRoot NumeralPrefixSg(2)
+NumeralPrefixPl(1) NumRootPl NumeralPrefixPl(2)
+ExceptNumPre1 ExceptionalNumeral ExceptNumPre2
+NumIrregular NumIrregularAgreement
+
+# Default noun class for a number is 12p13 for some reason, but it agrees with a noun if there is one
+
+LEXICON SpecialOrdinal
+
+# Most ordinals are just assoc + cardinal, but first is special and has different words to replace the cardinal kĩmwe
+
+mbere<num>:mbere # first
+kĩambĩrĩria<num><cl7><sg>:kĩambĩrĩria # first
+
+mũthia<num>:mũthia # last
+
+LEXICON LargeNumber
+gana<num><cl5><sg>:igana # one hundred
+gana<num><cl5><pl>:magana # hundreds
+giri<num><cl9p10><sg>:ngiri # one thousand
+giri<num><cl9p10><pl>:ngiri # thousands
+kũmi<num><cl3><sg>:ikũmi # ten
+rongo<num><cl3><pl>:mĩrongo # tens
+
+LEXICON NumeralPrefixSg(2)
+:ũ <cl1><sg>:{NULL}{NULL}
+:ũ <cl3><sg>:{NULL}{NULL}
+:rĩ <cl5><sg>:{NULL}{NULL}
+:kĩ <cl7><sg>:{NULL}{NULL}
+:ĩ <cl9p6><sg>:{NULL}{NULL}
+:ĩ <cl9p10><sg>:{NULL}{NULL}
+:rũ <cl11p6><sg>:{NULL}{NULL}
+:rũ <cl11p10><sg>:{NULL}{NULL}
+:k{A} <cl12p13><sg>:{NULL}{NULL}
+:w{A} <cl14><sg>:{NULL}{NULL}
+:kũ <cl15><sg>:{NULL}{NULL}
+
+LEXICON NumeralPrefixPl(2)
+:{A} <cl1><pl>:{NULL}{NULL}
+:y{A} <cl3><pl>:{NULL}{NULL}
+:m{A} <cl5><pl>:{NULL}{NULL}
+:m{A} <cl9p6><pl>:{NULL}{NULL}
+:m{A} <cl11p6><pl>:{NULL}{NULL}
+:i <cl7><pl>:{NULL}{NULL}
+:tũ <cl12p13><pl>:{NULL}{NULL}
+:m{A} <cl14><pl>:{NULL}{NULL}
+:m{A} <cl15><pl>:{NULL}{NULL}
+
+LEXICON ExceptNumPre1
+:{NULL}
+
+LEXICON ExceptNumPre2
+<cl7><pl>:{NULL}{NULL}
+<cl9p10><pl>:{NULL}{NULL}
+<cl11p10><pl>:{NULL}{NULL}
+
+LEXICON ExceptionalNumeral
+ĩrĩ<num>:igĩrĩ # two
+atũ<num>:ithatũ # three
+na<num>:inya # four
+ano<num>:ithano # five
+tandatũ<num>:ithathatũ # six
+nana<num>:inyanya # eight
+
+LEXICON NumRoot
+mwe<num>:mwe  # one
+kũmi<num>:kũmi  # ten
+
+LEXICON NumRootPl
+ĩrĩ<num>:{Ĩ}rĩ  # two
+tatũ<num>:tatũ  # three
+na<num>:na  # four
+tano<num>:tano  # five
+tandatũ<num>:tandatũ  # six
+nana<num>:nana  # eight
+rongo<num>:rongo  # tens
+
+LEXICON NumIrregular
+mũgwanja<num>:mũgwanja # seven
+kenda<num>:kenda       # nine
+
+LEXICON NumIrregularAgreement
+<cl1><pl>:{NULL}
+<cl3><pl>:{NULL}
+<cl5><pl>:{NULL}
+<cl7><pl>:{NULL}
+<cl9p6><pl>:{NULL}
+<cl9p10><pl>:{NULL}
+<cl11p6><pl>:{NULL}
+<cl11p10><pl>:{NULL}
+<cl12p6><pl>:{NULL}
+<cl12p13><pl>:{NULL}
+<cl14><pl>:{NULL}
+<cl15><pl>:{NULL}
+
+LEXICON LittleWord
+
+na<pr>:na # with
+na<cnjcoo>:na # and
+o<quant>:o # all
+kuma<pr>:kuma # from
+kana<cnjsub>:kana # if
+kana<cnjcoo>:kana # or # potential disambiguation
+no<cnjcoo>:no # but
+mũno:mũno # very
+atĩ<cnjsub>:atĩ # that
+atĩrĩ:atĩrĩ # a discourse marker, means sort of then, as a consequence 
+ũndũ<cnjsub>:ũndũ # because 
+
+LEXICON ThusWords
+
+guo<cnjcoo>:ũguo # thus
+guo<cnjcoo>:nĩguo # thus
+
+LEXICON ProperName
+
+Kenya:Kenya # Kenya
+Abĩrika:Abĩrika # Africa
+Abirika:Abirika # Africa
+Mũtiiri:Mũtiiri # Mũtiiri
+Gĩgĩkũyũ:Gĩgĩkũyũ # Gĩgĩkũyũ
+Mwathani:Mwathani # Lord (as in Lord God)
+Edeni:Edeni # Eden
+Pishoni:Pishoni # Pison
+Havila:Havila # a biblical river
+Gihoni:Gihoni # a biblical river
+Farati:Farati # a biblical river
+Adamu:Adamu # Adam (biblical)
+Ngai:Ngai # God
+Roho:Roho # Spirit (as in God's Spirit)
+Jehova:Jehova # Jehova
+Musa:Musa # 
+
+LEXICON ProperNameEnding
+
+<n><prop>:{NULL}
+
+LEXICON Miscellany
+
+makĩria:makĩria # exceeding(?)
+
+LEXICON Punctuation
+
+.<sent>:.
+;<sent>:;
+!<sent>:!
+,<cm>:,
+"<quot>:"
+
+LEXICON Adverb # there aren't many of these
+
+ira<adv>:ira # yesterday
+ũmũthĩ<adv>:ũmũthĩ # today
+
+PATTERNS
+Adverb
+Punctuation
+ProperName ProperNameEnding
+Miscellany
+Assoc
+LittleWord
+ThusWords

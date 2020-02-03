@@ -1,0 +1,6 @@
+hfst-lexc -s lin.lexc -o lin.lexc.hfst
+hfst-twolc -s lin.twoc -o lin.twoc.hfst
+hfst-invert lin.lexc.hfst | hfst-compose-intersect -s -1 - -2 lin.twoc.hfst 2>/dev/null | hfst-invert -o lin.nomin.hfst
+hfst-minimize lin.nomin.hfst -o lin.hfst
+../src/lexd lin.lexd lin.att
+hfst-txt2fst lin.att -o lin_d.hfst

@@ -1,0 +1,8 @@
+hfst-lexc -s heb.lexc -o heb.lexc.hfst
+hfst-twolc -s heb.twoc -o heb.twoc.hfst
+hfst-twolc -s heb_vow.twoc -o heb_vow.twoc.hfst
+hfst-invert heb.lexc.hfst | hfst-compose-intersect -1 - -2 heb.twoc.hfst | hfst-invert -o heb.lexc-twoc.hfst
+hfst-compose-intersect -1 heb.lexc-twoc.hfst -2 heb_vow.twoc.hfst -o heb.nomin.hfst
+hfst-minimize heb.nomin.hfst -o heb.hfst
+../src/lexd heb.lexd heb.att
+hfst-txt2fst heb.att -o heb_d.hfst

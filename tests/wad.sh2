@@ -1,0 +1,7 @@
+hfst-lexc -s wad.lexc -o wad.lexc.hfst
+hfst-twolc -s wad.twoc -o wad.twoc.hfst
+hfst-invert wad.lexc.hfst | hfst-compose-intersect -s -1 - -2 wad.twoc.hfst 2>/dev/null | hfst-invert | hfst-minimize -o wad.hfst
+hfst-invert wad.lexc.hfst | hfst-compose-intersect -s -1 - -2 wad.twoc.hfst 2>/dev/null | hfst-invert -o wad.nomin.hfst
+hfst-minimize wad.nomin.hfst -o wad.hfst
+../src/lexd wad.lexd wad.att
+hfst-txt2fst wad.att -o wad_d.hfst

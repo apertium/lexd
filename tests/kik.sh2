@@ -1,0 +1,6 @@
+hfst-lexc -s kik.lexc -o kik.lexc.hfst
+hfst-twolc -s kik.twoc -o kik.twoc.hfst
+hfst-invert kik.lexc.hfst | hfst-compose-intersect -s -1 - -2 kik.twoc.hfst 2>/dev/null | hfst-invert -o kik.nomin.hfst
+hfst-minimize kik.nomin.hfst -o kik.hfst
+../src/lexd kik.lexd kik.att
+hfst-txt2fst kik.att -o kik_d.hfst
