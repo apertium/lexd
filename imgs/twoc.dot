@@ -1,0 +1,26 @@
+digraph {
+  rankdir=LR;
+  n0 [label=""];
+  n1 [label=""];
+  n2 [label=""];
+  n3 [label=""];
+  n4 [label=""];
+  n5 [label=""];
+  n6 [label=""];
+  n7 [label=""];
+  n0 -> n1 [label="prefix1"];
+  n0 -> n2 [label="prefix2"];
+  n0 -> n3 [label="prefix3"];
+  n1 -> n4 [label="lemma1"];
+  n1 -> n4 [label="lemma2"];
+  n1 -> n4 [label="lemma3"];
+  n2 -> n5 [label="lemma1"];
+  n2 -> n5 [label="lemma2"];
+  n2 -> n5 [label="lemma3"];
+  n3 -> n6 [label="lemma1"];
+  n3 -> n6 [label="lemma2"];
+  n3 -> n6 [label="lemma3"];
+  n4 -> n7 [label="tag1"];
+  n5 -> n7 [label="tag2"];
+  n6 -> n7 [label="tag3"];
+}

@@ -9,6 +9,10 @@ else
   F=$1
 fi
 
+echo ""
+echo "Timing comparison for language $F"
+echo ""
+
 cat "$F.sh2" | while read line
 do
   echo $line
