@@ -1,7 +1,7 @@
 #include "lexdcompiler.h"
 
 LexdCompiler::LexdCompiler()
-  : shouldAlign(false), usingFlags(false), inLex(false), inPat(false), lineNumber(0), doneReading(false), flagsUsed(0)
+  : shouldAlign(false), inLex(false), inPat(false), lineNumber(0), doneReading(false), flagsUsed(0)
   {}
 
 LexdCompiler::~LexdCompiler()
@@ -404,72 +404,20 @@ LexdCompiler::buildPatternWithFlags(wstring name)
 }
 
 void
-LexdCompiler::process(const string& infile, const string& outfile)
+LexdCompiler::readFile(FILE* input)
 {
-  FILE* input = fopen(infile.c_str(), "r");
-  if(input == NULL)
-  {
-    wcerr << L"Cannot open file " << outfile.c_str() << " for reading." << endl;
-    exit(EXIT_FAILURE);
-  }
-  FILE* output = fopen(outfile.c_str(), "w");
-  if(output == NULL)
-  {
-    wcerr << L"Cannot open file " << outfile.c_str() << " for writing." << endl;
-    exit(EXIT_FAILURE);
-  }
+  doneReading = false;
   while(!feof(input))
   {
     processNextLine(input);
     if(doneReading) break;
   }
   finishLexicon();
-  if(patterns.find(L" ") == patterns.end()) exit(0);
-  Transducer* transducer = usingFlags ? buildPatternWithFlags(L" ") : buildPattern(L" ");
-  for(auto& it : transducer->getTransitions())
-  {
-    for(auto& it2 : it.second)
-    {
-      auto t = alphabet.decode(it2.first);
-      fwprintf(output, L"%d\t", it.first);
-      fwprintf(output, L"%d\t", it2.second.first);
-      wstring l = L"";
-      alphabet.getSymbol(l, t.first);
-      if(l == L"")  // If we find an epsilon
-      {
-        fwprintf(output, L"@0@\t");
-      }
-      else if(l == L" ")
-      {
-        fwprintf(output, L"@_SPACE_@\t");
-      }
-      else
-      {
-        fwprintf(output, L"%S\t", l.c_str());
-      }
-      wstring r = L"";
-      alphabet.getSymbol(r, t.second);
-      if(r == L"")  // If we find an epsilon
-      {
-        fwprintf(output, L"@0@\t");
-      }
-      else if(r == L" ")
-      {
-        fwprintf(output, L"@_SPACE_@\t");
-      }
-      else
-      {
-        fwprintf(output, L"%S\t", r.c_str());
-      }
-      fwprintf(output, L"%f\t", it2.second.second);
-      fwprintf(output, L"\n");
-    }
-  }
+}
 
-  for(auto& it3 : transducer->getFinals())
-  {
-    fwprintf(output, L"%d\t", it3.first);
-    fwprintf(output, L"%f\n", it3.second);
-  }
-  fclose(output);
+Transducer*
+LexdCompiler::buildTransducer(bool usingFlags)
+{
+  if(usingFlags) return buildPatternWithFlags(L" ");
+  else return buildPattern(L" ");
 }
