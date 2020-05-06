@@ -9,6 +9,13 @@ Lexicon::Lexicon(vector<vector<pair<vector<int>, vector<int>>>> entries, bool sh
 
 Lexicon::~Lexicon() {}
 
+void
+Lexicon::addEntries(vector<vector<pair<vector<int>, vector<int>>>> newEntries)
+{
+  entryCount += newEntries.size();
+  entries.insert(entries.end(), newEntries.begin(), newEntries.end());
+}
+
 Transducer*
 Lexicon::getTransducer(Alphabet& alpha, Side side, int part, int index = 0)
 {

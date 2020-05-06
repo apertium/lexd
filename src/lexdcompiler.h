@@ -24,6 +24,7 @@ private:
   map<wstring, vector<pair<int, vector<pair<wstring, pair<Side, int>>>>>> patterns;
   map<wstring, Transducer*> patternTransducers;
 
+  FILE* input;
   bool inLex;
   bool inPat;
   vector<vector<pair<vector<int>, vector<int>>>> currentLexicon;
@@ -37,7 +38,7 @@ private:
   void die(wstring msg);
   void finishLexicon();
   void checkName(wstring& name);
-  void processNextLine(FILE* input);
+  void processNextLine();
 
   map<wstring, int> matchedParts;
   void buildPattern(int state, Transducer* t, const vector<pair<wstring, pair<Side, int>>>& pat, unsigned int pos);
@@ -52,7 +53,7 @@ public:
     shouldAlign = val;
   }
   Transducer* buildTransducer(bool usingFlags);
-  void readFile(FILE* input);
+  void readFile(FILE* infile);
 };
 
 #endif

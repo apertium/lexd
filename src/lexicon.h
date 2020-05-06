@@ -31,6 +31,7 @@ private:
 public:
   Lexicon(vector<vector<pair<vector<int>, vector<int>>>> entries, bool shouldAlign);
   ~Lexicon();
+  void addEntries(vector<vector<pair<vector<int>, vector<int>>>> newEntries);
   Transducer* getTransducer(Alphabet& alpha, Side side, int part, int index);
   Transducer* getTransducerWithFlags(Alphabet& alpha, Side side, int part, wstring flag);
   int getEntryCount()

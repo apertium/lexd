@@ -1,7 +1,7 @@
 #include "lexdcompiler.h"
 
 LexdCompiler::LexdCompiler()
-  : shouldAlign(false), inLex(false), inPat(false), lineNumber(0), doneReading(false), flagsUsed(0)
+  : shouldAlign(false), input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false), flagsUsed(0)
   {}
 
 LexdCompiler::~LexdCompiler()
@@ -10,6 +10,7 @@ LexdCompiler::~LexdCompiler()
 void
 LexdCompiler::die(wstring msg)
 {
+  fclose(input); // segfaults occasionally happen if this isn't here
   wcerr << L"Error on line " << lineNumber << ": " << msg << endl;
   exit(EXIT_FAILURE);
 }
@@ -20,8 +21,13 @@ LexdCompiler::finishLexicon()
   if(inLex)
   {
     if(currentLexicon.size() == 0) die(L"Lexicon '" + currentLexiconName + L"' is empty.");
-    Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
-    lexicons[currentLexiconName] = lex;
+    if(lexicons.find(currentLexiconName) == lexicons.end())
+    {
+      Lexicon* lex = new Lexicon(currentLexicon, shouldAlign);
+      lexicons[currentLexiconName] = lex;
+    } else {
+      lexicons[currentLexiconName]->addEntries(currentLexicon);
+    }
     currentLexicon.clear();
   }
   currentLexiconName.clear();
@@ -33,14 +39,12 @@ LexdCompiler::checkName(wstring& name)
 {
   if(name.size() > 0 && name.back() == L' ') name.pop_back();
   if(name.size() == 0) die(L"Unnamed pattern or lexicon");
-  if(lexicons.find(name) != lexicons.end()) die(L"Redefinition of name '" + name + L"'");
-  if(patterns.find(name) != patterns.end()) die(L"Redefinition of name '" + name + L"'");
   if(name.find(L" ") != wstring::npos) die(L"Lexicon/pattern names cannot contain spaces");
   if(name.find(L":") != wstring::npos) die(L"Lexicon/pattern names cannot contain colons");
 }
 
 void
-LexdCompiler::processNextLine(FILE* input)
+LexdCompiler::processNextLine()//(FILE* input)
 {
   wstring line;
   wchar_t c;
@@ -98,8 +102,8 @@ LexdCompiler::processNextLine(FILE* input)
   else if(line.size() > 7 && line.substr(0, 8) == L"LEXICON ")
   {
     wstring name = line.substr(8);
-    checkName(name);
     finishLexicon();
+    checkName(name);
     currentLexiconPartCount = 1;
     if(name.size() > 1 && name.back() == L')')
     {
@@ -115,6 +119,11 @@ LexdCompiler::processNextLine(FILE* input)
         else break;
       }
       if(name.size() == 0) die(L"Unnamed lexicon");
+    }
+    if(lexicons.find(name) != lexicons.end()) {
+      if(lexicons[name]->getPartCount() != currentLexiconPartCount) {
+        die(L"Multiple incompatible definitions for lexicon '" + name + L"'");
+      }
     }
     currentLexiconName = name;
     inLex = true;
@@ -404,12 +413,13 @@ LexdCompiler::buildPatternWithFlags(wstring name)
 }
 
 void
-LexdCompiler::readFile(FILE* input)
+LexdCompiler::readFile(FILE* infile)
 {
+  input = infile;
   doneReading = false;
   while(!feof(input))
   {
-    processNextLine(input);
+    processNextLine();//(input);
     if(doneReading) break;
   }
   finishLexicon();

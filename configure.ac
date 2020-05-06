@@ -1,6 +1,6 @@
 AC_PREREQ(2.61)
 
-m4_define([required_lttoolbox_version], [3.5.2])
+m4_define([required_lttoolbox_version], [3.5.1])
 
 AC_INIT([lexd], [0.0.1], [awesomeevildudes@gmail.com])
 AM_INIT_AUTOMAKE([lexd], [0.0.1], no-define)
