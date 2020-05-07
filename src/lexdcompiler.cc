@@ -148,12 +148,21 @@ LexdCompiler::processNextLine()//(FILE* input)
     // TODO: this should do some error checking (mismatches, mostly)
     if(line.back() != L' ') line += L' ';
     wstring cur;
-    vector<pair<wstring, pair<Side, int>>> pat;
+    typedef pair<wstring, pair<Side, int>> token_t;
+    typedef vector<token_t> pattern_t;
+    vector<pattern_t> pats(1);
+
     for(auto ch : line)
     {
       if(ch == L' ')
       {
         if(cur.size() == 0) continue;
+        bool option = false;
+        if(cur.back() == L'?')
+        {
+          option = true;
+          cur = cur.substr(0, cur.size()-1);
+        }
         int idx = 1;
         Side s = SideBoth;
         if(cur.front() == L':')
@@ -183,12 +192,25 @@ LexdCompiler::processNextLine()//(FILE* input)
           }
         }
         if(cur.size() == 0) die(L"Syntax error - no lexicon name");
-        pat.push_back(make_pair(cur, make_pair(s, idx)));
+        if(option)
+        {
+          auto omit_pats = pats;
+          for(auto &pat: pats)
+            pat.push_back(make_pair(cur, make_pair(s, idx)));
+          for(const auto &pat: omit_pats)
+            pats.push_back(pat);
+        }
+        else
+        {
+          for(auto &pat: pats)
+            pat.push_back(make_pair(cur, make_pair(s, idx)));
+        }
         cur.clear();
       }
       else cur += ch;
     }
-    patterns[currentPatternName].push_back(make_pair(lineNumber, pat));
+    for(const auto &pat: pats)
+      patterns[currentPatternName].push_back(make_pair(lineNumber, pat));
   }
   else if(inLex)
   {
