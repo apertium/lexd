@@ -10,7 +10,7 @@ void endProgram(char *name)
   if(name != NULL)
   {
     cout << basename(name) << ": compile lexd files to transducers" << endl;
-    cout << "USAGE: " << basename(name) << " [-bf] rule_file [output_file]" << endl;
+    cout << "USAGE: " << basename(name) << " [-bf] [rule_file [output_file]]" << endl;
     cout << "   -b, --bin:      output as Lttoolbox binary file (default is AT&T format)" << endl;
     cout << "   -f, --flags:    compile using flag diacritics" << endl;
   }
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 {
   bool bin = false;
   bool flags = false;
-  FILE* input = NULL;
+  FILE* input = stdin;
   FILE* output = stdout;
 
   LtLocale::tryToSetLocale();
@@ -68,6 +68,9 @@ int main(int argc, char *argv[])
   string outfile;
   switch(argc - optind)
   {
+    case 0:
+      break;
+
     case 1:
       infile = argv[argc-1];
       break;
@@ -82,14 +85,17 @@ int main(int argc, char *argv[])
       break;
   }
 
-  input = fopen(infile.c_str(), "rb");
-  if(!input)
+  if(infile != "" && infile != "-")
   {
-    cerr << "Error: Cannot open file '" << infile << "' for reading." << endl;
-    exit(EXIT_FAILURE);
+    input = fopen(infile.c_str(), "rb");
+    if(!input)
+    {
+      cerr << "Error: Cannot open file '" << infile << "' for reading." << endl;
+      exit(EXIT_FAILURE);
+    }
   }
 
-  if(outfile != "")
+  if(outfile != "" && outfile != "-")
   {
     output = fopen(outfile.c_str(), (bin ? "wb" : "w"));
     if(!output)
@@ -120,7 +126,7 @@ int main(int argc, char *argv[])
   {
     transducer->show(comp.alphabet, output, 0, true);
   }
-  fclose(input);
+  if(input != stdin) fclose(input);
   if(output != stdout) fclose(output);
   delete transducer;
   return 0;
