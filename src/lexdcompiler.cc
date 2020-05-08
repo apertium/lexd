@@ -54,12 +54,12 @@ void
 LexdCompiler::processNextLine()//(FILE* input)
 {
   wstring line;
-  wchar_t c;
+  wint_t c;
   bool escape = false;
   bool comment = false;
   while((c = fgetwc(input)) != L'\n')
   {
-    if(c < 0 || feof(input))
+    if(c == WEOF)
     {
       doneReading = true;
       break;
