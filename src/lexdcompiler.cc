@@ -158,6 +158,7 @@ LexdCompiler::processNextLine()//(FILE* input)
     token_t tok;
     vector<pattern_t> pats(1);
     vector<maybe_token_t> alternation;
+    bool final_alternative = true;
 
     for(auto ch : line)
     {
@@ -169,18 +170,32 @@ LexdCompiler::processNextLine()//(FILE* input)
           option = true;
           cur = cur.substr(0, cur.size()-1);
         }
-        if(cur.size() == 0) die(L"Syntax error - no lexicon name");
+        if(cur.size() == 0 && final_alternative) die(L"Syntax error - no lexicon name");
 	if(!make_token(cur, tok))
 	  continue;
         if(option)
 	  alternation.push_back(none);
 	alternation.push_back(tok);
-	expand_alternation(pats, alternation);
-	alternation.clear();
         cur.clear();
       }
-      else cur += ch;
+      else if(ch == L'|')
+      {
+        if(make_token(cur, tok))
+          alternation.push_back(tok);
+	final_alternative = false;
+	cur.clear();
+      }
+      else
+      {
+	if(cur.empty() && final_alternative)
+	{
+	  expand_alternation(pats, alternation);
+	  alternation.clear();
+	}
+        cur += ch;
+      }
     }
+    expand_alternation(pats, alternation);
     for(const auto &pat: pats)
       patterns[currentPatternName].push_back(make_pair(lineNumber, pat));
   }
