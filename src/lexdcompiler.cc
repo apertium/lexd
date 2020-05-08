@@ -1,5 +1,7 @@
 #include "lexdcompiler.h"
 
+typedef vector<token_t> pattern_t;
+
 LexdCompiler::LexdCompiler()
   : shouldAlign(false), input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false), flagsUsed(0)
   {}
@@ -148,62 +150,34 @@ LexdCompiler::processNextLine()//(FILE* input)
     // TODO: this should do some error checking (mismatches, mostly)
     if(line.back() != L' ') line += L' ';
     wstring cur;
-    typedef pair<wstring, pair<Side, int>> token_t;
-    typedef vector<token_t> pattern_t;
+    token_t tok;
     vector<pattern_t> pats(1);
 
     for(auto ch : line)
     {
       if(ch == L' ')
       {
-        if(cur.size() == 0) continue;
         bool option = false;
         if(cur.back() == L'?')
         {
           option = true;
           cur = cur.substr(0, cur.size()-1);
         }
-        int idx = 1;
-        Side s = SideBoth;
-        if(cur.front() == L':')
-        {
-          cur = cur.substr(1);
-          s = SideRight;
-        }
-        else if(cur.back() == L':')
-        {
-          cur = cur.substr(0, cur.size()-1);
-          s = SideLeft;
-        }
-        if(cur.size() == 0) die(L"Syntax error - colon without lexicon name");
-        if(cur.size() > 1 && cur.back() == L')')
-        {
-          wstring temp;
-          for(unsigned int i = cur.size()-2; i > 0; i--)
-          {
-            if(isdigit(cur[i])) temp = cur[i] + temp;
-            else if(cur[i] == L'(' && temp.size() > 0)
-            {
-              idx = stoi(temp);
-              cur = cur.substr(0, i);
-              break;
-            }
-            else break;
-          }
-        }
         if(cur.size() == 0) die(L"Syntax error - no lexicon name");
+	if(!make_token(cur, tok))
+	  continue;
         if(option)
         {
           auto omit_pats = pats;
           for(auto &pat: pats)
-            pat.push_back(make_pair(cur, make_pair(s, idx)));
+            pat.push_back(tok);
           for(const auto &pat: omit_pats)
             pats.push_back(pat);
         }
         else
         {
           for(auto &pat: pats)
-            pat.push_back(make_pair(cur, make_pair(s, idx)));
+            pat.push_back(tok);
         }
         cur.clear();
       }
@@ -453,3 +427,39 @@ LexdCompiler::buildTransducer(bool usingFlags)
   if(usingFlags) return buildPatternWithFlags(L" ");
   else return buildPattern(L" ");
 }
+
+bool LexdCompiler::make_token(wstring tok_s, token_t &tok_out)
+{
+  if(tok_s.size() == 0) return false;
+  int idx = 1;
+  Side side = SideBoth;
+  if(tok_s.front() == L':')
+  {
+    tok_s = tok_s.substr(1);
+    side = SideRight;
+  }
+  else if(tok_s.back() == L':')
+  {
+    tok_s = tok_s.substr(0, tok_s.size()-1);
+    side = SideLeft;
+  }
+  if(tok_s.size() == 0) die(L"Syntax error - colon without lexicon name");
+  if(tok_s.size() > 1 && tok_s.back() == L')')
+  {
+    wstring temp;
+    for(unsigned int i = tok_s.size()-2; i > 0; i--)
+    {
+      if(isdigit(tok_s[i])) temp = tok_s[i] + temp;
+      else if(tok_s[i] == L'(' && temp.size() > 0)
+      {
+        idx = stoi(temp);
+        tok_s = tok_s.substr(0, i);
+        break;
+      }
+      else break;
+    }
+  }
+  tok_out = make_pair(tok_s, make_pair(side, idx));
+  return true;
+}
+
