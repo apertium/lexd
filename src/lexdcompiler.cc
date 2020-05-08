@@ -83,7 +83,7 @@ LexdCompiler::processNextLine()//(FILE* input)
     {
       comment = true;
     }
-    else if(isspace(c))
+    else if(iswspace(c))
     {
       if(line.size() > 0 && line.back() != L' ')
       {
@@ -121,7 +121,7 @@ LexdCompiler::processNextLine()//(FILE* input)
       wstring num;
       for(unsigned int i = name.size()-2; i > 0; i--)
       {
-        if(isdigit(name[i])) num = name[i] + num;
+        if(iswdigit(name[i])) num = name[i] + num;
         else if(name[i] == L'(' && num.size() > 0)
         {
           currentLexiconPartCount = stoi(num);
@@ -471,7 +471,7 @@ bool LexdCompiler::make_token(wstring tok_s, token_t &tok_out)
     wstring temp;
     for(unsigned int i = tok_s.size()-2; i > 0; i--)
     {
-      if(isdigit(tok_s[i])) temp = tok_s[i] + temp;
+      if(iswdigit(tok_s[i])) temp = tok_s[i] + temp;
       else if(tok_s[i] == L'(' && temp.size() > 0)
       {
         idx = stoi(temp);
