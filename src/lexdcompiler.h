@@ -15,6 +15,7 @@
 using namespace std;
 
 typedef pair<wstring, pair<Side, int>> token_t;
+typedef vector<token_t> pattern_t;
 
 class LexdCompiler
 {
@@ -23,7 +24,7 @@ private:
 
   map<wstring, Lexicon*> lexicons;
   // { name => [ ( line, [ ( lexicon, ( side, part ) ) ] ) ] }
-  map<wstring, vector<pair<int, vector<pair<wstring, pair<Side, int>>>>>> patterns;
+  map<wstring, vector<pair<int, pattern_t>>> patterns;
   map<wstring, Transducer*> patternTransducers;
 
   FILE* input;
@@ -44,7 +45,7 @@ private:
 
   map<wstring, int> matchedParts;
   bool make_token(wstring, token_t &);
-  void buildPattern(int state, Transducer* t, const vector<pair<wstring, pair<Side, int>>>& pat, unsigned int pos);
+  void buildPattern(int state, Transducer* t, const pattern_t& pat, unsigned int pos);
   Transducer* buildPattern(wstring name);
   Transducer* buildPatternWithFlags(wstring name);
 public:

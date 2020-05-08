@@ -1,7 +1,6 @@
 #include "lexdcompiler.h"
 #include <variant>
 
-typedef vector<token_t> pattern_t;
 typedef monostate none_t;
 typedef variant<none_t, token_t> maybe_token_t;
 const maybe_token_t none;
@@ -278,7 +277,7 @@ LexdCompiler::processNextLine()//(FILE* input)
 }
 
 void
-LexdCompiler::buildPattern(int state, Transducer* t, const vector<pair<wstring, pair<Side, int>>>& pat, unsigned int pos)
+LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, unsigned int pos)
 {
   if(pos == pat.size())
   {
