@@ -123,7 +123,7 @@ LexdCompiler::processNextLine()//(FILE* input)
         if(iswdigit(name[i])) num = name[i] + num;
         else if(name[i] == L'(' && num.size() > 0)
         {
-          currentLexiconPartCount = stoi(num);
+          currentLexiconPartCount = (unsigned int)stoi(num);
           name = name.substr(0, i);
         }
         else break;
@@ -286,7 +286,7 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, unsig
   }
   wstring lex = pat[pos].first;
   Side side = pat[pos].second.first;
-  int part = pat[pos].second.second;
+  unsigned int part = pat[pos].second.second;
   if(lexicons.find(lex) != lexicons.end())
   {
     Lexicon* l = lexicons[lex];
@@ -298,7 +298,7 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, unsig
     }
     else if(matchedParts.find(lex) == matchedParts.end())
     {
-      for(int index = 0, max = l->getEntryCount(); index < max; index++)
+      for(unsigned int index = 0, max = l->getEntryCount(); index < max; index++)
       {
         int new_state = t->insertTransducer(state, *(l->getTransducer(alphabet, side, part, index)));
         if(new_state == state)
@@ -335,7 +335,7 @@ LexdCompiler::buildPattern(wstring name)
   {
     Transducer* t = new Transducer();
     patternTransducers[name] = NULL;
-    map<wstring, int> tempMatch;
+    map<wstring, unsigned int> tempMatch;
     tempMatch.swap(matchedParts);
     for(auto& pat : patterns[name])
     {
@@ -387,7 +387,7 @@ LexdCompiler::buildPatternWithFlags(wstring name)
           {
             if(flags.find(lex) == flags.end())
             {
-              int n = flagsUsed++;
+              unsigned int n = flagsUsed++;
               wstring f;
               while(n > 0 || f.size() == 0)
               {
@@ -452,7 +452,7 @@ LexdCompiler::buildTransducer(bool usingFlags)
 bool LexdCompiler::make_token(wstring tok_s, token_t &tok_out)
 {
   if(tok_s.size() == 0) return false;
-  int idx = 1;
+  unsigned int idx = 1;
   Side side = SideBoth;
   if(tok_s.front() == L':')
   {
@@ -473,7 +473,7 @@ bool LexdCompiler::make_token(wstring tok_s, token_t &tok_out)
       if(iswdigit(tok_s[i])) temp = tok_s[i] + temp;
       else if(tok_s[i] == L'(' && temp.size() > 0)
       {
-        idx = stoi(temp);
+        idx = (unsigned int)stoul(temp);
         tok_s = tok_s.substr(0, i);
         break;
       }

@@ -17,7 +17,7 @@ Lexicon::addEntries(vector<vector<pair<vector<int>, vector<int>>>> newEntries)
 }
 
 Transducer*
-Lexicon::getTransducer(Alphabet& alpha, Side side, int part, int index = 0)
+Lexicon::getTransducer(Alphabet& alpha, Side side, unsigned int part, unsigned int index = 0)
 {
   if(side == SideBoth && partCount == 1)
   {
@@ -87,7 +87,7 @@ Lexicon::getTransducer(Alphabet& alpha, Side side, int part, int index = 0)
 }
 
 Transducer*
-Lexicon::getTransducerWithFlags(Alphabet& alpha, Side side, int part, wstring flag)
+Lexicon::getTransducerWithFlags(Alphabet& alpha, Side side, unsigned int part, wstring flag)
 {
   Transducer* t = new Transducer();
   for(unsigned int e = 0; e < entries.size(); e++)

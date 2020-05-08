@@ -11,8 +11,8 @@ AC_PROG_CXX
 AM_SANITY_CHECK
 AC_LANG_CPLUSPLUS
 
-CFLAGS="-Wall -Wextra $CFLAGS"
-CXXFLAGS="-Wall -Wextra $CXXFLAGS"
+CFLAGS="-Wall -Wextra -Wsign-conversion $CFLAGS"
+CXXFLAGS="-Wall -Wextra -Wsign-conversion $CXXFLAGS"
 
 AC_ARG_ENABLE(debug,
               [  --enable-debug  Enable "-g -Wall" compiler options],

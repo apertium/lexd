@@ -14,7 +14,7 @@
 
 using namespace std;
 
-typedef pair<wstring, pair<Side, int>> token_t;
+typedef pair<wstring, pair<Side, unsigned int>> token_t;
 typedef vector<token_t> pattern_t;
 
 class LexdCompiler
@@ -36,14 +36,14 @@ private:
   wstring currentPatternName;
   int lineNumber;
   bool doneReading;
-  int flagsUsed;
+  unsigned int flagsUsed;
 
   void die(wstring msg);
   void finishLexicon();
   void checkName(wstring& name);
   void processNextLine();
 
-  map<wstring, int> matchedParts;
+  map<wstring, unsigned int> matchedParts;
   bool make_token(wstring, token_t &);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, unsigned int pos);
   Transducer* buildPattern(wstring name);

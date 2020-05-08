@@ -25,20 +25,20 @@ private:
   // index - part - side
   vector<vector<vector<Transducer*>>> separate;
   bool shouldAlign;
-  int entryCount;
-  int partCount;
+  unsigned int entryCount;
+  unsigned int partCount;
 
 public:
   Lexicon(vector<vector<pair<vector<int>, vector<int>>>> entries, bool shouldAlign);
   ~Lexicon();
   void addEntries(vector<vector<pair<vector<int>, vector<int>>>> newEntries);
-  Transducer* getTransducer(Alphabet& alpha, Side side, int part, int index);
-  Transducer* getTransducerWithFlags(Alphabet& alpha, Side side, int part, wstring flag);
-  int getEntryCount()
+  Transducer* getTransducer(Alphabet& alpha, Side side, unsigned int part, unsigned int index);
+  Transducer* getTransducerWithFlags(Alphabet& alpha, Side side, unsigned int part, wstring flag);
+  unsigned int getEntryCount()
   {
     return entryCount;
   }
-  int getPartCount()
+  unsigned int getPartCount()
   {
     return partCount;
   }
