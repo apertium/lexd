@@ -37,10 +37,14 @@ LexdCompiler::finishLexicon()
 void
 LexdCompiler::checkName(wstring& name)
 {
+  const wchar_t *forbidden = L" :?";
   if(name.size() > 0 && name.back() == L' ') name.pop_back();
   if(name.size() == 0) die(L"Unnamed pattern or lexicon");
-  if(name.find(L" ") != wstring::npos) die(L"Lexicon/pattern names cannot contain spaces");
-  if(name.find(L":") != wstring::npos) die(L"Lexicon/pattern names cannot contain colons");
+  for(const wchar_t *pc = forbidden; *pc; pc++)
+  {
+    if(name.find(*pc) != wstring::npos)
+      die(wstring(L"Lexicon/pattern names cannot contain character '") + (*pc) + L"'");
+  }
 }
 
 void
