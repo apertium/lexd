@@ -44,7 +44,7 @@ LexdCompiler::finishLexicon()
 void
 LexdCompiler::checkName(wstring& name)
 {
-  const wchar_t *forbidden = L" :?";
+  const wchar_t *forbidden = L" :?|";
   if(name.size() > 0 && name.back() == L' ') name.pop_back();
   if(name.size() == 0) die(L"Unnamed pattern or lexicon");
   for(const wchar_t *pc = forbidden; *pc; pc++)
@@ -180,12 +180,15 @@ LexdCompiler::processNextLine()//(FILE* input)
         if(option)
 	  alternation.push_back(none);
 	alternation.push_back(tok);
+	final_alternative = true;
         cur.clear();
       }
       else if(ch == L'|')
       {
         if(make_token(cur, tok))
           alternation.push_back(tok);
+	else if(alternation.empty())
+	  die(L"Syntax error - initial |");
 	final_alternative = false;
 	cur.clear();
       }
@@ -199,6 +202,8 @@ LexdCompiler::processNextLine()//(FILE* input)
         cur += ch;
       }
     }
+    if(!final_alternative)
+      die(L"Syntax error - trailing |");
     expand_alternation(pats, alternation);
     for(const auto &pat: pats)
       patterns[currentPatternName].push_back(make_pair(lineNumber, pat));
