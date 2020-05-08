@@ -1,6 +1,11 @@
 #include "lexdcompiler.h"
+#include <variant>
 
 typedef vector<token_t> pattern_t;
+typedef monostate none_t;
+typedef variant<none_t, token_t> maybe_token_t;
+const maybe_token_t none;
+void expand_alternation(vector<pattern_t> &pats, const vector<maybe_token_t> &alternation);
 
 LexdCompiler::LexdCompiler()
   : shouldAlign(false), input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false), flagsUsed(0)
@@ -152,6 +157,7 @@ LexdCompiler::processNextLine()//(FILE* input)
     wstring cur;
     token_t tok;
     vector<pattern_t> pats(1);
+    vector<maybe_token_t> alternation;
 
     for(auto ch : line)
     {
@@ -167,18 +173,10 @@ LexdCompiler::processNextLine()//(FILE* input)
 	if(!make_token(cur, tok))
 	  continue;
         if(option)
-        {
-          auto omit_pats = pats;
-          for(auto &pat: pats)
-            pat.push_back(tok);
-          for(const auto &pat: omit_pats)
-            pats.push_back(pat);
-        }
-        else
-        {
-          for(auto &pat: pats)
-            pat.push_back(tok);
-        }
+	  alternation.push_back(none);
+	alternation.push_back(tok);
+	expand_alternation(pats, alternation);
+	alternation.clear();
         cur.clear();
       }
       else cur += ch;
@@ -463,3 +461,22 @@ bool LexdCompiler::make_token(wstring tok_s, token_t &tok_out)
   return true;
 }
 
+void expand_alternation(vector<pattern_t> &pats, const vector<maybe_token_t> &alternation)
+{
+  if(alternation.empty())
+    return;
+  if(pats.empty())
+    pats.push_back(pattern_t());
+  vector<pattern_t> new_pats;
+  for(const auto &pat: pats)
+  {
+    for(const auto &maybe_tok: alternation)
+    {
+      auto pat1 = pat;
+      if(maybe_tok != none)
+        pat1.push_back(get<token_t>(maybe_tok));
+      new_pats.push_back(pat1);
+    }
+  }
+  pats = new_pats;
+}
