@@ -5,6 +5,8 @@
 
 #include <lttoolbox/transducer.h>
 #include <lttoolbox/alphabet.h>
+#include <unicode/ustdio.h>
+#include <unicode/unistr.h>
 
 #include <map>
 #include <string>
@@ -13,8 +15,9 @@
 #include <vector>
 
 using namespace std;
+using namespace icu;
 
-typedef pair<wstring, pair<Side, unsigned int>> token_t;
+typedef pair<UnicodeString, pair<Side, unsigned int>> token_t;
 typedef vector<token_t> pattern_t;
 
 class LexdCompiler
@@ -22,32 +25,33 @@ class LexdCompiler
 private:
   bool shouldAlign;
 
-  map<wstring, Lexicon*> lexicons;
+  map<UnicodeString, Lexicon*> lexicons;
   // { name => [ ( line, [ ( lexicon, ( side, part ) ) ] ) ] }
-  map<wstring, vector<pair<int, pattern_t>>> patterns;
-  map<wstring, Transducer*> patternTransducers;
+  map<UnicodeString, vector<pair<int, pattern_t>>> patterns;
+  map<UnicodeString, Transducer*> patternTransducers;
 
-  FILE* input;
+  UFILE* input;
   bool inLex;
   bool inPat;
   vector<vector<pair<vector<int>, vector<int>>>> currentLexicon;
-  wstring currentLexiconName;
+  UnicodeString currentLexiconName;
   unsigned int currentLexiconPartCount;
-  wstring currentPatternName;
+  UnicodeString currentPatternName;
   int lineNumber;
   bool doneReading;
   unsigned int flagsUsed;
 
-  void die(wstring msg);
+  void die(const wstring & msg);
   void finishLexicon();
-  void checkName(wstring& name);
+  void checkName(UnicodeString& name);
   void processNextLine();
 
-  map<wstring, unsigned int> matchedParts;
-  bool make_token(wstring, token_t &);
+  map<UnicodeString, unsigned int> matchedParts;
+  bool make_token(UnicodeString, token_t &);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, unsigned int pos);
-  Transducer* buildPattern(wstring name);
-  Transducer* buildPatternWithFlags(wstring name);
+  Transducer* buildPattern(UnicodeString name);
+  Transducer* buildPatternWithFlags(UnicodeString name);
+  int alphabet_lookup(const UnicodeString &symbol);
 public:
   LexdCompiler();
   ~LexdCompiler();
@@ -57,7 +61,7 @@ public:
     shouldAlign = val;
   }
   Transducer* buildTransducer(bool usingFlags);
-  void readFile(FILE* infile);
+  void readFile(UFILE* infile);
 };
 
 #endif

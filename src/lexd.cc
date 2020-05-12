@@ -1,6 +1,7 @@
 #include "lexdcompiler.h"
 
 #include <lttoolbox/lt_locale.h>
+#include <unicode/ustdio.h>
 #include <getopt.h>
 
 using namespace std;
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])
 {
   bool bin = false;
   bool flags = false;
-  FILE* input = stdin;
+  UFILE* input = u_finit(stdin, NULL, NULL);
   FILE* output = stdout;
 
   LtLocale::tryToSetLocale();
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
 
   if(infile != "" && infile != "-")
   {
-    input = fopen(infile.c_str(), "rb");
+    input = u_fopen(infile.c_str(), "rb", NULL, NULL);
     if(!input)
     {
       cerr << "Error: Cannot open file '" << infile << "' for reading." << endl;
@@ -97,7 +98,7 @@ int main(int argc, char *argv[])
 
   if(outfile != "" && outfile != "-")
   {
-    output = fopen(outfile.c_str(), (bin ? "wb" : "w"));
+    output = fopen(outfile.c_str(), "wb");
     if(!output)
     {
       cerr << "Error: Cannot open file '" << outfile << "' for writing." << endl;
@@ -107,6 +108,7 @@ int main(int argc, char *argv[])
 
   LexdCompiler comp;
   comp.readFile(input);
+  u_fclose(input);
   Transducer* transducer = comp.buildTransducer(flags);
   if(bin)
   {
@@ -126,7 +128,6 @@ int main(int argc, char *argv[])
   {
     transducer->show(comp.alphabet, output, 0, true);
   }
-  if(input != stdin) fclose(input);
   if(output != stdout) fclose(output);
   delete transducer;
   return 0;
