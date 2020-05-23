@@ -11,9 +11,11 @@ void endProgram(char *name)
   if(name != NULL)
   {
     cout << basename(name) << ": compile lexd files to transducers" << endl;
-    cout << "USAGE: " << basename(name) << " [-bf] [rule_file [output_file]]" << endl;
-    cout << "   -b, --bin:      output as Lttoolbox binary file (default is AT&T format)" << endl;
-    cout << "   -f, --flags:    compile using flag diacritics" << endl;
+    cout << "USAGE: " << basename(name) << " [-abcf] [rule_file [output_file]]" << endl;
+    cout << "   -a, --align:      align labels (prefer a:0 b:b to a:b b:0)" << endl;
+    cout << "   -b, --bin:        output as Lttoolbox binary file (default is AT&T format)" << endl;
+    cout << "   -c, --compress:   condense labels (prefer a:b to 0:b a:0 - sets --align)" << endl;
+    cout << "   -f, --flags:      compile using flag diacritics" << endl;
   }
   exit(EXIT_FAILURE);
 }
@@ -24,6 +26,7 @@ int main(int argc, char *argv[])
   bool flags = false;
   UFILE* input = u_finit(stdin, NULL, NULL);
   FILE* output = stdout;
+  LexdCompiler comp;
 
   LtLocale::tryToSetLocale();
 
@@ -35,23 +38,34 @@ int main(int argc, char *argv[])
 #if HAVE_GETOPT_LONG
     static struct option long_options[] =
     {
+      {"align",     no_argument, 0, 'a'},
       {"bin",       no_argument, 0, 'b'},
+      {"compress",  no_argument, 0, 'c'},
       {"flags",     no_argument, 0, 'f'},
       {"help",      no_argument, 0, 'h'},
       {0, 0, 0, 0}
     };
 
-    int cnt=getopt_long(argc, argv, "bfh", long_options, &option_index);
+    int cnt=getopt_long(argc, argv, "abcfh", long_options, &option_index);
 #else
-    int cnt=getopt(argc, argv, "bfh");
+    int cnt=getopt(argc, argv, "abcfh");
 #endif
     if (cnt==-1)
       break;
 
     switch (cnt)
     {
+      case 'a':
+        comp.setShouldAlign(true);
+        break;
+
       case 'b':
         bin = true;
+        break;
+
+      case 'c':
+        comp.setShouldAlign(true);
+        comp.setShouldCompress(true);
         break;
 
       case 'f':
@@ -106,7 +120,6 @@ int main(int argc, char *argv[])
     }
   }
 
-  LexdCompiler comp;
   comp.readFile(input);
   u_fclose(input);
   Transducer* transducer = comp.buildTransducer(flags);
