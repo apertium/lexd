@@ -65,7 +65,7 @@ LexdCompiler::finishLexicon()
 void
 LexdCompiler::checkName(UnicodeString& name)
 {
-  const static wchar_t* forbidden = L" :?|";
+  const static wchar_t* forbidden = L" :?|><";
   name.trim();
   int l = name.length();
   if(l == 0) die(L"Unnamed pattern or lexicon");
