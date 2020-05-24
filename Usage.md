@@ -155,3 +155,13 @@ Oblique Ergative|Genitive
 # Oblique Genitive
 ```
 
+- the sieve operators `<` and `>` allow left and right extensions
+```
+PATTERNS
+VerbStem > Nominalisation > Case
+# equivalent to:
+# VerbStem
+# VerbStem Nominalisation
+# VerbStem Nominalisation Case
+```
+
