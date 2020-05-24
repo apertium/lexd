@@ -183,9 +183,14 @@ LexdCompiler::processNextLine()//(FILE* input)
     if(!line.endsWith(' ')) line += ' ';
     UnicodeString cur;
     token_pair_t tok;
-    vector<pattern_t> pats(1);
+    vector<pattern_t> pats_cur(1);
     vector<maybe_token_pair_t> alternation;
+    vector<vector<pattern_t>> patsets_fin;
+    vector<vector<pattern_t>> patsets_pref(1);
+    patsets_pref[0].push_back(pattern_t());
     bool final_alternative = true;
+    bool sieve_forward = false;
+    bool just_sieved = false;
 
     for(auto ch: char_iter(line))
     {
@@ -197,7 +202,7 @@ LexdCompiler::processNextLine()//(FILE* input)
           option = true;
           cur = cur.retainBetween(0, cur.length()-1);
         }
-        if(cur.length() == 0 && final_alternative) die(L"Syntax error - no lexicon name");
+        if(cur.length() == 0 && final_alternative && !just_sieved) die(L"Syntax error - no lexicon name");
         if(!make_token(cur, tok))
           continue;
         if(option)
@@ -215,11 +220,39 @@ LexdCompiler::processNextLine()//(FILE* input)
         final_alternative = false;
         cur.remove();
       }
+      else if(ch == ">")
+      {
+        sieve_forward = true;
+        if(make_token(cur, tok))
+          alternation.push_back(tok);
+        if(alternation.empty())
+          die(L"Forward sieve without token?");
+        expand_alternation(pats_cur, alternation);
+        patsets_fin.push_back(pats_cur);
+        alternation.clear();
+        cur.remove();
+        just_sieved = true;
+      }
+      else if(ch == "<")
+      {
+        if (sieve_forward)
+          die(L"Syntax error - cannot sieve backwards after forwards.");
+        if(make_token(cur, tok))
+          alternation.push_back(tok);
+        if(alternation.empty())
+          die(L"Backward sieve without token?");
+        expand_alternation(pats_cur, alternation);
+        alternation.clear();
+        patsets_pref.push_back(pats_cur);
+        pats_cur.clear();
+        cur.remove();
+        just_sieved = true;
+      }
       else
       {
         if(cur.isEmpty() && final_alternative)
         {
-          expand_alternation(pats, alternation);
+          expand_alternation(pats_cur, alternation);
           alternation.clear();
         }
         cur += ch;
@@ -227,9 +260,26 @@ LexdCompiler::processNextLine()//(FILE* input)
     }
     if(!final_alternative)
       die(L"Syntax error - trailing |");
-    expand_alternation(pats, alternation);
-    for(const auto &pat: pats)
-      patterns[currentPatternName].push_back(make_pair(lineNumber, pat));
+    if(just_sieved)
+      die(L"Syntax error - trailing sieve (< or >)");
+    expand_alternation(pats_cur, alternation);
+    patsets_fin.push_back(pats_cur);
+    for(const auto &patset_fin: patsets_fin)
+    {
+      for(const auto &pat: patset_fin)
+      {
+        for(const auto &patset_pref: patsets_pref)
+        {
+          for(const auto &pat_pref: patset_pref)
+          {
+            pattern_t p = pat_pref;
+            p.reserve(p.size() + pat.size());
+            p.insert(p.end(), pat.begin(), pat.end());
+            patterns[currentPatternName].push_back(make_pair(lineNumber, p));
+          }
+        }
+      }
+    }
   }
   else if(inLex)
   {
