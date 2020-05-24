@@ -133,3 +133,25 @@ VerbRoot Tense PersonNumber
 VerbRoot Causative Tense PersonNumber
 AuxRoot Tense PersonNumber
 ```
+
+Some simple operators are supported to help write patterns concisely:
+- the option quantifier `?` can be applied after to a single token
+```
+PATTERNS
+Negation? Adjective
+```
+
+- the alternation operator `|` between two tokens causes one pattern
+  for each alternate
+```
+PATTERNS
+VerbStem Case
+
+PATTERN Case
+Absolutive
+Oblique Ergative|Genitive
+# equivalent to:
+# Oblique Ergative
+# Oblique Genitive
+```
+
