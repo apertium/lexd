@@ -5,15 +5,6 @@
 using namespace icu;
 using namespace std;
 
-// for representing + * ?
-#define OPTIONAL 1
-#define REPEATED 2
-
-#define NORMAL   0
-#define QUESTION 1
-#define PLUS     2
-#define STAR     3
-
 void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t> &alternation);
 
 int LexdCompiler::alphabet_lookup(const UnicodeString &symbol)
@@ -29,7 +20,9 @@ int LexdCompiler::alphabet_lookup(const UnicodeString &symbol)
 }
 
 LexdCompiler::LexdCompiler()
-  : shouldAlign(false), shouldCompress(false), input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false), flagsUsed(0), anonymousCount(0)
+  : shouldAlign(false), shouldCompress(false),
+    input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false),
+    flagsUsed(0), anonymousCount(0)
   {}
 
 LexdCompiler::~LexdCompiler()
@@ -70,7 +63,7 @@ LexdCompiler::finishLexicon()
 void
 LexdCompiler::checkName(UnicodeString& name)
 {
-  const static wchar_t* forbidden = L" :?|";
+  const static wchar_t* forbidden = L" :?|()<>[]*+";
   name.trim();
   int l = name.length();
   if(l == 0) die(L"Unnamed pattern or lexicon");
@@ -146,7 +139,7 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
   const UnicodeString boundary = " :()[]+*?|<>";
   for(; iter != iter.end() && boundary.indexOf(*iter) == -1 && (*iter).length() > 0; ++iter) ;
   UnicodeString name;
-  line.extract(i, (iter == iter.end() ? line.length() : iter.span().first) - i, name);
+  line.extract(i, (iter != iter.end() ? iter.span().first : line.length()) - i, name);
   if(name.length() == 0)
     die(L"Colon without lexicon name");
   unsigned int part = 1;
@@ -171,25 +164,25 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
   return make_pair(name, part);
 }
 
-int
+RepeatMode
 LexdCompiler::readModifier(char_iter& iter)
 {
   if(*iter == "?")
   {
     ++iter;
-    return QUESTION;
+    return Question;
   }
   else if(*iter == "*")
   {
     ++iter;
-    return STAR;
+    return Star;
   }
   else if(*iter == "+")
   {
     ++iter;
-    return PLUS;
+    return Plus;
   }
-  return NORMAL;
+  return Normal;
 }
 
 void
@@ -513,10 +506,10 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
     if(pat[pos].first.first.second != 1 || pat[pos].first.second.second != 1)
       die(L"Cannot select part of pattern " + to_wstring(lname));
     int new_state = t->insertTransducer(state, *buildPattern(lname));
-    int mode = pat[pos].second;
-    if(mode & OPTIONAL)
+    RepeatMode mode = pat[pos].second;
+    if(mode & Optional)
       t->linkStates(state, new_state, 0);
-    if(mode & REPEATED)
+    if(mode & Repeated)
       t->linkStates(new_state, state, 0);
     buildPattern(new_state, t, pat, is_free, pos+1);
     return;
@@ -815,7 +808,7 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
   UnicodeString& rname = tok.first.second.first;
   unsigned int lpart = tok.first.first.second;
   unsigned int rpart = tok.first.second.second;
-  int mode = tok.second;
+  RepeatMode mode = tok.second;
 
   bool lempty = (lname == "");
   bool rempty = (rname == "");
@@ -842,11 +835,11 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
                    (rempty ? empty : rents[i][rpart-1].second));
     if(!free)
     {
-      if(mode == QUESTION)
+      if(mode == Question)
         t->optional();
-      else if(mode == STAR)
+      else if(mode == Star)
         t->zeroOrMore();
-      else if(mode == PLUS)
+      else if(mode == Plus)
         t->oneOrMore();
       trans.push_back(t);
     }
@@ -854,11 +847,11 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
   if(free)
   {
     trans[0]->minimize();
-    if(mode == QUESTION)
+    if(mode == Question)
       trans[0]->optional();
-    else if(mode == STAR)
+    else if(mode == Star)
       trans[0]->zeroOrMore();
-    else if(mode == PLUS)
+    else if(mode == Plus)
       trans[0]->oneOrMore();
     lexiconTransducers[tok] = trans[0];
     return trans[0];

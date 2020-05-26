@@ -17,9 +17,20 @@
 using namespace std;
 using namespace icu;
 
+enum RepeatMode
+{
+  Optional = 1,
+  Repeated = 2,
+
+  Normal = 0,
+  Question = 1,
+  Plus = 2,
+  Star = 3
+};
+
 typedef pair<UnicodeString, unsigned int> token_t;
 typedef pair<token_t, token_t> token_pair_t;
-typedef pair<token_pair_t, int> pattern_element_t;
+typedef pair<token_pair_t, RepeatMode> pattern_element_t;
 typedef vector<pattern_element_t> pattern_t;
 typedef vector<pair<vector<int>, vector<int>>> entry_t;
 
@@ -51,7 +62,7 @@ private:
   void die(const wstring & msg);
   void finishLexicon();
   void checkName(UnicodeString& name);
-  int readModifier(char_iter& iter);
+  RepeatMode readModifier(char_iter& iter);
   pair<vector<int>, vector<int>> processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
   token_t readToken(char_iter& iter, UnicodeString& line);
   void processPattern(char_iter& iter, UnicodeString& line);
