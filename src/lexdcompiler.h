@@ -1,7 +1,7 @@
 #ifndef __LEXDCOMPILER__
 #define __LEXDCOMPILER__
 
-#include "lexicon.h"
+#include "icu-iter.h"
 
 #include <lttoolbox/transducer.h>
 #include <lttoolbox/alphabet.h>
@@ -19,7 +19,8 @@ using namespace icu;
 
 typedef pair<UnicodeString, unsigned int> token_t;
 typedef pair<token_t, token_t> token_pair_t;
-typedef vector<token_pair_t> pattern_t;
+typedef pair<token_pair_t, int> pattern_element_t;
+typedef vector<pattern_element_t> pattern_t;
 typedef vector<pair<vector<int>, vector<int>>> entry_t;
 
 class LexdCompiler
@@ -32,8 +33,8 @@ private:
   // { name => [ ( line, [ ( lexicon, ( side, part ) ) ] ) ] }
   map<UnicodeString, vector<pair<int, pattern_t>>> patterns;
   map<UnicodeString, Transducer*> patternTransducers;
-  map<UnicodeString, Transducer*> lexiconTransducers;
-  map<token_pair_t, vector<Transducer*>> entryTransducers;
+  map<pattern_element_t, Transducer*> lexiconTransducers;
+  map<pattern_element_t, vector<Transducer*>> entryTransducers;
 
   UFILE* input;
   bool inLex;
@@ -45,18 +46,21 @@ private:
   int lineNumber;
   bool doneReading;
   unsigned int flagsUsed;
+  unsigned int anonymousCount;
 
   void die(const wstring & msg);
   void finishLexicon();
   void checkName(UnicodeString& name);
+  int readModifier(char_iter& iter);
+  pair<vector<int>, vector<int>> processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
+  token_t readToken(char_iter& iter, UnicodeString& line);
+  void processPattern(char_iter& iter, UnicodeString& line);
   void processNextLine();
 
   map<UnicodeString, unsigned int> matchedParts;
-  bool make_token(UnicodeString, token_pair_t &);
-  void make_single_token(UnicodeString, token_t &);
   void insertEntry(Transducer* trans, vector<int>& left, vector<int>& right);
-  Transducer* getLexiconTransducer(token_pair_t tok, unsigned int entry_index);
-  void buildPattern(int state, Transducer* t, const pattern_t& pat, unsigned int pos);
+  Transducer* getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free);
+  void buildPattern(int state, Transducer* t, const pattern_t& pat, vector<int> is_free, unsigned int pos);
   Transducer* buildPattern(UnicodeString name);
   Transducer* buildPatternWithFlags(UnicodeString name);
   int alphabet_lookup(const UnicodeString &symbol);

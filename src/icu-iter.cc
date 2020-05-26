@@ -93,6 +93,11 @@ bool charspan_iter::operator!=(const charspan_iter &other) const
   return s != other.s || _span != other._span;
 }
 
+bool charspan_iter::operator==(const charspan_iter &other) const
+{
+  return s == other.s && _span == other._span;
+}
+
 charspan_iter charspan_iter::begin()
 {
   return charspan_iter(*s);
@@ -154,6 +159,10 @@ const UnicodeString &char_iter::string() const
 bool char_iter::operator!=(const char_iter &other) const
 {
     return it != other.it;
+}
+bool char_iter::operator==(const char_iter &other) const
+{
+    return it == other.it;
 }
 pair<int, int> char_iter::span() const
 {

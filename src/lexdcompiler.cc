@@ -1,15 +1,20 @@
 #include "lexdcompiler.h"
-#include "icu-iter.h"
 #include <variant>
 #include <unicode/unistr.h>
 
 using namespace icu;
 using namespace std;
 
-typedef monostate none_t;
-typedef variant<none_t, token_pair_t> maybe_token_pair_t;
-const maybe_token_pair_t none;
-void expand_alternation(vector<pattern_t> &pats, const vector<maybe_token_pair_t> &alternation);
+// for representing + * ?
+#define OPTIONAL 1
+#define REPEATED 2
+
+#define NORMAL   0
+#define QUESTION 1
+#define PLUS     2
+#define STAR     3
+
+void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t> &alternation);
 
 int LexdCompiler::alphabet_lookup(const UnicodeString &symbol)
 {
@@ -24,7 +29,7 @@ int LexdCompiler::alphabet_lookup(const UnicodeString &symbol)
 }
 
 LexdCompiler::LexdCompiler()
-  : shouldAlign(false), shouldCompress(false), input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false), flagsUsed(0)
+  : shouldAlign(false), shouldCompress(false), input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false), flagsUsed(0), anonymousCount(0)
   {}
 
 LexdCompiler::~LexdCompiler()
@@ -65,7 +70,7 @@ LexdCompiler::finishLexicon()
 void
 LexdCompiler::checkName(UnicodeString& name)
 {
-  const static wchar_t* forbidden = L" :?|><";
+  const static wchar_t* forbidden = L" :?|";
   name.trim();
   int l = name.length();
   if(l == 0) die(L"Unnamed pattern or lexicon");
@@ -77,8 +82,253 @@ LexdCompiler::checkName(UnicodeString& name)
   }
 }
 
+pair<vector<int>, vector<int>>
+LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count)
+{
+  vector<int> left;
+  vector<int> right;
+  bool inleft = true;
+  if((*iter).startsWith(" "))
+  {
+    if((*iter).length() > 1)
+    {
+      // if it's a space with a combining diacritic after it,
+      // then we want the diacritic
+      UnicodeString cur = *iter;
+      cur.retainBetween(1, cur.length());
+      left.push_back(alphabet_lookup(cur));
+    }
+    ++iter;
+  }
+  if(iter == iter.end() && left.size() == 0)
+    die(L"Expected " + to_wstring(currentLexiconPartCount) + L" parts, found " + to_wstring(part_count));
+  for(; iter != iter.end(); ++iter)
+  {
+    if((*iter).startsWith(" ") || *iter == '[' || *iter == ']')
+      break;
+    else if(*iter == ":")
+    {
+      if(inleft)
+        inleft = false;
+      else
+        die(L"Lexicon entry contains multiple colons");
+    }
+    else if(*iter == "\\")
+    {
+      (inleft ? left : right).push_back(alphabet_lookup(*++iter));
+    }
+    else if(*iter == "{" || *iter == "<")
+    {
+      UChar end = (*iter == "{") ? '}' : '>';
+      int i = iter.span().first;
+      for(; iter != iter.end() && *iter != end; ++iter) ;
+
+      if(*iter == end)
+      {
+        int sym = alphabet_lookup(line.tempSubStringBetween(i, iter.span().second));
+        (inleft ? left : right).push_back(sym);
+      }
+      else
+        die(L"Multichar entry didn't end; searching for " + wstring((wchar_t*)&end, 1));
+    }
+    else (inleft ? left : right).push_back(alphabet_lookup(*iter));
+  }
+  if(inleft)
+    right = left;
+  return make_pair(left, right);
+}
+
+token_t
+LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
+{
+  if(*iter == ' ' || *iter == ':') ++iter;
+  int i = iter.span().first;
+  const UnicodeString boundary = " :()[]+*?|<>";
+  for(; iter != iter.end() && boundary.indexOf(*iter) == -1 && (*iter).length() > 0; ++iter) ;
+  UnicodeString name;
+  line.extract(i, (iter == iter.end() ? line.length() : iter.span().first) - i, name);
+  if(name.length() == 0)
+    die(L"Colon without lexicon name");
+  unsigned int part = 1;
+  if(iter != iter.end() && *iter == '(')
+  {
+    ++iter;
+    i = iter.span().first;
+    for(; iter != iter.end() && *iter != ')'; ++iter)
+    {
+      if((*iter).length() != 1 || !u_isdigit((*iter).charAt(0)))
+        die(L"Syntax error - non-numeric index in parentheses: " + to_wstring(*iter));
+    }
+    if(*iter != ')')
+      die(L"Syntax error - unmached parenthesis");
+    int len = iter.span().first - i;
+    if(len == 0)
+      die(L"Syntax error - missing index in parenthesis");
+    part = (unsigned int)stoul(to_wstring(line.tempSubStringBetween(i, i+len)));
+    ++iter;
+  }
+  // TODO: check for tags here
+  return make_pair(name, part);
+}
+
+int
+LexdCompiler::readModifier(char_iter& iter)
+{
+  if(*iter == "?")
+  {
+    ++iter;
+    return QUESTION;
+  }
+  else if(*iter == "*")
+  {
+    ++iter;
+    return STAR;
+  }
+  else if(*iter == "+")
+  {
+    ++iter;
+    return PLUS;
+  }
+  return NORMAL;
+}
+
 void
-LexdCompiler::processNextLine()//(FILE* input)
+LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
+{
+  vector<pattern_t> pats_cur(1);
+  vector<pattern_element_t> alternation;
+  vector<vector<pattern_t>> patsets_fin;
+  vector<vector<pattern_t>> patsets_pref(1);
+  patsets_pref[0].push_back(pattern_t());
+  bool final_alternative = true;
+  bool sieve_forward = false;
+  bool just_sieved = false;
+  const UnicodeString boundary = " :()[]+*?|<>";
+
+  for(; iter != iter.end() && *iter != ')' && (*iter).length() > 0; ++iter)
+  {
+    if(*iter == " ") ;
+    else if(*iter == "|")
+    {
+      if(alternation.empty())
+        die(L"Syntax error - initial |");
+      final_alternative = false;
+    }
+    else if(*iter == "<")
+    {
+      if(sieve_forward)
+        die(L"Syntax error - cannot sieve backwards after forwards.");
+      if(alternation.empty())
+        die(L"Backward sieve without token?");
+      expand_alternation(pats_cur, alternation);
+      alternation.clear();
+      patsets_pref.push_back(pats_cur);
+      pats_cur.clear();
+      just_sieved = true;
+    }
+    else if(*iter == ">")
+    {
+      sieve_forward = true;
+      if(alternation.empty())
+        die(L"Forward sieve without token?");
+      expand_alternation(pats_cur, alternation);
+      patsets_fin.push_back(pats_cur);
+      alternation.clear();
+      just_sieved = true;
+    }
+    else if(*iter == "[")
+    {
+      currentLexiconName = UnicodeString::fromUTF8(" " + to_string(anonymousCount++));
+      currentLexiconPartCount = 1;
+      inLex = true;
+      entry_t entry;
+      entry.push_back(processLexiconSegment(iter, line, 0));
+      if(*iter == " ") iter++;
+      if(*iter != "]")
+        die(L"Missing closing ] for anonymous lexicon");
+      currentLexicon.push_back(entry);
+      token_t tok = make_pair(currentLexiconName, 1);
+      finishLexicon();
+      alternation.push_back(make_pair(make_pair(tok, tok), readModifier(iter)));
+      final_alternative = true;
+      just_sieved = false;
+    }
+    else if(*iter == "(")
+    {
+      UnicodeString altName = UnicodeString::fromUTF8(" " + to_string(anonymousCount++));
+      altName.swap(currentPatternName);
+      ++iter;
+      processPattern(iter, line);
+      if(iter == iter.end() || *iter != ")")
+        die(L"Missing closing ) for anonymous pattern");
+      ++iter;
+      altName.swap(currentPatternName);
+      token_t tok = make_pair(altName, 1);
+      alternation.push_back(make_pair(make_pair(tok, tok), readModifier(iter)));
+      final_alternative = true;
+      just_sieved = false;
+    }
+    else
+    {
+      if(final_alternative && !alternation.empty())
+      {
+        expand_alternation(pats_cur, alternation);
+        alternation.clear();
+      }
+      token_t left;
+      token_t right;
+      if(*iter == ":")
+      {
+        left = make_pair("", 0);
+        ++iter;
+        right = readToken(iter, line);
+      }
+      else
+      {
+        left = readToken(iter, line);
+        if(*iter == ":")
+        {
+          ++iter;
+          if(iter == iter.end() || (*iter).length() == 0 || boundary.indexOf(*iter) != -1)
+            right = make_pair("", 0);
+          else
+            right = readToken(iter, line);
+        }
+        else
+          right = left;
+      }
+      token_pair_t tok = make_pair(left, right);
+      alternation.push_back(make_pair(tok, readModifier(iter)));
+      final_alternative = true;
+      just_sieved = false;
+    }
+  }
+  if(!final_alternative)
+    die(L"Syntax error - trailing |");
+  if(just_sieved)
+    die(L"Syntax error - trailing sieve (< or >)");
+  expand_alternation(pats_cur, alternation);
+  patsets_fin.push_back(pats_cur);
+  for(const auto &patset_fin: patsets_fin)
+  {
+    for(const auto &pat: patset_fin)
+    {
+      for(const auto &patset_pref: patsets_pref)
+      {
+        for(const auto &pat_pref: patset_pref)
+        {
+          pattern_t p = pat_pref;
+          p.reserve(p.size() + pat.size());
+          p.insert(p.end(), pat.begin(), pat.end());
+          patterns[currentPatternName].push_back(make_pair(lineNumber, p));
+        }
+      }
+    }
+  }
+}
+
+void
+LexdCompiler::processNextLine()
 {
   UnicodeString line;
   UChar c;
@@ -179,213 +429,64 @@ LexdCompiler::processNextLine()//(FILE* input)
   }
   else if(inPat)
   {
-    // TODO: this should do some error checking (mismatches, mostly)
-    if(!line.endsWith(' ')) line += ' ';
-    UnicodeString cur;
-    token_pair_t tok;
-    vector<pattern_t> pats_cur(1);
-    vector<maybe_token_pair_t> alternation;
-    vector<vector<pattern_t>> patsets_fin;
-    vector<vector<pattern_t>> patsets_pref(1);
-    patsets_pref[0].push_back(pattern_t());
-    bool final_alternative = true;
-    bool sieve_forward = false;
-    bool just_sieved = false;
-
-    for(auto ch: char_iter(line))
-    {
-      if(ch == " ")
-      {
-        bool option = false;
-        if(cur.endsWith('?'))
-        {
-          option = true;
-          cur = cur.retainBetween(0, cur.length()-1);
-        }
-        if(cur.length() == 0 && final_alternative && !just_sieved) die(L"Syntax error - no lexicon name");
-        if(!make_token(cur, tok))
-          continue;
-	just_sieved = false;
-        if(option)
-          alternation.push_back(none);
-        alternation.push_back(tok);
-        final_alternative = true;
-        cur.remove();
-      }
-      else if(ch == "|")
-      {
-        if(make_token(cur, tok))
-          alternation.push_back(tok);
-        else if(alternation.empty())
-          die(L"Syntax error - initial |");
-        final_alternative = false;
-        cur.remove();
-      }
-      else if(ch == ">")
-      {
-        sieve_forward = true;
-        if(make_token(cur, tok))
-          alternation.push_back(tok);
-        if(alternation.empty())
-          die(L"Forward sieve without token?");
-        expand_alternation(pats_cur, alternation);
-        patsets_fin.push_back(pats_cur);
-        alternation.clear();
-        cur.remove();
-        just_sieved = true;
-      }
-      else if(ch == "<")
-      {
-        if (sieve_forward)
-          die(L"Syntax error - cannot sieve backwards after forwards.");
-        if(make_token(cur, tok))
-          alternation.push_back(tok);
-        if(alternation.empty())
-          die(L"Backward sieve without token?");
-        expand_alternation(pats_cur, alternation);
-        alternation.clear();
-        patsets_pref.push_back(pats_cur);
-        pats_cur.clear();
-        cur.remove();
-        just_sieved = true;
-      }
-      else
-      {
-        if(cur.isEmpty() && final_alternative)
-        {
-          expand_alternation(pats_cur, alternation);
-          alternation.clear();
-        }
-        cur += ch;
-      }
-    }
-    if(!final_alternative)
-      die(L"Syntax error - trailing |");
-    if(just_sieved)
-      die(L"Syntax error - trailing sieve (< or >)");
-    expand_alternation(pats_cur, alternation);
-    patsets_fin.push_back(pats_cur);
-    for(const auto &patset_fin: patsets_fin)
-    {
-      for(const auto &pat: patset_fin)
-      {
-        for(const auto &patset_pref: patsets_pref)
-        {
-          for(const auto &pat_pref: patset_pref)
-          {
-            pattern_t p = pat_pref;
-            p.reserve(p.size() + pat.size());
-            p.insert(p.end(), pat.begin(), pat.end());
-            patterns[currentPatternName].push_back(make_pair(lineNumber, p));
-          }
-        }
-      }
-    }
+    char_iter iter = char_iter(line);
+    processPattern(iter, line);
+    if(iter != iter.end() && (*iter).length() > 0)
+      die(L"Unexpected )");
   }
   else if(inLex)
   {
-    vector<UnicodeString> pieces;
-    UnicodeString cur;
-    for(auto it = char_iter(line); it != it.end(); ++it)
+    char_iter iter = char_iter(line);
+    entry_t entry;
+    for(unsigned int i = 0; i < currentLexiconPartCount; i++)
     {
-      if(*it == "\\")
-      {
-        cur += *it;
-        cur += *++it;
-      }
-      else if((*it).startsWith(" "))
-      {
-        if(!cur.isEmpty())
-          pieces.push_back(cur + ":");
-
-        // `cur` might be more than just a space; it could include some
-        // combining code point. Keep anything after the space.
-        cur = *it;
-        cur.retainBetween(1, cur.length());
-      }
-      else {
-        cur += *it;
-      }
+      entry.push_back(processLexiconSegment(iter, line, i));
     }
-    if(cur.length() > 0) pieces.push_back(cur + ":");
-    vector<pair<vector<int>, vector<int>>> entry;
-    for(auto ln : pieces)
-    {
-      vector<vector<int>> parts;
-      vector<int> cur;
-      for(auto it = char_iter(ln); it != it.end(); ++it)
-      {
-        if(*it == "\\")
-          cur.push_back(alphabet_lookup(*++it));
-        else if(*it == ":")
-        {
-          parts.push_back(cur);
-          cur.clear();
-        }
-        else if(*it == "{" || *it == "<")
-        {
-          UChar end = (*it == "{") ? '}' : '>';
-          int i = it.span().first;
-          for(; it != it.end() && *it != end; ++it) ;
-
-          if(*it == end)
-            cur.push_back(alphabet_lookup(
-              ln.tempSubStringBetween(i, it.span().second)
-            ));
-          else
-            die(L"Multichar entry didn't end; searching for " + wstring((wchar_t*)&end, 1));
-        }
-        else cur.push_back(alphabet_lookup(*it));
-      }
-      if(parts.size() == 1)
-      {
-        entry.push_back(make_pair(parts[0], parts[0]));
-      }
-      else if(parts.size() == 2)
-      {
-        entry.push_back(make_pair(parts[0], parts[1]));
-      }
-      else die(L"Lexicon entry contains multiple colons");
-    }
-    if(entry.size() != currentLexiconPartCount)
-    {
-      die(L"Lexicon entry has wrong number of components. Expected " + to_wstring(currentLexiconPartCount) + L", got " + to_wstring((unsigned int)entry.size()));
-    }
+    if(*iter == ' ') ++iter;
+    // TODO: check for tags here
+    if(iter != iter.end())
+      die(L"Lexicon entry has more than " + to_wstring(currentLexiconPartCount) + L" components");
     currentLexicon.push_back(entry);
   }
   else die(L"Expected 'PATTERNS' or 'LEXICON'");
 }
 
 void
-LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, unsigned int pos)
+LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const vector<int> is_free, unsigned int pos)
 {
   if(pos == pat.size())
   {
     t->setFinal(state);
     return;
   }
-  const UnicodeString& lname = pat[pos].first.first;
-  const UnicodeString& rname = pat[pos].second.first;
+  const UnicodeString& lname = pat[pos].first.first.first;
+  const UnicodeString& rname = pat[pos].first.second.first;
   const bool llex = (lname.length() == 0) || (lexicons.find(lname) != lexicons.end());
   const bool rlex = (rname.length() == 0) || (lexicons.find(rname) != lexicons.end());
   if(llex && rlex)
   {
     bool lempty = (lname.length() == 0);
     bool rempty = (rname.length() == 0);
-    if(matchedParts.find(lname) == matchedParts.end() &&
+    if(is_free[pos] == 1)
+    {
+      int new_state = t->insertTransducer(state, *getLexiconTransducer(pat[pos], 0, true));
+      buildPattern(new_state, t, pat, is_free, pos+1);
+      return;
+    }
+    else if(matchedParts.find(lname) == matchedParts.end() &&
        matchedParts.find(rname) == matchedParts.end())
     {
       unsigned int max = lexicons[lname.length() == 0 ? rname : lname].size();
       for(unsigned int index = 0; index < max; index++)
       {
-        int new_state = t->insertTransducer(state, *getLexiconTransducer(pat[pos], index));
+        int new_state = t->insertTransducer(state, *getLexiconTransducer(pat[pos], index, false));
         if(new_state == state)
         {
           new_state = t->insertNewSingleTransduction(0, state);
         }
         if(!lempty) matchedParts[lname] = index;
         if(!rempty) matchedParts[rname] = index;
-        buildPattern(new_state, t, pat, pos+1);
+        buildPattern(new_state, t, pat, is_free, pos+1);
       }
       if(!lempty) matchedParts.erase(lname);
       if(!rempty) matchedParts.erase(rname);
@@ -397,8 +498,9 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, unsig
       matchedParts[rname] = matchedParts[lname];
     if(!lempty && !rempty && matchedParts[lname] != matchedParts[rname])
       die(L"Cannot collate " + to_wstring(lname) + L" with " + to_wstring(rname) + L" - both appear in free variation earlier in the pattern.");
-    int new_state = t->insertTransducer(state, *getLexiconTransducer(pat[pos], matchedParts[lempty ? rname : lname]));
-    buildPattern(new_state, t, pat, pos+1);
+    Transducer* lex = getLexiconTransducer(pat[pos], matchedParts[lempty ? rname : lname], false);
+    int new_state = t->insertTransducer(state, *lex);
+    buildPattern(new_state, t, pat, is_free, pos+1);
     return;
   }
 
@@ -408,10 +510,15 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, unsig
   {
     if(lname != rname)
       die(L"Cannot collate patterns " + to_wstring(lname) + L" and " + to_wstring(rname));
-    if(pat[pos].first.second != 1 || pat[pos].second.second != 1)
+    if(pat[pos].first.first.second != 1 || pat[pos].first.second.second != 1)
       die(L"Cannot select part of pattern " + to_wstring(lname));
     int new_state = t->insertTransducer(state, *buildPattern(lname));
-    buildPattern(new_state, t, pat, pos+1);
+    int mode = pat[pos].second;
+    if(mode & OPTIONAL)
+      t->linkStates(state, new_state, 0);
+    if(mode & REPEATED)
+      t->linkStates(new_state, state, 0);
+    buildPattern(new_state, t, pat, is_free, pos+1);
     return;
   }
 
@@ -448,7 +555,29 @@ LexdCompiler::buildPattern(UnicodeString name)
     {
       matchedParts.clear();
       lineNumber = pat.first;
-      buildPattern(t->getInitial(), t, pat.second, 0);
+      vector<int> is_free = vector<int>(pat.second.size(), 0);
+      for(unsigned int i = 0; i < pat.second.size(); i++)
+      {
+        if(is_free[i] != 0)
+          continue;
+        token_pair_t& t1 = pat.second[i].first;
+        for(unsigned int j = i+1; j < pat.second.size(); j++)
+        {
+          token_pair_t& t2 = pat.second[j].first;
+          if((t1.first.first.length() > 0 &&
+              (t1.first.first == t2.first.first ||
+               t1.first.first == t2.second.first)) ||
+             (t1.second.first.length() > 0 &&
+              (t1.second.first == t2.first.first ||
+               t1.second.first == t2.second.first)))
+          {
+            is_free[i] = -1;
+            is_free[j] = -1;
+          }
+        }
+        is_free[i] = (is_free[i] == 0 ? 1 : -1);
+      }
+      buildPattern(t->getInitial(), t, pat.second, is_free, 0);
     }
     tempMatch.swap(matchedParts);
     t->minimize();
@@ -476,14 +605,14 @@ LexdCompiler::buildPatternWithFlags(UnicodeString name)
       vector<UnicodeString> clear;
       for(auto& part : pat.second)
       {
-        if(lexCount.find(part.first.first) == lexCount.end()) lexCount[part.first.first] = 0;
-        lexCount[part.first.first] += 1;
+        if(lexCount.find(part.first.first.first) == lexCount.end()) lexCount[part.first.first.first] = 0;
+        lexCount[part.first.first.first] += 1;
       }
       lineNumber = pat.first;
       int state = t->getInitial();
       for(auto& part : pat.second)
       {
-        UnicodeString& lex = part.first.first;
+        UnicodeString& lex = part.first.first.first;
         if(lexicons.find(lex) != lexicons.end())
         {
           if(lexCount[lex] == 1)
@@ -509,7 +638,7 @@ LexdCompiler::buildPatternWithFlags(UnicodeString name)
         }
         else if(patterns.find(lex) != patterns.end())
         {
-          if(part.second.first != SideBoth || part.second.second != 1) die(L"Cannot select part or side of pattern '" + to_wstring(lex) + L"'");
+          //if(part.second.first != SideBoth || part.second.second != 1) die(L"Cannot select part or side of pattern '" + to_wstring(lex) + L"'");
           state = t->insertTransducer(state, *(buildPatternWithFlags(lex)));
         }
         else
@@ -555,55 +684,7 @@ LexdCompiler::buildTransducer(bool usingFlags)
   else return buildPattern(" ");
 }
 
-bool LexdCompiler::make_token(UnicodeString tok_s, token_pair_t &tok_out)
-{
-  if(tok_s.length() == 0) return false;
-  int loc = tok_s.indexOf(":");
-  if(loc == -1)
-  {
-    make_single_token(tok_s, tok_out.first);
-    tok_out.second = tok_out.first;
-    return true;
-  }
-  if(tok_s.length() == 1) die(L"Syntax error - colon without lexicon name in token");
-  UnicodeString left;
-  tok_s.extract(0, loc, left);
-  tok_s.retainBetween(loc+1, tok_s.length());
-  make_single_token(left, tok_out.first);
-  make_single_token(tok_s, tok_out.second);
-  return true;
-}
-
-void LexdCompiler::make_single_token(UnicodeString tok_s, token_t &tok_out)
-{
-  if(tok_s.length() == 0)
-  {
-    tok_out = make_pair("", 0);
-    return;
-  }
-  unsigned int idx = 1;
-  if(tok_s.length() > 1 && tok_s.endsWith(")"))
-  {
-    UnicodeString temp;
-    tok_s.retainBetween(0, tok_s.length() - 1);
-    for(char_iter it = rev_char_iter(tok_s); it != it.begin() && *it != "("; --it)
-    {
-      if((*it).length() != 1 || !u_isdigit((*it).charAt(0)))
-        die(L"Syntax error - non-numeric index in parentheses: " + to_wstring(*it));
-      else
-        temp += *it;
-    }
-    tok_s = tok_s.retainBetween(0, tok_s.length() - temp.length() - 1);
-    if (tok_s.isEmpty())
-      die(L"Syntax error - unmatched parenthesis");
-    else if(temp.isEmpty())
-      die(L"Syntax error - missing index in parenthesis");
-    idx = (unsigned int)stoul(to_wstring(temp));
-  }
-  tok_out = make_pair(tok_s, idx);
-}
-
-void expand_alternation(vector<pattern_t> &pats, const vector<maybe_token_pair_t> &alternation)
+void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t> &alternation)
 {
   if(alternation.empty())
     return;
@@ -612,11 +693,10 @@ void expand_alternation(vector<pattern_t> &pats, const vector<maybe_token_pair_t
   vector<pattern_t> new_pats;
   for(const auto &pat: pats)
   {
-    for(const auto &maybe_tok: alternation)
+    for(const auto &tok: alternation)
     {
       auto pat1 = pat;
-      if(maybe_tok != none)
-        pat1.push_back(get<token_pair_t>(maybe_tok));
+      pat1.push_back(tok);
       new_pats.push_back(pat1);
     }
   }
@@ -724,29 +804,19 @@ LexdCompiler::insertEntry(Transducer* trans, vector<int>& left, vector<int>& rig
 }
 
 Transducer*
-LexdCompiler::getLexiconTransducer(token_pair_t tok, unsigned int entry_index)
+LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free)
 {
-  UnicodeString& lname = tok.first.first;
-  UnicodeString& rname = tok.second.first;
-  unsigned int lpart = tok.first.second;
-  unsigned int rpart = tok.second.second;
-
-  if(lname == rname && lexicons[lname][0].size() == 1)
-  {
-    if(lexiconTransducers.find(lname) != lexiconTransducers.end())
-      return lexiconTransducers[lname];
-    Transducer* trans = new Transducer();
-    for(auto entry : lexicons[lname])
-    {
-      insertEntry(trans, entry[0].first, entry[0].second);
-    }
-    trans->minimize();
-    lexiconTransducers[lname] = trans;
-    return trans;
-  }
-
-  if(entryTransducers.find(tok) != entryTransducers.end())
+  if(!free && entryTransducers.find(tok) != entryTransducers.end())
     return entryTransducers[tok][entry_index];
+  if(free && lexiconTransducers.find(tok) != lexiconTransducers.end())
+    return lexiconTransducers[tok];
+
+  UnicodeString& lname = tok.first.first.first;
+  UnicodeString& rname = tok.first.second.first;
+  unsigned int lpart = tok.first.first.second;
+  unsigned int rpart = tok.first.second.second;
+  int mode = tok.second;
+
   bool lempty = (lname == "");
   bool rempty = (rname == "");
   vector<entry_t> e_empty;
@@ -760,15 +830,42 @@ LexdCompiler::getLexiconTransducer(token_pair_t tok, unsigned int entry_index)
     die(L"Cannot collate " + to_wstring(lname) + L" with " + to_wstring(rname) + L" - differing numbers of entries");
   unsigned int count = (lempty ? rents.size() : lents.size());
   vector<Transducer*> trans;
-  trans.reserve(count);
+  if(free)
+    trans.push_back(new Transducer());
+  else
+    trans.reserve(count);
   vector<int> empty;
   for(unsigned int i = 0; i < count; i++)
   {
-    Transducer* t = new Transducer();
+    Transducer* t = free ? trans[0] : new Transducer();
     insertEntry(t, (lempty ? empty : lents[i][lpart-1].first),
                    (rempty ? empty : rents[i][rpart-1].second));
-    trans.push_back(t);
+    if(!free)
+    {
+      if(mode == QUESTION)
+        t->optional();
+      else if(mode == STAR)
+        t->zeroOrMore();
+      else if(mode == PLUS)
+        t->oneOrMore();
+      trans.push_back(t);
+    }
   }
-  entryTransducers[tok] = trans;
-  return trans[entry_index];
+  if(free)
+  {
+    trans[0]->minimize();
+    if(mode == QUESTION)
+      trans[0]->optional();
+    else if(mode == STAR)
+      trans[0]->zeroOrMore();
+    else if(mode == PLUS)
+      trans[0]->oneOrMore();
+    lexiconTransducers[tok] = trans[0];
+    return trans[0];
+  }
+  else
+  {
+    entryTransducers[tok] = trans;
+    return trans[entry_index];
+  }
 }

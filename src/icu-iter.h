@@ -31,6 +31,7 @@ class charspan_iter
     const icu::UnicodeString &string() const;
     const std::pair<int, int> &span() const;
     bool operator!=(const charspan_iter &other) const;
+    bool operator==(const charspan_iter &other) const;
     charspan_iter begin();
     charspan_iter end();
 };
@@ -55,6 +56,7 @@ class char_iter
     const icu::UnicodeString &string() const;
     inline icu::UnicodeString operator*() const { return string().tempSubStringBetween(it.span().first, it.span().second); }
     bool operator!=(const char_iter &other) const;
+    bool operator==(const char_iter &other) const;
     std::pair<int, int> span() const;
 };
 
