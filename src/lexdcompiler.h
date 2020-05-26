@@ -28,9 +28,30 @@ enum RepeatMode
   Star = 3
 };
 
-typedef pair<UnicodeString, unsigned int> token_t;
-typedef pair<token_t, token_t> token_pair_t;
-typedef pair<token_pair_t, RepeatMode> pattern_element_t;
+struct pattern_element_t {
+  unsigned int lname;
+  unsigned int rname;
+  unsigned int lpart;
+  unsigned int rpart;
+  RepeatMode mode;
+
+  bool operator<(const pattern_element_t& o) const
+  {
+    if(lname != o.lname) return lname < o.lname;
+    if(rname != o.rname) return rname < o.rname;
+    if(lpart != o.lpart) return lpart < o.lpart;
+    if(rpart != o.rpart) return rpart < o.rpart;
+    return mode < o.mode;
+  }
+
+  bool operator==(const pattern_element_t& o) const
+  {
+    return (lname == o.lname) && (rname == o.rname) &&
+           (lpart == o.lpart) && (rpart == o.rpart) &&
+           (mode == o.mode);
+  }
+};
+
 typedef vector<pattern_element_t> pattern_t;
 typedef vector<pair<vector<int>, vector<int>>> entry_t;
 
@@ -40,10 +61,13 @@ private:
   bool shouldAlign;
   bool shouldCompress;
 
-  map<UnicodeString, vector<entry_t>> lexicons;
-  // { name => [ ( line, [ ( lexicon, ( side, part ) ) ] ) ] }
-  map<UnicodeString, vector<pair<int, pattern_t>>> patterns;
-  map<UnicodeString, Transducer*> patternTransducers;
+  map<UnicodeString, unsigned int> name_to_id;
+  vector<UnicodeString> id_to_name;
+
+  map<unsigned int, vector<entry_t>> lexicons;
+  // { id => [ ( line, [ pattern ] ) ] }
+  map<unsigned int, vector<pair<int, pattern_t>>> patterns;
+  map<unsigned int, Transducer*> patternTransducers;
   map<pattern_element_t, Transducer*> lexiconTransducers;
   map<pattern_element_t, vector<Transducer*>> entryTransducers;
 
@@ -51,9 +75,9 @@ private:
   bool inLex;
   bool inPat;
   vector<vector<pair<vector<int>, vector<int>>>> currentLexicon;
-  UnicodeString currentLexiconName;
+  unsigned int currentLexiconId;
   unsigned int currentLexiconPartCount;
-  UnicodeString currentPatternName;
+  unsigned int currentPatternId;
   int lineNumber;
   bool doneReading;
   unsigned int flagsUsed;
@@ -61,19 +85,20 @@ private:
 
   void die(const wstring & msg);
   void finishLexicon();
-  void checkName(UnicodeString& name);
+  unsigned int internName(UnicodeString& name);
+  unsigned int checkName(UnicodeString& name);
   RepeatMode readModifier(char_iter& iter);
   pair<vector<int>, vector<int>> processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
-  token_t readToken(char_iter& iter, UnicodeString& line);
+  pair<unsigned int, unsigned int> readToken(char_iter& iter, UnicodeString& line);
   void processPattern(char_iter& iter, UnicodeString& line);
   void processNextLine();
 
-  map<UnicodeString, unsigned int> matchedParts;
+  map<unsigned int, unsigned int> matchedParts;
   void insertEntry(Transducer* trans, vector<int>& left, vector<int>& right);
   Transducer* getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, vector<int> is_free, unsigned int pos);
-  Transducer* buildPattern(UnicodeString name);
-  Transducer* buildPatternWithFlags(UnicodeString name);
+  Transducer* buildPattern(unsigned int name);
+  Transducer* buildPatternWithFlags(unsigned int name);
   int alphabet_lookup(const UnicodeString &symbol);
 public:
   LexdCompiler();
