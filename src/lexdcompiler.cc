@@ -205,6 +205,7 @@ LexdCompiler::processNextLine()//(FILE* input)
         if(cur.length() == 0 && final_alternative && !just_sieved) die(L"Syntax error - no lexicon name");
         if(!make_token(cur, tok))
           continue;
+	just_sieved = false;
         if(option)
           alternation.push_back(none);
         alternation.push_back(tok);
