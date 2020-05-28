@@ -32,6 +32,18 @@ struct string_ref {
   }
 };
 
+struct trans_sym_t {
+  int i;
+  trans_sym_t() : i(0) {}
+  explicit trans_sym_t(int _i) : i(_i) {}
+  explicit operator int() const { return i; }
+  bool operator == (trans_sym_t other) const { return i == other.i; }
+  bool operator < (trans_sym_t other) const { return i < other.i; }
+  trans_sym_t operator || (trans_sym_t other) const {
+    return i ? *this : other;
+  }
+};
+
 enum RepeatMode
 {
   Optional = 1,
@@ -68,7 +80,7 @@ struct pattern_element_t {
 };
 
 typedef vector<pattern_element_t> pattern_t;
-typedef vector<pair<vector<int>, vector<int>>> entry_t;
+typedef vector<pair<vector<trans_sym_t>, vector<trans_sym_t>>> entry_t;
 
 class LexdCompiler
 {
@@ -105,18 +117,19 @@ private:
   string_ref internName(UnicodeString& name);
   string_ref checkName(UnicodeString& name);
   RepeatMode readModifier(char_iter& iter);
-  pair<vector<int>, vector<int>> processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
+  pair<vector<trans_sym_t>, vector<trans_sym_t>> processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
   pair<string_ref, unsigned int> readToken(char_iter& iter, UnicodeString& line);
   void processPattern(char_iter& iter, UnicodeString& line);
   void processNextLine();
 
   map<string_ref, unsigned int> matchedParts;
-  void insertEntry(Transducer* trans, vector<int>& left, vector<int>& right);
+  void insertEntry(Transducer* trans, vector<trans_sym_t>& left, vector<trans_sym_t>& right);
   Transducer* getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, vector<int> is_free, unsigned int pos);
   Transducer* buildPattern(string_ref name);
   Transducer* buildPatternWithFlags(string_ref name);
-  int alphabet_lookup(const UnicodeString &symbol);
+  trans_sym_t alphabet_lookup(const UnicodeString &symbol);
+  trans_sym_t alphabet_lookup(trans_sym_t l, trans_sym_t r);
 public:
   LexdCompiler();
   ~LexdCompiler();
