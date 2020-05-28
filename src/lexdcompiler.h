@@ -93,6 +93,7 @@ struct pattern_element_t {
 
 typedef vector<pattern_element_t> pattern_t;
 typedef vector<lex_seg_t> entry_t;
+typedef int line_number_t;
 
 class LexdCompiler
 {
@@ -107,7 +108,7 @@ private:
 
   map<string_ref, vector<entry_t>> lexicons;
   // { id => [ ( line, [ pattern ] ) ] }
-  map<string_ref, vector<pair<int, pattern_t>>> patterns;
+  map<string_ref, vector<pair<line_number_t, pattern_t>>> patterns;
   map<string_ref, Transducer*> patternTransducers;
   map<pattern_element_t, Transducer*> lexiconTransducers;
   map<pattern_element_t, vector<Transducer*>> entryTransducers;
@@ -119,7 +120,7 @@ private:
   string_ref currentLexiconId;
   unsigned int currentLexiconPartCount;
   string_ref currentPatternId;
-  int lineNumber;
+  line_number_t lineNumber;
   bool doneReading;
   unsigned int flagsUsed;
   unsigned int anonymousCount;
