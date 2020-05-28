@@ -12,7 +12,7 @@ AM_SANITY_CHECK
 AC_LANG_CPLUSPLUS
 
 CFLAGS="-Wall -Wextra -Wsign-conversion $CFLAGS"
-CXXFLAGS="-Wall -Wextra -Wsign-conversion $CXXFLAGS"
+CXXFLAGS="-Wall -Wextra -Werror=missing-field-initializers -Wsign-conversion $CXXFLAGS"
 
 AC_ARG_ENABLE(debug,
               [  --enable-debug  Enable "-g -Wall" compiler options],
