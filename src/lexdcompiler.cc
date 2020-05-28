@@ -12,16 +12,20 @@ const UnicodeString &LexdCompiler::name(string_ref r) const
   return id_to_name[(unsigned int)r];
 }
 
-int LexdCompiler::alphabet_lookup(const UnicodeString &symbol)
+trans_sym_t LexdCompiler::alphabet_lookup(const UnicodeString &symbol)
 {
   wstring wsymbol = to_wstring(symbol);
   if(wsymbol.length() == 1)
-    return (int)wsymbol[0];
+    return trans_sym_t((int)wsymbol[0]);
   else
   {
     alphabet.includeSymbol(wsymbol);
-    return alphabet(wsymbol);
+    return trans_sym_t(alphabet(wsymbol));
   }
+}
+trans_sym_t LexdCompiler::alphabet_lookup(trans_sym_t l, trans_sym_t r)
+{
+  return trans_sym_t(alphabet((int)l, (int)r));
 }
 
 LexdCompiler::LexdCompiler()
@@ -90,11 +94,11 @@ LexdCompiler::checkName(UnicodeString& name)
   return internName(name);
 }
 
-pair<vector<int>, vector<int>>
+pair<vector<trans_sym_t>, vector<trans_sym_t>>
 LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count)
 {
-  vector<int> left;
-  vector<int> right;
+  vector<trans_sym_t> left;
+  vector<trans_sym_t> right;
   bool inleft = true;
   if((*iter).startsWith(" "))
   {
@@ -133,7 +137,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
 
       if(*iter == end)
       {
-        int sym = alphabet_lookup(line.tempSubStringBetween(i, iter.span().second));
+        trans_sym_t sym = alphabet_lookup(line.tempSubStringBetween(i, iter.span().second));
         (inleft ? left : right).push_back(sym);
       }
       else
@@ -750,16 +754,16 @@ void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t>
 }
 
 void
-LexdCompiler::insertEntry(Transducer* trans, vector<int>& left, vector<int>& right)
+LexdCompiler::insertEntry(Transducer* trans, vector<trans_sym_t>& left, vector<trans_sym_t>& right)
 {
   int state = trans->getInitial();
   if(!shouldAlign)
   {
     for(unsigned int i = 0; i < left.size() || i < right.size(); i++)
     {
-      int l = (i < left.size()) ? left[i] : 0;
-      int r = (i < right.size()) ? right[i] : 0;
-      state = trans->insertSingleTransduction(alphabet(l, r), state);
+      trans_sym_t l = (i < left.size()) ? left[i] : trans_sym_t();
+      trans_sym_t r = (i < right.size()) ? right[i] : trans_sym_t();
+      state = trans->insertSingleTransduction(alphabet((int)l, (int)r), state);
     }
   }
   else
@@ -827,23 +831,23 @@ LexdCompiler::insertEntry(Transducer* trans, vector<int>& left, vector<int>& rig
 
     for(unsigned int x = len1, y = len2; (x > 0) || (y > 0);)
     {
-      int symbol;
+      trans_sym_t symbol;
       switch(path[x][y])
       {
         case SUB:
-          symbol = alphabet(left[len1-x], right[len2-y]);
+          symbol = alphabet_lookup(left[len1-x], right[len2-y]);
           x--;
           y--;
           break;
         case INS:
-          symbol = alphabet(0, right[len2-y]);
+          symbol = alphabet_lookup(trans_sym_t(), right[len2-y]);
           y--;
           break;
         default: // DEL
-          symbol = alphabet(left[len1-x], 0);
+          symbol = alphabet_lookup(left[len1-x], trans_sym_t());
           x--;
       }
-      state = trans->insertSingleTransduction(symbol, state);
+      state = trans->insertSingleTransduction((int)symbol, state);
     }
   }
   trans->setFinal(state);
@@ -873,7 +877,7 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
     trans.push_back(new Transducer());
   else
     trans.reserve(count);
-  vector<int> empty;
+  vector<trans_sym_t> empty;
   for(unsigned int i = 0; i < count; i++)
   {
     Transducer* t = free ? trans[0] : new Transducer();
