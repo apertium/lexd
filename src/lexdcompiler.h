@@ -91,7 +91,7 @@ private:
   UFILE* input;
   bool inLex;
   bool inPat;
-  vector<vector<pair<vector<int>, vector<int>>>> currentLexicon;
+  vector<entry_t> currentLexicon;
   string_ref currentLexiconId;
   unsigned int currentLexiconPartCount;
   string_ref currentPatternId;
