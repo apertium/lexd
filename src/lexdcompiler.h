@@ -17,6 +17,21 @@
 using namespace std;
 using namespace icu;
 
+struct string_ref {
+  unsigned int i;
+  string_ref() : i(0) {}
+  explicit string_ref(unsigned int _i) : i(_i) {}
+  explicit operator unsigned int() const { return i; }
+  bool operator == (string_ref other) const { return i == other.i; }
+  bool operator < (string_ref other) const { return i < other.i; }
+  string_ref operator || (string_ref other) const {
+    return i ? *this : other;
+  }
+  operator bool() const {
+    return i != 0;
+  }
+};
+
 enum RepeatMode
 {
   Optional = 1,
@@ -29,8 +44,8 @@ enum RepeatMode
 };
 
 struct pattern_element_t {
-  unsigned int lname;
-  unsigned int rname;
+  string_ref lname;
+  string_ref rname;
   unsigned int lpart;
   unsigned int rpart;
   RepeatMode mode;
@@ -61,12 +76,14 @@ private:
   bool shouldAlign;
   bool shouldCompress;
 
-  map<UnicodeString, unsigned int> name_to_id;
+  map<UnicodeString, string_ref> name_to_id;
   vector<UnicodeString> id_to_name;
 
-  map<unsigned int, vector<entry_t>> lexicons;
+  const UnicodeString &name(string_ref r) const;
+
+  map<string_ref, vector<entry_t>> lexicons;
   // { id => [ ( line, [ pattern ] ) ] }
-  map<unsigned int, vector<pair<int, pattern_t>>> patterns;
+  map<string_ref, vector<pair<int, pattern_t>>> patterns;
   map<unsigned int, Transducer*> patternTransducers;
   map<pattern_element_t, Transducer*> lexiconTransducers;
   map<pattern_element_t, vector<Transducer*>> entryTransducers;
@@ -75,9 +92,9 @@ private:
   bool inLex;
   bool inPat;
   vector<vector<pair<vector<int>, vector<int>>>> currentLexicon;
-  unsigned int currentLexiconId;
+  string_ref currentLexiconId;
   unsigned int currentLexiconPartCount;
-  unsigned int currentPatternId;
+  string_ref currentPatternId;
   int lineNumber;
   bool doneReading;
   unsigned int flagsUsed;
@@ -85,20 +102,20 @@ private:
 
   void die(const wstring & msg);
   void finishLexicon();
-  unsigned int internName(UnicodeString& name);
-  unsigned int checkName(UnicodeString& name);
+  string_ref internName(UnicodeString& name);
+  string_ref checkName(UnicodeString& name);
   RepeatMode readModifier(char_iter& iter);
   pair<vector<int>, vector<int>> processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
-  pair<unsigned int, unsigned int> readToken(char_iter& iter, UnicodeString& line);
+  pair<string_ref, unsigned int> readToken(char_iter& iter, UnicodeString& line);
   void processPattern(char_iter& iter, UnicodeString& line);
   void processNextLine();
 
-  map<unsigned int, unsigned int> matchedParts;
+  map<string_ref, unsigned int> matchedParts;
   void insertEntry(Transducer* trans, vector<int>& left, vector<int>& right);
   Transducer* getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, vector<int> is_free, unsigned int pos);
-  Transducer* buildPattern(unsigned int name);
-  Transducer* buildPatternWithFlags(unsigned int name);
+  Transducer* buildPattern(string_ref name);
+  Transducer* buildPatternWithFlags(string_ref name);
   int alphabet_lookup(const UnicodeString &symbol);
 public:
   LexdCompiler();
