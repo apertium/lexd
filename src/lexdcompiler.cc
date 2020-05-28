@@ -496,19 +496,19 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
         {
           new_state = t->insertNewSingleTransduction(0, state);
         }
-        if(tok.left.name) matchedParts[tok.left.name] = index;
-        if(tok.right.name) matchedParts[tok.right.name] = index;
+        if(tok.left.name.valid()) matchedParts[tok.left.name] = index;
+        if(tok.right.name.valid()) matchedParts[tok.right.name] = index;
         buildPattern(new_state, t, pat, is_free, pos+1);
       }
-      if(tok.left.name) matchedParts.erase(tok.left.name);
-      if(tok.right.name) matchedParts.erase(tok.right.name);
+      if(tok.left.name.valid()) matchedParts.erase(tok.left.name);
+      if(tok.right.name.valid()) matchedParts.erase(tok.right.name);
       return;
     }
-    if(tok.left.name && matchedParts.find(tok.left.name) == matchedParts.end())
+    if(tok.left.name.valid() && matchedParts.find(tok.left.name) == matchedParts.end())
       matchedParts[tok.left.name] = matchedParts[tok.right.name];
-    if(tok.right.name && matchedParts.find(tok.right.name) == matchedParts.end())
+    if(tok.right.name.valid() && matchedParts.find(tok.right.name) == matchedParts.end())
       matchedParts[tok.right.name] = matchedParts[tok.left.name];
-    if(tok.left.name && tok.right.name && matchedParts[tok.left.name] != matchedParts[tok.right.name])
+    if(tok.left.name.valid() && tok.right.name.valid() && matchedParts[tok.left.name] != matchedParts[tok.right.name])
       die(L"Cannot collate " + to_wstring(name(tok.left.name)) + L" with " + to_wstring(name(tok.right.name)) + L" - both appear in free variation earlier in the pattern.");
     Transducer* lex = getLexiconTransducer(pat[pos], matchedParts[tok.left.name || tok.right.name], false);
     int new_state = t->insertTransducer(state, *lex);
@@ -536,7 +536,7 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
   // if we get to here it's an error of some kind
   // just have to determine which one
   if((lpat && !tok.right.name) || (rpat && !tok.left.name))
-    die(L"Cannot select side of pattern " + to_wstring(name(tok.left.name ? tok.left.name : tok.right.name)));
+    die(L"Cannot select side of pattern " + to_wstring(name(tok.left.name || tok.right.name)));
   else if((llex && rpat) || (lpat && rlex))
     die(L"Cannot collate lexicon with pattern " + to_wstring(name(tok.left.name)) + L":" + to_wstring(name(tok.right.name)));
   else
@@ -575,8 +575,8 @@ LexdCompiler::buildPattern(string_ref name)
         for(unsigned int j = i+1; j < pat.second.size(); j++)
         {
           const pattern_element_t& t2 = pat.second[j];
-          if((t1.left.name && (t1.left.name == t2.left.name || t1.left.name == t2.right.name)) ||
-             (t1.right.name && (t1.right.name == t2.left.name || t1.right.name == t2.right.name)))
+          if((t1.left.name.valid() && (t1.left.name == t2.left.name || t1.left.name == t2.right.name)) ||
+             (t1.right.name.valid() && (t1.right.name == t2.left.name || t1.right.name == t2.right.name)))
           {
             is_free[i] = -1;
             is_free[j] = -1;
@@ -820,16 +820,16 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
     return lexiconTransducers[tok];
 
   vector<entry_t> e_empty;
-  vector<entry_t>& lents = (tok.left.name ? lexicons[tok.left.name] : e_empty);
-  if(tok.left.name && tok.left.part > lents[0].size())
+  vector<entry_t>& lents = (tok.left.name.valid() ? lexicons[tok.left.name] : e_empty);
+  if(tok.left.name.valid() && tok.left.part > lents[0].size())
     die(to_wstring(name(tok.left.name)) + L"(" + to_wstring(tok.left.part) + L") - part is out of range");
-  vector<entry_t>& rents = (tok.right.name ? lexicons[tok.right.name] : e_empty);
-  if(tok.right.name && tok.right.part > rents[0].size())
+  vector<entry_t>& rents = (tok.right.name.valid() ? lexicons[tok.right.name] : e_empty);
+  if(tok.right.name.valid() && tok.right.part > rents[0].size())
     die(to_wstring(name(tok.right.name)) + L"(" + to_wstring(tok.right.part) + L") - part is out of range");
   // TODO: filter for tags hereish
-  if(tok.left.name && tok.right.name && lents.size() != rents.size())
+  if(tok.left.name.valid() && tok.right.name.valid() && lents.size() != rents.size())
     die(L"Cannot collate " + to_wstring(name(tok.left.name)) + L" with " + to_wstring(name(tok.right.name)) + L" - differing numbers of entries");
-  unsigned int count = (tok.left.name ? lents.size() : rents.size());
+  unsigned int count = (tok.left.name.valid() ? lents.size() : rents.size());
   vector<Transducer*> trans;
   if(free)
     trans.push_back(new Transducer());
@@ -839,8 +839,8 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
   for(unsigned int i = 0; i < count; i++)
   {
     Transducer* t = free ? trans[0] : new Transducer();
-    insertEntry(t, {.left = (tok.left.name ? lents[i][tok.left.part-1].left : empty),
-                   .right = (tok.right.name ? rents[i][tok.right.part-1].right : empty)});
+    insertEntry(t, {.left = (tok.left.name.valid() ? lents[i][tok.left.part-1].left : empty),
+                   .right = (tok.right.name.valid() ? rents[i][tok.right.part-1].right : empty)});
     if(!free)
     {
       if(tok.mode == Question)

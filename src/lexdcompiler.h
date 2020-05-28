@@ -23,13 +23,14 @@ struct string_ref {
   explicit string_ref(unsigned int _i) : i(_i) {}
   explicit operator unsigned int() const { return i; }
   bool operator == (string_ref other) const { return i == other.i; }
+  bool operator != (string_ref other) const { return !(*this == other); }
   bool operator < (string_ref other) const { return i < other.i; }
+  bool operator !() const { return empty(); }
   string_ref operator || (string_ref other) const {
     return i ? *this : other;
   }
-  operator bool() const {
-    return i != 0;
-  }
+  bool empty() const { return i == 0; }
+  bool valid() const { return i != 0; }
 };
 struct token_t {
 	string_ref name;
