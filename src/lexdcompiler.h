@@ -32,6 +32,18 @@ struct string_ref {
   bool empty() const { return i == 0; }
   bool valid() const { return i != 0; }
 };
+struct token_t {
+	string_ref name;
+	unsigned int part;
+	bool operator<(const token_t &t) const
+	{
+	  return name < t.name || (name == t.name &&  part < t.part);
+	}
+	bool operator==(const token_t &t) const
+	{
+	  return name == t.name && part == t.part;
+	}
+};
 
 struct trans_sym_t {
   int i;
@@ -57,26 +69,17 @@ enum RepeatMode
 };
 
 struct pattern_element_t {
-  string_ref lname;
-  string_ref rname;
-  unsigned int lpart;
-  unsigned int rpart;
+  token_t left, right;
   RepeatMode mode;
 
   bool operator<(const pattern_element_t& o) const
   {
-    if(lname != o.lname) return lname < o.lname;
-    if(rname != o.rname) return rname < o.rname;
-    if(lpart != o.lpart) return lpart < o.lpart;
-    if(rpart != o.rpart) return rpart < o.rpart;
-    return mode < o.mode;
+    return left < o.left || (left == o.left && right < o.right) || (left == o.left && right == o.right && mode < o.mode);
   }
 
   bool operator==(const pattern_element_t& o) const
   {
-    return (lname == o.lname) && (rname == o.rname) &&
-           (lpart == o.lpart) && (rpart == o.rpart) &&
-           (mode == o.mode);
+    return left == o.left && right == o.right && mode == o.mode;
   }
 };
 
@@ -119,7 +122,7 @@ private:
   string_ref checkName(UnicodeString& name);
   RepeatMode readModifier(char_iter& iter);
   pair<vector<trans_sym_t>, vector<trans_sym_t>> processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
-  pair<string_ref, unsigned int> readToken(char_iter& iter, UnicodeString& line);
+  token_t readToken(char_iter& iter, UnicodeString& line);
   void processPattern(char_iter& iter, UnicodeString& line);
   void processNextLine();
 
