@@ -24,8 +24,8 @@ class charspan_iter
     
     const UErrorCode &status() const;
     const std::pair<int, int> &operator*() const;
-    charspan_iter &operator++(int);
-    charspan_iter operator++();
+    charspan_iter operator++(int);
+    charspan_iter &operator++();
     charspan_iter &operator--();
     charspan_iter operator--(int);
     const icu::UnicodeString &string() const;

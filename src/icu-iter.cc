@@ -52,17 +52,17 @@ const pair<int, int> &charspan_iter::operator*() const
   return _span;
 }
 
-charspan_iter &charspan_iter::operator++(int)
+charspan_iter charspan_iter::operator++(int)
+{
+  auto other = charspan_iter(*this);
+  other._span = make_pair(other._span.second, other.it->next());
+  return other;
+}
+
+charspan_iter &charspan_iter::operator++()
 {
   _span = make_pair(_span.second, it->next());
   return *this;
-}
-
-charspan_iter charspan_iter::operator++()
-{
-  auto other = charspan_iter(*this);
-  _span = make_pair(_span.second, it->next());
-  return other;
 }
 
 charspan_iter &charspan_iter::operator--()
