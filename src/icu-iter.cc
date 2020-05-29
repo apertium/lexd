@@ -56,18 +56,24 @@ charspan_iter charspan_iter::operator++(int)
 {
   auto other = charspan_iter(*this);
   other._span = make_pair(other._span.second, other.it->next());
+  if(other._span.first == other._span.second)
+    other._span.second = other.it->next();
   return other;
 }
 
 charspan_iter &charspan_iter::operator++()
 {
   _span = make_pair(_span.second, it->next());
+  if(_span.first == _span.second)
+    _span.second = it->next();
   return *this;
 }
 
 charspan_iter &charspan_iter::operator--()
 {
   _span = make_pair(it->previous(), _span.first);
+  if(_span.first == _span.second)
+    _span.first = it->previous();
   return *this;
 }
 
@@ -75,6 +81,8 @@ charspan_iter charspan_iter::operator--(int)
 {
   auto other = charspan_iter(*this);
   other._span = make_pair(other.it->previous(), other._span.first);
+  if(other._span.first == other._span.second)
+    other._span.first = other.it->previous();
   return other;
 }
 
