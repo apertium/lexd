@@ -216,8 +216,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
   vector<pattern_t> pats_cur(1);
   vector<pattern_element_t> alternation;
   vector<vector<pattern_t>> patsets_fin;
-  vector<vector<pattern_t>> patsets_pref(1);
-  patsets_pref[0].push_back(pattern_t());
+  vector<vector<pattern_t>> patsets_pref;
   bool final_alternative = true;
   bool sieve_forward = false;
   bool just_sieved = false;
@@ -337,19 +336,40 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
     die(L"Syntax error - trailing sieve (< or >)");
   expand_alternation(pats_cur, alternation);
   patsets_fin.push_back(pats_cur);
+
+  patsets_pref.push_back(vector<pattern_t>(1));
+
+  vector<pattern_t> prefixes;
+  vector<pattern_t> last_prefixes(1);
+  for(auto it = patsets_pref.rbegin(); it != patsets_pref.rend(); it++)
+  {
+    vector<pattern_t> new_prefixes;
+    new_prefixes.reserve(last_prefixes.size() * it->size());
+    prefixes.reserve(prefixes.size() + last_prefixes.size() * it->size());
+    for(const auto &last_prefix: last_prefixes)
+    {
+      for(const auto &new_prefix: *it)
+      {
+        pattern_t p = new_prefix;
+        p.reserve(p.size() + last_prefix.size());
+        p.insert(p.end(), last_prefix.begin(), last_prefix.end());
+        new_prefixes.push_back(p);
+        prefixes.push_back(p);
+      }
+    }
+    last_prefixes = new_prefixes;
+  }
+
   for(const auto &patset_fin: patsets_fin)
   {
     for(const auto &pat: patset_fin)
     {
-      for(const auto &patset_pref: patsets_pref)
+      for(const auto &pref : prefixes)
       {
-        for(const auto &pat_pref: patset_pref)
-        {
-          pattern_t p = pat_pref;
-          p.reserve(p.size() + pat.size());
-          p.insert(p.end(), pat.begin(), pat.end());
-          patterns[currentPatternId].push_back(make_pair(lineNumber, p));
-        }
+        pattern_t p = pref;
+        p.reserve(pref.size() + pat.size());
+        p.insert(p.end(), pat.begin(), pat.end());
+        patterns[currentPatternId].push_back(make_pair(lineNumber, p));
       }
     }
   }
