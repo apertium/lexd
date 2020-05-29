@@ -1,0 +1,11 @@
+PATTERNS
+pattern
+
+PATTERN pattern
+x(1):y(2) x(2):y(1)
+
+LEXICON x(2)
+x X
+
+LEXICON y(2)
+y Y

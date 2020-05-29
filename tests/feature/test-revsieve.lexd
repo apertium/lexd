@@ -1,0 +1,5 @@
+PATTERNS
+b(1) < b(2) < b(3)
+
+LEXICON b(3)
+b1 b2 b3

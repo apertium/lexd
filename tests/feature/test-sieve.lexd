@@ -1,0 +1,18 @@
+PATTERNS
+pattern
+
+LEXICON f(3)
+f1 f2 f3
+g1 g2 g3
+
+LEXICON b(3)
+b1 b2 b3
+c1 c2 c3
+
+LEXICON m
+m
+
+PATTERN pattern
+f(1) > f(2) > f(3)
+b(1) < b(2) < b(3)
+b(1) < m > f(1)

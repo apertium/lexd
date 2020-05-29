@@ -23,6 +23,11 @@ To get a speed comparison, do
 make test
 ```
 
+To run basic feature smoke-tests (fast), do
+```bash
+make check
+```
+
 ## Why is it faster?
 
 When dealing with prefixes, the overgenerate-and-constrain approach initially builds a transducer like this:

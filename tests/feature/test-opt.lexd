@@ -1,0 +1,18 @@
+PATTERNS
+pattern1
+
+PATTERN pattern1
+A? B?
+C:? :D?
+
+LEXICON A
+a
+
+LEXICON B
+b
+
+LEXICON C
+c
+
+LEXICON D
+d
