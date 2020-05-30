@@ -57,6 +57,14 @@ struct trans_sym_t {
   }
 };
 
+struct lex_seg_t {
+        vector<trans_sym_t> left, right;
+	bool operator == (const lex_seg_t &t) const
+	{
+          return left == t.left && right == t.right;
+	}
+};
+
 enum RepeatMode
 {
   Optional = 1,
@@ -84,7 +92,7 @@ struct pattern_element_t {
 };
 
 typedef vector<pattern_element_t> pattern_t;
-typedef vector<pair<vector<trans_sym_t>, vector<trans_sym_t>>> entry_t;
+typedef vector<lex_seg_t> entry_t;
 
 class LexdCompiler
 {
@@ -121,13 +129,13 @@ private:
   string_ref internName(UnicodeString& name);
   string_ref checkName(UnicodeString& name);
   RepeatMode readModifier(char_iter& iter);
-  pair<vector<trans_sym_t>, vector<trans_sym_t>> processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
+  lex_seg_t processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
   token_t readToken(char_iter& iter, UnicodeString& line);
   void processPattern(char_iter& iter, UnicodeString& line);
   void processNextLine();
 
   map<string_ref, unsigned int> matchedParts;
-  void insertEntry(Transducer* trans, vector<trans_sym_t>& left, vector<trans_sym_t>& right);
+  void insertEntry(Transducer* trans, const lex_seg_t &seg);
   Transducer* getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, vector<int> is_free, unsigned int pos);
   Transducer* buildPattern(string_ref name);

@@ -94,11 +94,10 @@ LexdCompiler::checkName(UnicodeString& name)
   return internName(name);
 }
 
-pair<vector<trans_sym_t>, vector<trans_sym_t>>
+lex_seg_t
 LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count)
 {
-  vector<trans_sym_t> left;
-  vector<trans_sym_t> right;
+  lex_seg_t seg;
   bool inleft = true;
   if((*iter).startsWith(" "))
   {
@@ -108,11 +107,11 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
       // then we want the diacritic
       UnicodeString cur = *iter;
       cur.retainBetween(1, cur.length());
-      left.push_back(alphabet_lookup(cur));
+      seg.left.push_back(alphabet_lookup(cur));
     }
     ++iter;
   }
-  if(iter == iter.end() && left.size() == 0)
+  if(iter == iter.end() && seg.left.size() == 0)
     die(L"Expected " + to_wstring(currentLexiconPartCount) + L" parts, found " + to_wstring(part_count));
   for(; iter != iter.end(); ++iter)
   {
@@ -127,7 +126,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
     }
     else if(*iter == "\\")
     {
-      (inleft ? left : right).push_back(alphabet_lookup(*++iter));
+      (inleft ? seg.left : seg.right).push_back(alphabet_lookup(*++iter));
     }
     else if(*iter == "{" || *iter == "<")
     {
@@ -138,16 +137,16 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
       if(*iter == end)
       {
         trans_sym_t sym = alphabet_lookup(line.tempSubStringBetween(i, iter.span().second));
-        (inleft ? left : right).push_back(sym);
+        (inleft ? seg.left : seg.right).push_back(sym);
       }
       else
         die(L"Multichar entry didn't end; searching for " + wstring((wchar_t*)&end, 1));
     }
-    else (inleft ? left : right).push_back(alphabet_lookup(*iter));
+    else (inleft ? seg.left : seg.right).push_back(alphabet_lookup(*iter));
   }
   if(inleft)
-    right = left;
-  return make_pair(left, right);
+    seg.right = seg.left;
+  return seg;
 }
 
 token_t
@@ -756,15 +755,15 @@ void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t>
 }
 
 void
-LexdCompiler::insertEntry(Transducer* trans, vector<trans_sym_t>& left, vector<trans_sym_t>& right)
+LexdCompiler::insertEntry(Transducer* trans, const lex_seg_t &seg)
 {
   int state = trans->getInitial();
   if(!shouldAlign)
   {
-    for(unsigned int i = 0; i < left.size() || i < right.size(); i++)
+    for(unsigned int i = 0; i < seg.left.size() || i < seg.right.size(); i++)
     {
-      trans_sym_t l = (i < left.size()) ? left[i] : trans_sym_t();
-      trans_sym_t r = (i < right.size()) ? right[i] : trans_sym_t();
+      trans_sym_t l = (i < seg.left.size()) ? seg.left[i] : trans_sym_t();
+      trans_sym_t r = (i < seg.right.size()) ? seg.right[i] : trans_sym_t();
       state = trans->insertSingleTransduction(alphabet((int)l, (int)r), state);
     }
   }
@@ -788,8 +787,8 @@ LexdCompiler::insertEntry(Transducer* trans, vector<trans_sym_t>& left, vector<t
     const unsigned int del_cost = 1;
     const unsigned int sub_cost = (shouldCompress ? 1 : 100);
 
-    const unsigned int len1 = left.size();
-    const unsigned int len2 = right.size();
+    const unsigned int len1 = seg.left.size();
+    const unsigned int len2 = seg.right.size();
     unsigned int cost[len1+1][len2+1];
     unsigned int path[len1+1][len2+1];
     cost[0][0] = 0;
@@ -809,7 +808,7 @@ LexdCompiler::insertEntry(Transducer* trans, vector<trans_sym_t>& left, vector<t
     {
       for(unsigned int j = 1; j <= len2; j++)
       {
-        unsigned int sub = cost[i-1][j-1] + (left[len1-i] == right[len2-j] ? 0 : sub_cost);
+        unsigned int sub = cost[i-1][j-1] + (seg.left[len1-i] == seg.right[len2-j] ? 0 : sub_cost);
         unsigned int ins = cost[i][j-1] + ins_cost;
         unsigned int del = cost[i-1][j] + del_cost;
 
@@ -837,16 +836,16 @@ LexdCompiler::insertEntry(Transducer* trans, vector<trans_sym_t>& left, vector<t
       switch(path[x][y])
       {
         case SUB:
-          symbol = alphabet_lookup(left[len1-x], right[len2-y]);
+          symbol = alphabet_lookup(seg.left[len1-x], seg.right[len2-y]);
           x--;
           y--;
           break;
         case INS:
-          symbol = alphabet_lookup(trans_sym_t(), right[len2-y]);
+          symbol = alphabet_lookup(trans_sym_t(), seg.right[len2-y]);
           y--;
           break;
         default: // DEL
-          symbol = alphabet_lookup(left[len1-x], trans_sym_t());
+          symbol = alphabet_lookup(seg.left[len1-x], trans_sym_t());
           x--;
       }
       state = trans->insertSingleTransduction((int)symbol, state);
@@ -883,8 +882,8 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
   for(unsigned int i = 0; i < count; i++)
   {
     Transducer* t = free ? trans[0] : new Transducer();
-    insertEntry(t, (tok.left.name.valid() ? lents[i][tok.left.part-1].first : empty),
-                   (tok.right.name.valid() ? rents[i][tok.right.part-1].second : empty));
+    insertEntry(t, {.left = (tok.left.name.valid() ? lents[i][tok.left.part-1].left : empty),
+                   .right = (tok.right.name.valid() ? rents[i][tok.right.part-1].right : empty)});
     if(!free)
     {
       if(tok.mode == Question)
