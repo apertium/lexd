@@ -1,0 +1,11 @@
+PATTERNS
+( a b ) | c
+
+LEXICON a
+a
+
+LEXICON b
+b
+
+LEXICON c
+c
