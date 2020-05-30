@@ -491,7 +491,7 @@ LexdCompiler::processNextLine()
     char_iter iter = char_iter(line);
     processPattern(iter, line);
     if(iter != iter.end() && (*iter).length() > 0)
-      die(L"Unexpected )");
+      die(L"Unexpected " + to_wstring(*iter));
   }
   else if(inLex)
   {
