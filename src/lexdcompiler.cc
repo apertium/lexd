@@ -155,9 +155,9 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
   if(*iter == ' ' || *iter == ':') ++iter;
   auto begin_charspan = iter.span();
 
-  const UnicodeString token_boundary = " |<>";
+  const UnicodeString token_boundary = " )|<>";
   const UnicodeString token_side_boundary = token_boundary + ":+*?";
-  const UnicodeString token_side_name_boundary = token_side_boundary + "()[]";
+  const UnicodeString token_side_name_boundary = token_side_boundary + "([]";
 
   for(; iter != iter.end() && token_side_name_boundary.indexOf(*iter) == -1; ++iter);
   UnicodeString name;
@@ -183,8 +183,7 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
     part = (unsigned int)stoul(to_wstring(line.tempSubStringBetween(begin_charspan.first, iter.span().first)));
     ++iter;
   }
-
-  if(iter != iter.end() && token_side_boundary.indexOf(*iter) != -1)
+  else if(iter != iter.end() && token_side_boundary.indexOf(*iter) != -1)
   {
     while(iter != iter.begin() && token_side_boundary.indexOf(*iter) != -1)
       --iter;
@@ -229,9 +228,9 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
   bool sieve_forward = false;
   bool just_sieved = false;
   const UnicodeString boundary = " :()[]+*?|<>";
-  const UnicodeString token_boundary = " |<>";
+  const UnicodeString token_boundary = " )|<>";
   const UnicodeString token_side_boundary = token_boundary + ":+*?";
-  const UnicodeString token_side_name_boundary = token_side_boundary + "()[]";
+  const UnicodeString token_side_name_boundary = token_side_boundary + "([]";
 
   for(; iter != iter.end() && *iter != ')' && (*iter).length() > 0; ++iter)
   {
@@ -292,6 +291,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       currentPatternId = internName(name);
       ++iter;
       processPattern(iter, line);
+      if(*iter == " ")
+        *iter++;
       if(iter == iter.end() || *iter != ")")
         die(L"Missing closing ) for anonymous pattern");
       ++iter;
