@@ -339,6 +339,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
                              .mode=readModifier(iter)});
       final_alternative = true;
       just_sieved = false;
+      if(*iter == ")")
+        break;
     }
   }
   if(!final_alternative)

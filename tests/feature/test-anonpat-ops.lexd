@@ -1,0 +1,8 @@
+PATTERNS
+A|(C?)
+
+LEXICON A
+a
+
+LEXICON C
+c
