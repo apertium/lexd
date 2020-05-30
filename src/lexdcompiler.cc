@@ -271,7 +271,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       currentLexiconPartCount = 1;
       inLex = true;
       entry_t entry;
-      entry.push_back(processLexiconSegment(iter, line, 0));
+      entry.push_back(processLexiconSegment(++iter, line, 0));
       if(*iter == " ") iter++;
       if(*iter != "]")
         die(L"Missing closing ] for anonymous lexicon");
