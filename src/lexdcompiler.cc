@@ -7,6 +7,10 @@ using namespace std;
 
 void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t> &alternation);
 
+bool token_t::compatible(const lex_token_t &tok) const
+{
+  return name.empty() || (subset(tags, tok.tags) && intersectset(negtags, tok.tags).empty());
+}
 const UnicodeString &LexdCompiler::name(string_ref r) const
 {
   return id_to_name[(unsigned int)r];
@@ -130,7 +134,11 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
         if(iter == iter.end())
           die(L"End of line while expecting end tag list ']'");
         if(tag_start == iter.end().span())
+        {
+          if(*iter == "-")
+            die(L"Cannot declare negative tag in lexicon (u16 " + to_wstring(iter.span().first) + L")");
           tag_start = iter.span();
+        }
         if(*iter == "," || *iter == " ")
         {
           if(tag_start == iter.span())
@@ -193,7 +201,7 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
   if(name.length() == 0)
     die(L"Symbol '" + to_wstring(*iter) + L"' without lexicon name at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
 
-  set<string_ref> tags;
+  set<string_ref> tags, negtags;
   unsigned int part = 1;
   if(iter != iter.end() && token_start_decorations.indexOf(*iter) != -1)
   {
@@ -230,14 +238,26 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
             if(begin_charspan == iter.span())
               die(L"Empty tag at char " + to_wstring(iter.span().first));
             UnicodeString s = line.tempSubStringBetween(begin_charspan.first, iter.span().first);
-            tags.insert(checkName(s));
+            if(s.startsWith("-"))
+            {
+              s.retainBetween(1, s.length());
+              negtags.insert(checkName(s));
+            }
+            else
+              tags.insert(checkName(s));
             begin_charspan = iter.end().span();
           }
         }
 	if(*iter != ']')
 	  die(L"Syntax error - unmatched ']'");
         UnicodeString s = line.tempSubStringBetween(begin_charspan.first, iter.span().first);
-        tags.insert(checkName(s));
+        if(s.startsWith("-"))
+        {
+          s.retainBetween(1, s.length());
+          negtags.insert(checkName(s));
+        }
+        else
+          tags.insert(checkName(s));
         ++iter;
       }
     }
@@ -251,7 +271,7 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
       --iter;
   }
 
-  return token_t {.name = internName(name), .part = part, .tags = tags};
+  return token_t {.name = internName(name), .part = part, .tags = tags, .negtags = negtags};
 }
 
 RepeatMode
@@ -335,8 +355,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       currentLexicon.push_back(entry);
       finishLexicon();
       alternation.push_back({
-        .left={.name=currentLexiconId, .part=1, .tags=set<string_ref>()},
-        .right={.name=currentLexiconId, .part=1, .tags=set<string_ref>()},
+        .left={.name=currentLexiconId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
+        .right={.name=currentLexiconId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
         .mode=readModifier(iter)
       });
       final_alternative = true;
@@ -355,8 +375,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
         die(L"Missing closing ) for anonymous pattern");
       ++iter;
       alternation.push_back({
-        .left={.name=currentPatternId, .part=1, .tags=set<string_ref>()},
-        .right={.name=currentPatternId, .part=1, .tags=set<string_ref>()},
+        .left={.name=currentPatternId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
+        .right={.name=currentPatternId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
         .mode=readModifier(iter)
       });
       currentPatternId = temp;
@@ -939,9 +959,9 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
   lex_token_t empty;
   for(unsigned int i = 0; i < count; i++)
   {
-    if(tok.left.name.valid() && !subset(tok.left.tags, lents[i][tok.left.part-1].left.tags))
+    if(tok.left.name.valid() && !tok.left.compatible(lents[i][tok.left.part-1].left))
       continue;
-    if(tok.right.name.valid() && !subset(tok.right.tags, rents[i][tok.right.part-1].right.tags))
+    if(tok.right.name.valid() && !tok.right.compatible(rents[i][tok.right.part-1].right))
       continue;
     Transducer* t = free ? trans[0] : new Transducer();
     insertEntry(t, {.left = (tok.left.name.valid() ? lents[i][tok.left.part-1].left : empty),

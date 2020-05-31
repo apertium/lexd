@@ -69,19 +69,31 @@ set<T> unionset(const set<T> &xs, const set<T> &ys)
   return u;
 }
 
+template<typename T>
+set<T> intersectset(const set<T> &xs, const set<T> &ys)
+{
+  set<T> i = xs;
+  for(auto x: xs)
+    if(ys.find(x) == ys.end())
+      i.erase(x);
+  return i;
+}
+
+struct lex_token_t;
 
 struct token_t {
   string_ref name;
   unsigned int part;
-  set<string_ref> tags;
+  set<string_ref> tags, negtags;
   bool operator<(const token_t &t) const
   {
-    return name < t.name || (name == t.name &&  part < t.part) || (name == t.name && part == t.part && tags < t.tags);
+    return name < t.name || (name == t.name &&  part < t.part) || (name == t.name && part == t.part && tags < t.tags) || (name == t.name && part == t.part && tags == t.tags && negtags < t.negtags);
   }
   bool operator==(const token_t &t) const
   {
     return name == t.name && part == t.part && tags == t.tags;
   }
+  bool compatible(const lex_token_t &tok) const;
 };
 
 struct trans_sym_t {
