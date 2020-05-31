@@ -68,7 +68,7 @@ LexdCompiler::finishLexicon()
 }
 
 string_ref
-LexdCompiler::internName(UnicodeString& name)
+LexdCompiler::internName(const UnicodeString& name)
 {
   if(name_to_id.find(name) == name_to_id.end())
   {

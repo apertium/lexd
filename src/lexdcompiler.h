@@ -127,7 +127,7 @@ private:
 
   void die(const wstring & msg);
   void finishLexicon();
-  string_ref internName(UnicodeString& name);
+  string_ref internName(const UnicodeString& name);
   string_ref checkName(UnicodeString& name);
   RepeatMode readModifier(char_iter& iter);
   lex_seg_t processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
