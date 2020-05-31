@@ -1,6 +1,6 @@
 .PHONY: check
 
-tests = alt anonlex anonpat anonpat-nospaces anonpat-ops oneside opt pairs revsieve sieve sieveopt
+tests = alt anonlex anonpat anonpat-nospaces anonpat-ops lextag oneside opt pairs revsieve sieve sieveopt
 sources = $(foreach test,$(tests),test-$(test).lexd)
 
 check: $(foreach src,$(sources),$(src).txt.strings.check)

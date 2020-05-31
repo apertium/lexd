@@ -1,0 +1,8 @@
+PATTERNS
+[a] A[t]
+[b] A[r]
+[ab] A[s]
+
+LEXICON A
+a[t,s]
+b[s,r]

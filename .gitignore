@@ -3,6 +3,7 @@
 *.o
 *Makefile
 *Makefile.in
+src/.deps
 src/lexd
 tests/feature/*.lexd.*
 !tests/feature/*.gold

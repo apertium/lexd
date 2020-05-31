@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <set>
 
 using namespace std;
 using namespace icu;
@@ -32,17 +33,55 @@ struct string_ref {
   bool empty() const { return i == 0; }
   bool valid() const { return i != 0; }
 };
+
+template<>
+struct std::hash<string_ref> {
+  size_t operator()(const string_ref &t) const
+  {
+    return std::hash<unsigned int>()(t.i);
+  }
+};
+
+template<typename T>
+bool subset(const set<T> &xs, const set<T> &ys)
+{
+  if(xs.size() > ys.size())
+    return false;
+  for(auto x: xs)
+    if(ys.find(x) == ys.end())
+      return false;
+  return true;
+}
+
+template<typename T>
+bool subset_strict(const set<T> &xs, const set<T> &ys)
+{
+  if(xs.size() >= ys.size())
+    return false;
+  return subset(xs, ys);
+}
+
+template<typename T>
+set<T> unionset(const set<T> &xs, const set<T> &ys)
+{
+  set<T> u = xs;
+  u.insert(ys.begin(), ys.end());
+  return u;
+}
+
+
 struct token_t {
-	string_ref name;
-	unsigned int part;
-	bool operator<(const token_t &t) const
-	{
-	  return name < t.name || (name == t.name &&  part < t.part);
-	}
-	bool operator==(const token_t &t) const
-	{
-	  return name == t.name && part == t.part;
-	}
+  string_ref name;
+  unsigned int part;
+  set<string_ref> tags;
+  bool operator<(const token_t &t) const
+  {
+    return name < t.name || (name == t.name &&  part < t.part) || (name == t.name && part == t.part && tags < t.tags);
+  }
+  bool operator==(const token_t &t) const
+  {
+    return name == t.name && part == t.part && tags == t.tags;
+  }
 };
 
 struct trans_sym_t {
@@ -57,12 +96,18 @@ struct trans_sym_t {
   }
 };
 
+struct lex_token_t {
+  vector<trans_sym_t> symbols;
+  set<string_ref> tags;
+  bool operator ==(const lex_token_t &other) const { return symbols == other.symbols && tags == other.tags; }
+};
+
 struct lex_seg_t {
-        vector<trans_sym_t> left, right;
-	bool operator == (const lex_seg_t &t) const
-	{
-          return left == t.left && right == t.right;
-	}
+  lex_token_t left, right;
+  bool operator == (const lex_seg_t &t) const
+  {
+    return left == t.left && right == t.right;
+  }
 };
 
 enum RepeatMode
@@ -137,6 +182,7 @@ private:
 
   map<string_ref, unsigned int> matchedParts;
   void insertEntry(Transducer* trans, const lex_seg_t &seg);
+  void appendLexicon(string_ref lexicon_id, const vector<entry_t> &to_append);
   Transducer* getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, vector<int> is_free, unsigned int pos);
   Transducer* buildPattern(string_ref name);
