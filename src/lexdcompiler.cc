@@ -35,6 +35,7 @@ LexdCompiler::LexdCompiler()
 {
   id_to_name.push_back("");
   name_to_id[""] = string_ref(0);
+  lexicons[string_ref(0)] = vector<entry_t>();
 }
 
 LexdCompiler::~LexdCompiler()
@@ -865,11 +866,10 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
   if(free && lexiconTransducers.find(tok) != lexiconTransducers.end())
     return lexiconTransducers[tok];
 
-  vector<entry_t> e_empty;
-  vector<entry_t>& lents = (tok.left.name.valid() ? lexicons[tok.left.name] : e_empty);
+  vector<entry_t>& lents = lexicons[tok.left.name];
   if(tok.left.name.valid() && tok.left.part > lents[0].size())
     die(to_wstring(name(tok.left.name)) + L"(" + to_wstring(tok.left.part) + L") - part is out of range");
-  vector<entry_t>& rents = (tok.right.name.valid() ? lexicons[tok.right.name] : e_empty);
+  vector<entry_t>& rents = lexicons[tok.right.name];
   if(tok.right.name.valid() && tok.right.part > rents[0].size())
     die(to_wstring(name(tok.right.name)) + L"(" + to_wstring(tok.right.part) + L") - part is out of range");
   // TODO: filter for tags hereish
