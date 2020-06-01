@@ -34,21 +34,8 @@ AC_CHECK_FUNCS([setlocale strdup getopt_long])
 CPPFLAGS="$CPPFLAGS $CFLAGS $LTTOOLBOX_CFLAGS $ICU_UC_CFLAGS $ICU_IO_CFLAGS"
 LIBS="$LIBS $LTTOOLBOX_LIBS $ICU_UC_LIBS $ICU_IO_LIBS"
 
-# Checks for highest supported C++ standard
 AC_LANG(C++)
-AX_CHECK_COMPILE_FLAG([-std=c++20], [CXXFLAGS="$CXXFLAGS -std=c++20"], [
- AX_CHECK_COMPILE_FLAG([-std=c++2a], [CXXFLAGS="$CXXFLAGS -std=c++2a"], [
-  AX_CHECK_COMPILE_FLAG([-std=c++17], [CXXFLAGS="$CXXFLAGS -std=c++17"], [
-   AX_CHECK_COMPILE_FLAG([-std=c++1z], [CXXFLAGS="$CXXFLAGS -std=c++1z"], [
-    AX_CHECK_COMPILE_FLAG([-std=c++14], [CXXFLAGS="$CXXFLAGS -std=c++14"], [
-     AX_CHECK_COMPILE_FLAG([-std=c++1y], [CXXFLAGS="$CXXFLAGS -std=c++1y"], [
-      AX_CHECK_COMPILE_FLAG([-std=c++11], [CXXFLAGS="$CXXFLAGS -std=c++11"], [])
-     ])
-    ])
-   ])
-  ])
- ])
-])
+AX_CHECK_COMPILE_FLAG([-std=c++14], [CXXFLAGS="$CXXFLAGS -std=c++14"], [])
 
 AC_CONFIG_FILES([
                  Makefile
