@@ -583,7 +583,7 @@ LexdCompiler::processNextLine()
     }
     if(*iter == ' ') ++iter;
     if(iter != iter.end())
-      die(L"Lexicon entry has more than " + to_wstring(currentLexiconPartCount) + L" components");
+      die(L"Lexicon entry has '" + to_wstring(*iter) + L"' (found at u16 " + to_wstring(iter.span().first) + L"), more than " + to_wstring(currentLexiconPartCount) + L" components");
     currentLexicon.push_back(entry);
   }
   else die(L"Expected 'PATTERNS' or 'LEXICON'");
