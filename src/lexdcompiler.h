@@ -166,7 +166,7 @@ private:
   map<string_ref, vector<entry_t>> lexicons;
   // { id => [ ( line, [ pattern ] ) ] }
   map<string_ref, vector<pair<line_number_t, pattern_t>>> patterns;
-  map<string_ref, Transducer*> patternTransducers;
+  map<token_t, Transducer*> patternTransducers;
   map<pattern_element_t, Transducer*> lexiconTransducers;
   map<pattern_element_t, vector<Transducer*>> entryTransducers;
 
@@ -197,7 +197,7 @@ private:
   void appendLexicon(string_ref lexicon_id, const vector<entry_t> &to_append);
   Transducer* getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, vector<int> is_free, unsigned int pos);
-  Transducer* buildPattern(string_ref name);
+  Transducer* buildPattern(const token_t &tok);
   Transducer* buildPatternWithFlags(string_ref name);
   trans_sym_t alphabet_lookup(const UnicodeString &symbol);
   trans_sym_t alphabet_lookup(trans_sym_t l, trans_sym_t r);

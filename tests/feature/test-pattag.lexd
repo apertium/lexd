@@ -1,0 +1,13 @@
+PATTERNS
+[t] A[t]
+[nott] A[-t]
+
+PATTERN A
+B
+C
+
+LEXICON B
+a[t]
+
+LEXICON C
+b[s]

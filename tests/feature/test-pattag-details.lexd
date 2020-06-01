@@ -1,0 +1,23 @@
+PATTERNS
+X[t,-s]
+
+PATTERN X
+A B
+C
+
+LEXICON A
+a
+at[t]
+as[s]
+ast[s,t]
+
+LEXICON B
+b
+bt[t]
+bs[s]
+bst[t,s]
+
+LEXICON C
+ct[t]
+cs[s]
+cst[t,s]
