@@ -1,6 +1,8 @@
 # Lexd Syntax
 
-A Lexd rule file defines lexicons and patterns. Each lexicon consists of a list of entries which have an analysis side and a generation side, similar to lexicons in HFST Lexc. Patterns, meanwhile, replace Lexc's continuation lexicons. Each pattern consists of a list of lexicons which the compiler concatenates in that order.
+## Basic Syntax
+
+A Lexd rule file defines lexicons and patterns. Each lexicon consists of a list of entries which have an analysis side and a generation side, similar to lexicons in HFST Lexc. Patterns, meanwhile, replace Lexc's continuation lexicons. Each pattern consists of a list of lexicons or named patterns which the compiler concatenates in that order.
 
 ```
 PATTERNS
@@ -25,6 +27,47 @@ walks/walk<v><pres><p3><sg>
 dance/dance<v><pres>
 dances/dance<v><pres><p3><sg>
 ```
+
+Symbols enclosed in angle brackets or braces will be automatically interpreted as multicharacter symbols (presumably tags and archiphonemes, respectively):
+
+```
+PATTERNS
+X
+
+LEXICON X
+x<ij>:x{i}
+```
+
+resulting ATT file:
+```
+0	1	x	x	0.000000	
+1	2	<ij>	{i}	0.000000	
+2	0.000000
+```
+
+Any character can be escaped with a backslash:
+
+```
+PATTERNS
+X
+
+LEXICON X
+x\<ij>:x{i}
+```
+
+resulting ATT file:
+```
+0	1	x	x	0.000000	
+1	2	<	{i}	0.000000	
+2	3	i	@0@	0.000000	
+3	4	j	@0@	0.000000	
+4	5	>	@0@	0.000000	
+5	0.000000
+```
+
+And comments begin with `#`.
+
+## Alignment
 
 Patterns can list different sides of each lexicon in different places. When the compiler encounters a one-sided lexicon reference in a pattern, it attaches all entries from that side of that lexicon to the transducer and then builds the rest of the pattern, attaching a separate copy for each entry. However, in these copies, for any subsequent mentions of that lexicon, only the corresponding segment of that entry will be attached, thus avoiding over-generation. The same lexicon can be mentioned arbitrarily many times, making it straightforward to write rules for phenomena such as reduplication.
 
@@ -134,12 +177,20 @@ VerbRoot Causative Tense PersonNumber
 AuxRoot Tense PersonNumber
 ```
 
+## Pattern Operators
+
 Some simple operators are supported to help write patterns concisely:
 - the option quantifier `?` can be applied after to a single token
 ```
 PATTERNS
 Negation? Adjective
+# equivalent to:
+# Negation Adjective
+# Adjective
 ```
+
+The quantifiers `*` (repeat 0 or more times) and `+` (repeat 1 or more times)
+function similarly.
 
 - the alternation operator `|` between two tokens causes one pattern
   for each alternate
@@ -165,3 +216,82 @@ VerbStem > Nominalisation > Case
 # VerbStem Nominalisation Case
 ```
 
+## Anonymous Lexicons and Patterns
+
+Patterns can contain anonymous lexicons to avoid needing to explicitly
+declare lexicons for very simple things.
+
+```
+PATTERNS
+NounStem [<n>:] NounNumber
+
+LEXICON NounStem
+sock
+ninja
+
+LEXICON NounNumber
+<sg>:
+<pl>:s
+```
+
+forms generated:
+```
+ninja/ninja<n><sg>
+ninjas/ninja<n><pl>
+sock/sock<n><sg>
+socks/sock<n><pl>
+```
+
+Anonymous patterns function similarly:
+```
+PATTERNS
+(VerbRoot Causative?) | AuxRoot Tense PersonNumber
+# equivalent to:
+# PATTERN VerbStem
+# VerbRoot Causative?
+# PATTERNS
+# VerbStem|AuxRoot Tense PersonNumber
+```
+
+Anonymous patterns can be nested and both patterns and lexicons can be quantified:
+```
+PATTERNS
+NounRoot ([<n>:] (Number Case)?) | (Verbalizer Tense)
+```
+
+## Tags
+Lexicon entries can be tagged using square brackets:
+
+```
+LEXICON NounRoot
+sock[count]
+rice[mass]
+sand[count,mass]
+```
+
+When referring the lexicon, these tags can then be selected for:
+
+```
+PATTERNS
+NounRoot[count] [<n>:] Number # 'sock' and 'sand', but not 'rice'
+NounRoot[mass] [<n>:]         # 'rice' and 'sand', but not 'sock'
+```
+
+The absense of a tag can also be selected for:
+
+```
+PATTERNS
+NounRoot[-count] [<n>:]       # 'rice' only
+```
+
+Tag selectors can also be applied to patterns, which will then apply that selection
+to every part of the pattern:
+
+```
+PATTERN NounStem
+NounRoot [<n>:]
+
+PATTERNS
+NounStem[count] Number
+NounStem[mass]
+```
