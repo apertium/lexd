@@ -48,7 +48,6 @@ LexdCompiler::~LexdCompiler()
 void
 LexdCompiler::die(const wstring &msg)
 {
-  u_fclose(input); // segfaults occasionally happen if this isn't here
   wcerr << L"Error on line " << lineNumber << ": " << msg << endl;
   exit(EXIT_FAILURE);
 }
