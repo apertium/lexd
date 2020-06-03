@@ -353,6 +353,11 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
         die(L"Missing closing ] for anonymous lexicon");
       currentLexicon.push_back(entry);
       finishLexicon();
+      if(final_alternative && !alternation.empty())
+      {
+        expand_alternation(pats_cur, alternation);
+        alternation.clear();
+      }
       alternation.push_back({
         .left={.name=currentLexiconId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
         .right={.name=currentLexiconId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
