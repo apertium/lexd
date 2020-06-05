@@ -529,6 +529,7 @@ LexdCompiler::processNextLine()
   else if(line.length() > 7 && line.startsWith("LEXICON "))
   {
     UnicodeString name = line.tempSubString(8);
+    name.trim();
     finishLexicon();
     currentLexiconPartCount = 1;
     if(name.length() > 1 && name.endsWith(')'))

@@ -1,0 +1,14 @@
+PATTERNS
+[a]
+
+LEXICON X
+blah
+
+LEXICON Y 
+bloop
+
+LEXICON Z(2)
+x y
+
+LEXICON W(3) 
+a b c
