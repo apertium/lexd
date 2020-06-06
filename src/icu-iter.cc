@@ -1,6 +1,7 @@
 #include "icu-iter.h"
 #include <iostream>
 #include <string>
+#include <cstdint>
 using namespace std;
 using namespace icu;
 
@@ -187,7 +188,7 @@ std::wstring to_wstring(const UnicodeString &str)
   }
 
   UErrorCode result = U_ZERO_ERROR;
-  int wlen = 0;
+  int32_t wlen = 0;
   u_strToWCS(NULL, 0, &wlen, buf, str.length(), &result);
   if (U_FAILURE(result) && result != U_BUFFER_OVERFLOW_ERROR) {
     cerr << "Error decoding unicode string; error code " << result;
@@ -197,9 +198,9 @@ std::wstring to_wstring(const UnicodeString &str)
 
   result = U_ZERO_ERROR;
 
-  int written = 0;
-  wchar_t *wc = new wchar_t[wlen+1];
-  u_strToWCS(wc, wlen+1, &written, buf, str.length(), &result);
+  int32_t written = 0;
+  wstring wc(static_cast<size_t>(wlen+1), 0);
+  u_strToWCS(&wc[0], wlen+1, &written, buf, str.length(), &result);
   if (result) {
     cerr << "Error decoding unicode string; error code " << result << endl;;
     exit(1);
@@ -209,5 +210,6 @@ std::wstring to_wstring(const UnicodeString &str)
     exit(1);
   }
 
-  return wstring(wc, (unsigned int)wlen);
+  wc.resize(static_cast<size_t>(wlen));
+  return wc;
 }

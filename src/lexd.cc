@@ -2,6 +2,7 @@
 
 #include <lttoolbox/lt_locale.h>
 #include <unicode/ustdio.h>
+#include <libgen.h>
 #include <getopt.h>
 
 using namespace std;
