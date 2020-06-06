@@ -8,3 +8,13 @@ src/lexd
 tests/feature/*.lexd.*
 !tests/feature/*.gold
 !tests/feature/Makefile
+INSTALL
+aclocal.m4
+autom4te.cache
+config.log
+config.status
+configure
+depcomp
+install-sh
+missing
+stamp-h1
