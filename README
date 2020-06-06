@@ -17,7 +17,9 @@ make
 make install
 ```
 
-To run, do
+If installing to a system-wide path, you may want to run `sudo make install` instead for the last step.
+
+To compile a lexicon file into a transducer, do
 ```bash
 lexd lexicon_file att_file
 ```
