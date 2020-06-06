@@ -1,10 +1,14 @@
 # Lexd
 
-A lexicon compiler for non-suffixational morphologies.
+A lexicon compiler specialising in non-suffixational morphologies.
 
-This module compiles lexicons in a format loosely based on hfst-lexc and produces transducers in ATT format which are equivalent to those produced using the overgenerate-and-constrain approach with hfst-twolc (see [here](http://wiki.apertium.org/wiki/Morphotactic_constraints_with_twol) and [here](http://wiki.apertium.org/wiki/Replacement_for_flag_diacritics)).
+This module compiles lexicons in a format loosely based on hfst-lexc and produces transducers in ATT format which are equivalent to those produced using the overgenerate-and-constrain approach with hfst-twolc (see [here](http://wiki.apertium.org/wiki/Morphotactic_constraints_with_twol) and [here](http://wiki.apertium.org/wiki/Replacement_for_flag_diacritics)).  However, it is much faster (see below).
 
 See [Usage.md](Usage.md) for the rule file syntax.
+
+## Installation
+
+First, clone this repository.
 
 To build, do
 ```bash
@@ -32,11 +36,11 @@ make check
 
 When dealing with prefixes, the overgenerate-and-constrain approach initially builds a transducer like this:
 
-![transducer that overgenerates](https://github.com/mr-martian/lexd/raw/master/imgs/lexc.png)
+![transducer that overgenerates](https://github.com/apertium/lexd/raw/master/imgs/lexc.png)
 
 Then composes that with a twolc rule to turn it into somehting like this:
 
-![correct transducer](https://github.com/mr-martian/lexd/raw/master/imgs/twoc.png)
+![correct transducer](https://github.com/apertium/lexd/raw/master/imgs/twoc.png)
 
 But compiling the rule needed to do that can take hundreds of times longer than compiling the lexicon.
 
