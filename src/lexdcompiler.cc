@@ -1,5 +1,4 @@
 #include "lexdcompiler.h"
-#include <variant>
 #include <unicode/unistr.h>
 
 using namespace icu;
