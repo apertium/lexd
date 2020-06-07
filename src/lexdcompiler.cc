@@ -86,15 +86,15 @@ LexdCompiler::internName(const UnicodeString& name)
 string_ref
 LexdCompiler::checkName(UnicodeString& name)
 {
-  const static wchar_t* forbidden = L" :?|()<>[]*+";
+  const static UnicodeString forbidden = " :?|()<>[]*+";
   name.trim();
   int l = name.length();
   if(l == 0) die(L"Unnamed pattern or lexicon");
 
-  for(int i = 0; i < (int)wcslen(forbidden); i++)
-  {
-    if(name.indexOf((char16_t*)forbidden, i, 1, 0, l) != -1)
-      die(L"Lexicon/pattern names cannot contain character '" + wstring(&forbidden[i], 1) + L"'");
+  for(const auto &c: char_iter(forbidden)) {
+    if(name.indexOf(c) != -1) {
+      die(L"Lexicon/pattern names cannot contain character '" + to_wstring(c) + L"'");
+    }
   }
   return internName(name);
 }
