@@ -26,7 +26,7 @@ lexd lexicon_file att_file
 
 To get a speed comparison, do
 ```bash
-make test
+make timing-test
 ```
 
 To run basic feature smoke-tests (fast), do
