@@ -180,7 +180,7 @@ pair<int, int> char_iter::span() const
 
 std::wstring to_wstring(const UnicodeString &str)
 {
-  const char16_t *buf = str.getBuffer();
+  auto buf = str.getBuffer();
   if(!buf)
   {
     cerr << "buffer is null" << endl;
