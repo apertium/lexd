@@ -172,7 +172,9 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
         (inleft ? seg.left : seg.right).symbols.push_back(sym);
       }
       else
-        die(L"Multichar entry didn't end; searching for " + wstring((wchar_t*)&end, 1));
+      {
+        die(L"Multichar entry didn't end; searching for " + to_wstring(end));
+      }
     }
     else (inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup(*iter));
   }
