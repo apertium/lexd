@@ -1032,3 +1032,20 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
     return trans[entry_index];
   }
 }
+
+void
+LexdCompiler::printStatistics() const
+{
+  wcerr << "Lexicons: " << lexicons.size() << endl;
+  wcerr << "Lexicon entries: ";
+  unsigned int x = 0;
+  for(const auto &lex: lexicons)
+    x += lex.second.size();
+  wcerr << x << endl;
+  x = 0;
+  wcerr << "Patterns: " << patterns.size() << endl;
+  wcerr << "Pattern entries: ";
+  for(const auto &pair: patterns)
+    x += pair.second.size();
+  wcerr << x << endl;
+}

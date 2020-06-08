@@ -17,6 +17,7 @@ void endProgram(char *name)
     cout << "   -b, --bin:        output as Lttoolbox binary file (default is AT&T format)" << endl;
     cout << "   -c, --compress:   condense labels (prefer a:b to 0:b a:0 - sets --align)" << endl;
     cout << "   -f, --flags:      compile using flag diacritics" << endl;
+    cout << "   -x, --statistics  print lexicon and pattern sizes to stderr" << endl;
   }
   exit(EXIT_FAILURE);
 }
@@ -25,6 +26,7 @@ int main(int argc, char *argv[])
 {
   bool bin = false;
   bool flags = false;
+  bool stats = false;
   UFILE* input = u_finit(stdin, NULL, NULL);
   FILE* output = stdout;
   LexdCompiler comp;
@@ -44,12 +46,13 @@ int main(int argc, char *argv[])
       {"compress",  no_argument, 0, 'c'},
       {"flags",     no_argument, 0, 'f'},
       {"help",      no_argument, 0, 'h'},
+      {"statistics",no_argument, 0, 'x'},
       {0, 0, 0, 0}
     };
 
-    int cnt=getopt_long(argc, argv, "abcfh", long_options, &option_index);
+    int cnt=getopt_long(argc, argv, "abcfhx", long_options, &option_index);
 #else
-    int cnt=getopt(argc, argv, "abcfh");
+    int cnt=getopt(argc, argv, "abcfhx");
 #endif
     if (cnt==-1)
       break;
@@ -72,8 +75,10 @@ int main(int argc, char *argv[])
       case 'f':
         flags = true;
         break;
-
-      case 'h':
+      case 'x':
+        stats = true;
+        break;
+      case 'h': // fallthrough
       default:
         endProgram(argv[0]);
         break;
@@ -124,6 +129,8 @@ int main(int argc, char *argv[])
   comp.readFile(input);
   u_fclose(input);
   Transducer* transducer = comp.buildTransducer(flags);
+  if(stats)
+    comp.printStatistics();
   if(bin)
   {
     // TODO: finish this!

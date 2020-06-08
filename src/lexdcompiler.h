@@ -215,6 +215,7 @@ public:
   }
   Transducer* buildTransducer(bool usingFlags);
   void readFile(UFILE* infile);
+  void printStatistics() const;
 };
 
 #endif
