@@ -992,9 +992,17 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
   for(unsigned int i = 0; i < count; i++)
   {
     if(tok.left.name.valid() && !tok.left.compatible(lents[i][tok.left.part-1].left))
+    {
+      if(!free)
+        trans.push_back(NULL);
       continue;
+    }
     if(tok.right.name.valid() && !tok.right.compatible(rents[i][tok.right.part-1].right))
+    {
+      if(!free)
+        trans.push_back(NULL);
       continue;
+    }
     Transducer* t = free ? trans[0] : new Transducer();
     insertEntry(t, {.left = (tok.left.name.valid() ? lents[i][tok.left.part-1].left : empty),
                    .right = (tok.right.name.valid() ? rents[i][tok.right.part-1].right : empty)});
@@ -1010,11 +1018,12 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
       trans.push_back(t);
     }
   }
-  if(!did_anything)
-    for(auto &t: trans)
-      t = NULL;
   if(free)
   {
+    if(!did_anything)
+    {
+      trans[0] = NULL;
+    }
     if(trans[0])
     {
       trans[0]->minimize();
