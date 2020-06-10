@@ -13,6 +13,7 @@ tests = \
   opt \
   pairs \
   pattag \
+  pattag-coherent \
   pattag-details \
   revsieve \
   sieve \
