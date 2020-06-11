@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dictionary type="lexd">
+  <sdefs>
+    <sdef n="n"/>
+    <sdef n="q"/>
+  </sdefs>
+  <lexicons>
+    <lexicon n="bloop">
+      <e><p><l>hi<s n="n"/></l><r>ho<x n="q"/><j/>blah<a/>blah</r></p></e>
+    </lexicon>
+  </lexicons>
+  <patterns>
+    <pattern n="main">
+      <pe><par n="bloop"/><alex><i>yo</i></alex><par n="bloop" mode="+"/></pe>
+    </pattern>
+  </patterns>
+</dictionary>

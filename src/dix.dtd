@@ -1,0 +1,146 @@
+<!ELEMENT dictionary (sdefs?, lexicons, patterns)>
+	<!-- root element-->
+<!ATTLIST
+  type CDATA #IMPLIED
+>
+
+<!ELEMENT sdefs (sdef+)>
+	<!-- symbol definition section -->
+
+<!ELEMENT sdef EMPTY>
+	<!-- symbol definition -->
+<!ATTLIST sdef
+	n ID #REQUIRED
+	c CDATA  #IMPLIED
+>
+	<!-- n: symbol (tag or archiphoneme) name -->
+  <!-- c: symbol (tag or archiphoneme) comment -->
+
+<!ELEMENT lexicons (lexicon+)>
+	<!-- lexicon definition section -->
+
+<!ELEMENT lexicon (e+)>
+  <!-- lexicon definition -->
+<!ATTLIST lexicon
+  n ID #REQUIRED
+  parts CDATA #IMPLIED
+>
+  <!-- n: lexicon name -->
+  <!-- parts: number of segments (default 1) -->
+
+<!ELEMENT patterns (pattern+)>
+  <!-- pattern definition section -->
+
+<!ELEMENT pattern (pe+)>
+  <!-- pattern definition -->
+<!ATTLIST pattern
+  n ID #REQUIRED
+>
+  <!-- n: pattern name -->
+
+<!ELEMENT pe (c | par | apat | alex)+>
+  <!-- pattern element -->
+
+<!ELEMENT c (par par)>
+  <!-- collated pair -->
+<!ATTLIST c
+  mode (*|+|?) #IMPLIED
+>
+
+<!ELEMENT par EMPTY>
+  <!-- paradigm (lexicon or pattern) reference -->
+<!ATTLIST par
+  n IDREF #REQUIRED
+  part CDATA #IMPLIED
+  side (left|right) #IMPLIED
+  tags CDATA #IMPLIED
+  ntags CDATA #IMPLIED
+  mode (*|+|?) #IMPLIED
+>
+  <!-- n: lexicon or pattern name -->
+  <!-- part: segment within lexicon -->
+  <!-- side: for one-sided reference -->
+  <!-- tags: positive entry selectors (comma-separated) -->
+  <!-- ntags: negative entry selectors (comma-separated) -->
+  <!-- mode: make this segment in the pattern optional or repeated -->
+
+<!ELEMENT alex (i | p)>
+  <!-- anonymous lexicon -->
+<!ATTLIST alex
+  mode (*|+|?) #IMPLIED
+>
+  <!-- mode: make this lexicon optional or repeated -->
+
+<!ELEMENT apat (c | par | apat | alex)+>
+  <!-- anonymous pattern -->
+<!ATTLIST apat
+  mode (*|+|?) #IMPLIED
+>
+
+<!ELEMENT e (i | p)+>
+	<!-- entry -->
+<!ATTLIST e
+	lm CDATA #IMPLIED
+	a CDATA #IMPLIED
+	c CDATA #IMPLIED
+	i CDATA #IMPLIED
+>
+	<!-- lm: lemma -->
+	<!-- a: author -->
+	<!-- c: comment -->
+	<!-- i: ignore ('yes') means ignore, otherwise it is not ignored) -->
+
+<!ELEMENT i (#PCDATA | b | s | g | j | a)*>
+	<!-- identity -->
+
+<!ELEMENT p (l, r)>
+	<!-- pair of strings -->
+
+<!ELEMENT l (#PCDATA | a | b | g | j | s)*>
+	<!-- left part of p -->
+<!ATTLIST l
+  tags CDATA #IMPLIED
+  ntags CDATA #IMPLIED
+  c CDATA #IMPLIED
+>
+  <!-- tags: positive entry selectors (comma-separated) -->
+  <!-- ntags: negative entry selectors (comma-separated) -->
+	<!-- c: comment -->
+<!ELEMENT r (#PCDATA | a | b | g | j | s)*>
+	<!-- right part of p -->
+<!ATTLIST r
+  tags CDATA #IMPLIED
+  ntags CDATA #IMPLIED
+  c CDATA #IMPLIED
+>
+  <!-- tags: positive entry selectors (comma-separated) -->
+  <!-- ntags: negative entry selectors (comma-separated) -->
+	<!-- c: comment -->
+
+<!ELEMENT a EMPTY>
+	<!-- post-generator wake-up mark -->
+
+<!ELEMENT b EMPTY>
+	<!-- blank chars block mark -->
+
+<!ELEMENT g (#PCDATA | a | b | j | s)*>
+	<!-- mark special groups in lemmas -->
+
+<!ELEMENT j EMPTY>
+	<!-- join lexical forms -->
+
+<!ELEMENT m EMPTY>
+  <!-- morpheme boundary -->
+
+<!ELEMENT s EMPTY>
+	<!-- reference to symbol (tag) -->
+<!ATTLIST s
+	n IDREF #REQUIRED
+>
+	<!-- n: symbol (tag) name -->
+
+<!ELEMENT x EMPTY>
+  <!-- reference to symbol (archiphoneme) -->
+<!ATTLIST x
+  n IDREF #REQUIRED
+>
