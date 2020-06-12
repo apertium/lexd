@@ -203,22 +203,11 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
 token_t
 LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
 {
-  if(*iter == ' ')
-  {
-    die(L"Colon without lexicon name at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
-  }
-  else if(*iter == ':')
-  {
-    die(L"Double colon at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
-  }
   auto begin_charspan = iter.span();
 
-  const UnicodeString token_boundary = " )]|<>";
-  const UnicodeString token_side_boundary = token_boundary + ":+*?";
-  const UnicodeString token_side_name_boundary = token_side_boundary + "([";
-  const UnicodeString token_start_decorations = "([";
+  const UnicodeString boundary = " :()[]+*?|<>";
 
-  for(; iter != iter.end() && token_side_name_boundary.indexOf(*iter) == -1; ++iter);
+  for(; iter != iter.end() && boundary.indexOf(*iter) == -1; ++iter);
   UnicodeString name;
   line.extract(begin_charspan.first, (iter == iter.end() ? line.length() : iter.span().first) - begin_charspan.first, name);
 
@@ -227,39 +216,25 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
 
   set<string_ref> tags, negtags;
   unsigned int part = 1;
-  if(iter != iter.end() && token_start_decorations.indexOf(*iter) != -1)
+  if(*iter == "(")
   {
-    while(iter != iter.end() && token_start_decorations.indexOf(*iter) != -1)
-    {
-      if(*iter == '(')
-      {
-        ++iter;
-        begin_charspan = iter.span();
-        for(; iter != iter.end() && *iter != ')'; ++iter)
-        {
-          if((*iter).length() != 1 || !u_isdigit((*iter).charAt(0)))
-            die(L"Syntax error - non-numeric index in parentheses: " + to_wstring(*iter));
-        }
-        if(*iter != ')')
-          die(L"Syntax error - unmached parenthesis");
-        if(iter.span().first == begin_charspan.first)
-          die(L"Syntax error - missing index in parenthesis");
-        part = (unsigned int)stoul(to_wstring(line.tempSubStringBetween(begin_charspan.first, iter.span().first)));
-        ++iter;
-      }
-      else if(*iter == '[')
-      {
-        readTags(iter, line, &tags, &negtags);
-      }
-    }
-  }
-  else if(iter != iter.end() && token_side_boundary.indexOf(*iter) != -1)
-  {
-    while(iter != iter.begin() && token_side_boundary.indexOf(*iter) != -1)
-      --iter;
     iter++;
-    while(iter != iter.begin() && token_boundary.indexOf(*iter) != -1)
-      --iter;
+    begin_charspan = iter.span();
+    for(; iter != iter.end() && (*iter).length() > 0 && *iter != ")"; iter++)
+    {
+      if((*iter).length() != 1 || !u_isdigit((*iter).charAt(0)))
+        die(L"Syntax error - non-numeric index in parentheses: " + to_wstring(*iter));
+    }
+    if(*iter != ")")
+      die(L"Syntax error - unmatched parenthesis");
+    if(iter.span().first == begin_charspan.first)
+      die(L"Syntax error - missing index in parenthesis");
+    part = (unsigned int)stoul(to_wstring(line.tempSubStringBetween(begin_charspan.first, iter.span().first)));
+    ++iter;
+  }
+  if(*iter == "[")
+  {
+    readTags(iter, line, &tags, &negtags);
   }
 
   return token_t {.name = internName(name), .part = part, .tags = tags, .negtags = negtags};
@@ -286,6 +261,49 @@ LexdCompiler::readModifier(char_iter& iter)
   return Normal;
 }
 
+pattern_element_t
+LexdCompiler::readPatternElement(char_iter& iter, UnicodeString& line)
+{
+  const UnicodeString boundary = " :()[]+*?|<>";
+  token_t left, right;
+  if(*iter == ":")
+  {
+    iter++;
+    if(boundary.indexOf(*iter) != -1)
+    {
+      if(*iter == ":")
+        die(L"Syntax error - double colon");
+      else
+        die(L"Colon without lexicon or pattern name");
+    }
+    right = readToken(iter, line);
+  }
+  else if(boundary.indexOf(*iter) != -1)
+  {
+    die(L"Unexpected symbol '" + to_wstring(*iter) + L"' at " + to_wstring(iter.span().first));
+  }
+  else
+  {
+    left = readToken(iter, line);
+    if(*iter == ":")
+    {
+      iter++;
+      if(iter != iter.end() && (*iter).length() > 0)
+      {
+        if(boundary.indexOf(*iter) == -1)
+        {
+          right = readToken(iter, line);
+        }
+      }
+    }
+    else
+    {
+      right = left;
+    }
+  }
+  return {.left=left, .right=right, .mode=readModifier(iter)};
+}
+
 void
 LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
 {
@@ -301,6 +319,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
   const UnicodeString token_side_boundary = token_boundary + ":+*?";
   const UnicodeString token_side_name_boundary = token_side_boundary + "([]";
   const UnicodeString modifier = "+*?";
+  const UnicodeString decrement_after_token = token_boundary + "([]";
 
   for(; iter != iter.end() && *iter != ')' && (*iter).length() > 0; ++iter)
   {
@@ -309,6 +328,10 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
     {
       if(alternation.empty())
         die(L"Syntax error - initial |");
+      if(!final_alternative)
+        die(L"Syntax error - multiple consecutive |");
+      if(just_sieved)
+        die(L"Syntax error - sieve and alternation operators without intervening token");
       final_alternative = false;
     }
     else if(*iter == "<")
@@ -317,6 +340,10 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
         die(L"Syntax error - cannot sieve backwards after forwards.");
       if(alternation.empty())
         die(L"Backward sieve without token?");
+      if(just_sieved)
+        die(L"Syntax error - multiple consecutive sieve operators");
+      if(!final_alternative)
+        die(L"Syntax error - alternation and sieve operators without intervening token");
       expand_alternation(pats_cur, alternation);
       alternation.clear();
       patsets_pref.push_back(pats_cur);
@@ -328,6 +355,10 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       sieve_forward = true;
       if(alternation.empty())
         die(L"Forward sieve without token?");
+      if(just_sieved)
+        die(L"Syntax error - multiple consecutive sieve operators");
+      if(!final_alternative)
+        die(L"Syntax error - alternation and sieve operators without intervening token");
       expand_alternation(pats_cur, alternation);
       patsets_fin.push_back(pats_cur);
       alternation.clear();
@@ -399,41 +430,10 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
         expand_alternation(pats_cur, alternation);
         alternation.clear();
       }
-      token_t left, right;
-      if(*iter == ":")
-      {
-        ++iter;
-        right = readToken(iter, line);
-      }
-      else
-      {
-        left = readToken(iter, line);
-        if(*iter == ":")
-        {
-          ++iter;
-          if(iter != iter.end() && (*iter).length() > 0)
-          {
-            if(*iter == ":")
-              die(L"Syntax error - double colon at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
-            else if(token_boundary.indexOf(*iter) != -1)
-              iter--;
-            else if (token_side_boundary.indexOf(*iter) == -1)
-              right = readToken(iter, line);
-          }
-        }
-        else
-          right = left;
-      }
-      alternation.push_back({.left=left, .right=right,
-                             .mode=readModifier(iter)});
+      alternation.push_back(readPatternElement(iter, line));
+      iter--;
       final_alternative = true;
       just_sieved = false;
-      if(*iter == ")")
-        break;
-      else if(token_boundary.indexOf(*iter) != -1)
-        --iter;
-      else if(modifier.indexOf(*iter) != -1)
-        die(L"Syntax error - unexpected modifier at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
     }
   }
   if(!final_alternative)

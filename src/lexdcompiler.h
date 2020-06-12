@@ -190,6 +190,7 @@ private:
   void readTags(char_iter& iter, UnicodeString& line, set<string_ref>* tags, set<string_ref>* negtags);
   lex_seg_t processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
   token_t readToken(char_iter& iter, UnicodeString& line);
+  pattern_element_t readPatternElement(char_iter& iter, UnicodeString& line);
   void processPattern(char_iter& iter, UnicodeString& line);
   void processNextLine();
 
