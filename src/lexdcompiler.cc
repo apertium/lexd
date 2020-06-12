@@ -32,9 +32,9 @@ trans_sym_t LexdCompiler::alphabet_lookup(trans_sym_t l, trans_sym_t r)
 }
 
 LexdCompiler::LexdCompiler()
-  : shouldAlign(false), shouldCompress(false),
+  : shouldAlign(false), shouldCompress(false), tagsAsFlags(false),
     input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false),
-    flagsUsed(0), anonymousCount(0)
+    anonymousCount(0)
 {
   id_to_name.push_back("");
   name_to_id[""] = string_ref(0);
@@ -605,6 +605,59 @@ LexdCompiler::processNextLine()
   else die(L"Expected 'PATTERNS' or 'LEXICON'");
 }
 
+bool
+LexdCompiler::isLexiconToken(const pattern_element_t& tok)
+{
+  const bool llex = (tok.left.name.empty() || (lexicons.find(tok.left.name) != lexicons.end()));
+  const bool rlex = (tok.right.name.empty() || (lexicons.find(tok.right.name) != lexicons.end()));
+  if(llex && rlex)
+  {
+    return true;
+  }
+  const bool lpat = (patterns.find(tok.left.name) != patterns.end());
+  const bool rpat = (patterns.find(tok.right.name) != patterns.end());
+  if(tok.left.name == tok.right.name && lpat && rpat)
+  {
+    if(tok.left.part != 1 || tok.right.part != 1)
+    {
+      die(L"Cannote select part of pattern " + to_wstring(name(tok.right.name)));
+    }
+    return false;
+  }
+  // Any other scenario is an error, so we need to die()
+  if(lpat && rpat)
+  {
+    die(L"Cannot collate pattern " + to_wstring(name(tok.left.name)) + L" with " + to_wstring(name(tok.right.name)));
+  }
+  else if((lpat && tok.right.name.empty()) || (rpat && tok.left.name.empty()))
+  {
+    die(L"Cannot select side of pattern " + to_wstring(name(tok.left.name.valid() ? tok.left.name : tok.right.name)));
+  }
+  else if(llex && rpat)
+  {
+    die(L"Cannot collate lexicon " + to_wstring(name(tok.left.name)) + L" with pattern " + to_wstring(name(tok.right.name)));
+  }
+  else if(lpat && rlex)
+  {
+    die(L"Cannot collate pattern " + to_wstring(name(tok.left.name)) + L" with lexicon " + to_wstring(name(tok.right.name)));
+  }
+  else
+  {
+    wcerr << "Patterns: ";
+    for(auto pat: patterns)
+      wcerr << to_wstring(name(pat.first)) << " ";
+    wcerr << endl;
+    wcerr << "Lexicons: ";
+    for(auto l: lexicons)
+      wcerr << to_wstring(name(l.first)) << " ";
+    wcerr << endl;
+    die(L"Lexicon or pattern '" + to_wstring(name((llex || lpat) ? tok.right.name : tok.left.name)) + L"' is not defined");
+  }
+  // we never reach this point, but the compiler doesn't understand die()
+  // so we put a fake return value to keep it happy
+  return false;
+}
+
 void
 LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const vector<int> is_free, unsigned int pos)
 {
@@ -614,9 +667,7 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
     return;
   }
   const pattern_element_t& tok = pat[pos];
-  const bool llex = !tok.left.name || (lexicons.find(tok.left.name) != lexicons.end());
-  const bool rlex = !tok.right.name || (lexicons.find(tok.right.name) != lexicons.end());
-  if(llex && rlex)
+  if(isLexiconToken(tok))
   {
     if(is_free[pos] == 1)
     {
@@ -665,15 +716,8 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
     }
     return;
   }
-
-  bool lpat = (patterns.find(tok.left.name) != patterns.end());
-  bool rpat = (patterns.find(tok.right.name) != patterns.end());
-  if(lpat && rpat)
+  else
   {
-    if(tok.left.name != tok.right.name)
-      die(L"Cannot collate patterns " + to_wstring(name(tok.left.name)) + L" and " + to_wstring(name(tok.right.name)));
-    if(tok.left.part != 1 || tok.right.part != 1)
-      die(L"Cannot select part of pattern " + to_wstring(name(tok.left.name)));
     int new_state = t->insertTransducer(state, *buildPattern(tok.left));
     if(tok.mode & Optional)
       t->linkStates(state, new_state, 0);
@@ -682,25 +726,30 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
     buildPattern(new_state, t, pat, is_free, pos+1);
     return;
   }
+}
 
-  // if we get to here it's an error of some kind
-  // just have to determine which one
-  if((lpat && !tok.right.name) || (rpat && !tok.left.name))
-    die(L"Cannot select side of pattern " + to_wstring(name(tok.left.name || tok.right.name)));
-  else if((llex && rpat) || (lpat && rlex))
-    die(L"Cannot collate lexicon with pattern " + to_wstring(name(tok.left.name)) + L":" + to_wstring(name(tok.right.name)));
-  else
+vector<int>
+LexdCompiler::determineFreedom(pattern_t& pat)
+{
+  vector<int> is_free = vector<int>(pat.size(), 0);
+  for(unsigned int i = 0; i < pat.size(); i++)
   {
-    wcerr << "Patterns: ";
-    for(auto pat: patterns)
-      wcerr << to_wstring(name(pat.first)) << " ";
-    wcerr << endl;
-    wcerr << "Lexicons: ";
-    for(auto l: lexicons)
-      wcerr << to_wstring(name(l.first)) << " ";
-    wcerr << endl;
-    die(L"Lexicon or pattern '" + to_wstring(name(llex ? tok.right.name : tok.left.name)) + L"' is not defined");
+    if(is_free[i] != 0)
+      continue;
+    const pattern_element_t& t1 = pat[i];
+    for(unsigned int j = i+1; j < pat.size(); j++)
+    {
+      const pattern_element_t& t2 = pat[j];
+      if((t1.left.name.valid() && (t1.left.name == t2.left.name || t1.left.name == t2.right.name)) ||
+         (t1.right.name.valid() && (t1.right.name == t2.left.name || t1.right.name == t2.right.name)))
+      {
+        is_free[i] = -1;
+        is_free[j] = -1;
+      }
+    }
+    is_free[i] = (is_free[i] == 0 ? 1 : -1);
   }
+  return is_free;
 }
 
 Transducer*
@@ -719,34 +768,17 @@ LexdCompiler::buildPattern(const token_t &tok)
       for(unsigned int i = 0; i < pat_untagged.second.size(); i++)
       {
         auto pat = pat_untagged;
-	for(auto &pair: pat.second)
+        for(auto &pair: pat.second)
         {
           pair.left.negtags.insert(tok.negtags.begin(), tok.negtags.end());
           pair.right.negtags.insert(tok.negtags.begin(), tok.negtags.end());
         }
-	pat.second[i].left.tags.insert(tok.tags.begin(), tok.tags.end());
-	pat.second[i].right.tags.insert(tok.tags.begin(), tok.tags.end());
+        pat.second[i].left.tags.insert(tok.tags.begin(), tok.tags.end());
+        pat.second[i].right.tags.insert(tok.tags.begin(), tok.tags.end());
 
         matchedParts.clear();
         lineNumber = pat.first;
-        vector<int> is_free = vector<int>(pat.second.size(), 0);
-        for(unsigned int i = 0; i < pat.second.size(); i++)
-        {
-          if(is_free[i] != 0)
-            continue;
-          const pattern_element_t& t1 = pat.second[i];
-          for(unsigned int j = i+1; j < pat.second.size(); j++)
-          {
-            const pattern_element_t& t2 = pat.second[j];
-            if((t1.left.name.valid() && (t1.left.name == t2.left.name || t1.left.name == t2.right.name)) ||
-               (t1.right.name.valid() && (t1.right.name == t2.left.name || t1.right.name == t2.right.name)))
-            {
-              is_free[i] = -1;
-              is_free[j] = -1;
-            }
-          }
-          is_free[i] = (is_free[i] == 0 ? 1 : -1);
-        }
+        vector<int> is_free = determineFreedom(pat.second);
         buildPattern(t->getInitial(), t, pat.second, is_free, 0);
       }
     }
@@ -761,79 +793,97 @@ LexdCompiler::buildPattern(const token_t &tok)
   return patternTransducers[tok];
 }
 
-/*Transducer*
-LexdCompiler::buildPatternWithFlags(UnicodeString name)
+Transducer*
+LexdCompiler::buildPatternWithFlags(const token_t &tok)
 {
-  UnicodeString letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  if(patternTransducers.find(name) == patternTransducers.end())
+  if(patternTransducers.find(tok) == patternTransducers.end())
   {
-    Transducer* t = new Transducer();
-    patternTransducers[name] = NULL;
-    for(auto& pat : patterns[name])
+    Transducer* trans = new Transducer();
+    patternTransducers[tok] = NULL;
+    bool did_anything = false;
+    for(auto& pat : patterns[tok.name])
     {
-      map<UnicodeString, UnicodeString> flags;
-      map<UnicodeString, int> lexCount;
-      vector<UnicodeString> clear;
-      for(auto& part : pat.second)
-      {
-        if(lexCount.find(part.first.first.first) == lexCount.end()) lexCount[part.first.first.first] = 0;
-        lexCount[part.first.first.first] += 1;
-      }
       lineNumber = pat.first;
-      int state = t->getInitial();
-      for(auto& part : pat.second)
+      vector<int> is_free = determineFreedom(pat.second);
+      bool got_non_null = false;
+      unsigned int count = (tok.tags.size() > 0 ? pat.second.size() : 1);
+      for(unsigned int idx = 0; idx < count; idx++)
       {
-        UnicodeString& lex = part.first.first.first;
-        if(lexicons.find(lex) != lexicons.end())
+        int state = trans->getInitial();
+        set<string_ref> to_clear;
+        bool got_null = false;
+        for(unsigned int i = 0; i < pat.second.size(); i++)
         {
-          if(lexCount[lex] == 1)
+          pattern_element_t cur = pat.second[i];
+          if(i == idx)
           {
-            //state = t->insertTransducer(state, *(lexicons[lex]->getTransducerWithFlags(alphabet, part.second.first, part.second.second, L"")));
+            cur.left.tags.insert(tok.tags.begin(), tok.tags.end());
+            cur.right.tags.insert(tok.tags.begin(), tok.tags.end());
+          }
+          cur.left.negtags.insert(tok.negtags.begin(), tok.negtags.end());
+          cur.right.negtags.insert(tok.negtags.begin(), tok.negtags.end());
+
+          Transducer* t;
+          if(isLexiconToken(cur))
+          {
+            t = getLexiconTransducerWithFlags(cur, (is_free[i] == 1));
+            if(is_free[i] == -1)
+            {
+              to_clear.insert(cur.left.name);
+              to_clear.insert(cur.right.name);
+            }
           }
           else
           {
-            if(flags.find(lex) == flags.end())
-            {
-              unsigned int n = flagsUsed++;
-              UnicodeString f;
-              while(n > 0 || f.length() == 0)
-              {
-                f += letters[(int)n%26];
-                n /= 26;
-              }
-              flags[lex] = f;
-              clear.push_back(f);
-            }
-            //state = t->insertTransducer(state, *(lexicons[lex]->getTransducerWithFlags(alphabet, part.second.first, part.second.second, to_wstring(flags[lex]))));
+            t = buildPatternWithFlags(cur.left);
           }
+          if(t == NULL)
+          {
+            got_null = true;
+            break;
+          }
+          got_non_null = true;
+          state = trans->insertTransducer(state, *t);
         }
-        else if(patterns.find(lex) != patterns.end())
+        if(!got_null)
         {
-          //if(part.second.first != SideBoth || part.second.second != 1) die(L"Cannot select part or side of pattern '" + to_wstring(lex) + L"'");
-          state = t->insertTransducer(state, *(buildPatternWithFlags(lex)));
-        }
-        else
-        {
-          die(L"Lexicon or pattern '" + to_wstring(lex) + L"' is not defined");
+          for(auto lex : to_clear)
+          {
+            if(lex.empty())
+            {
+              continue;
+            }
+            UnicodeString flag = "@C.";
+            encodeFlag(flag, (int)lex.i);
+            flag += "@";
+            trans_sym_t f = alphabet_lookup(flag);
+            state = trans->insertSingleTransduction((int)alphabet_lookup(f, f), state);
+          }
+          trans->setFinal(state);
         }
       }
-      for(auto& flag : clear)
+      if(!got_non_null)
       {
-        UnicodeString cl = "@C." + flag + "@";
-        int s = alphabet_lookup(cl);
-        state = t->insertSingleTransduction(alphabet(s, s), state);
+        continue;
       }
-      t->setFinal(state);
+      did_anything = true;
     }
-    t->minimize();
-    patternTransducers[name] = t;
+    if(did_anything)
+    {
+      trans->minimize();
+    }
+    else
+    {
+      trans = NULL;
+    }
+    patternTransducers[tok] = trans;
   }
-  else if(patternTransducers[name] == NULL)
+  else if(patternTransducers[tok] == NULL)
   {
-    die(L"Cannot compile self-recursive pattern '" + to_wstring(name) + L"'");
+    die(L"Cannot compile self-recursive pattern '" + to_wstring(name(tok.name)) + L"'");
   }
-  return patternTransducers[name];
-}*/
+  return patternTransducers[tok];
+}
 
 void
 LexdCompiler::readFile(UFILE* infile)
@@ -851,9 +901,9 @@ LexdCompiler::readFile(UFILE* infile)
 Transducer*
 LexdCompiler::buildTransducer(bool usingFlags)
 {
-  //if(usingFlags) return buildPatternWithFlags(name_to_id[" "]);
-  //else return buildPattern(name_to_id[" "]);
-  return buildPattern({.name = internName(" "), .part = 1, .tags = set<string_ref>(), .negtags = set<string_ref>()});
+  token_t start = {.name = internName(" "), .part = 1, .tags = set<string_ref>(), .negtags = set<string_ref>()};
+  if(usingFlags) return buildPatternWithFlags(start);
+  else return buildPattern(start);
 }
 
 void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t> &alternation)
@@ -975,6 +1025,17 @@ LexdCompiler::insertEntry(Transducer* trans, const lex_seg_t &seg)
   trans->setFinal(state);
 }
 
+void
+LexdCompiler::applyMode(Transducer* trans, RepeatMode mode)
+{
+  if(mode == Question)
+    trans->optional();
+  else if(mode == Star)
+    trans->zeroOrMore();
+  else if(mode == Plus)
+    trans->oneOrMore();
+}
+
 Transducer*
 LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free)
 {
@@ -1019,12 +1080,7 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
     did_anything = true;
     if(!free)
     {
-      if(tok.mode == Question)
-        t->optional();
-      else if(tok.mode == Star)
-        t->zeroOrMore();
-      else if(tok.mode == Plus)
-        t->oneOrMore();
+      applyMode(t, tok.mode);
       trans.push_back(t);
     }
   }
@@ -1037,12 +1093,7 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
     if(trans[0])
     {
       trans[0]->minimize();
-      if(tok.mode == Question)
-        trans[0]->optional();
-      else if(tok.mode == Star)
-        trans[0]->zeroOrMore();
-      else if(tok.mode == Plus)
-        trans[0]->oneOrMore();
+      applyMode(trans[0], tok.mode);
     }
     lexiconTransducers[tok] = trans[0];
     return trans[0];
@@ -1052,6 +1103,156 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
     entryTransducers[tok] = trans;
     return trans[entry_index];
   }
+}
+
+void
+LexdCompiler::encodeFlag(UnicodeString& str, int flag)
+{
+  UnicodeString letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  int num = flag;
+  while(num > 0)
+  {
+    str += letters[num % 26];
+    num /= 26;
+  }
+}
+
+trans_sym_t
+LexdCompiler::getFlagSymbol(string_ref lexicon, unsigned int entry_index)
+{
+  UnicodeString flag = "@U.";
+  encodeFlag(flag, (int)lexicon.i);
+  flag += ".";
+  encodeFlag(flag, (int)(entry_index + 1));
+  flag += "@";
+  return alphabet_lookup(flag);
+}
+
+vector<trans_sym_t>
+LexdCompiler::getEntryFlags(lex_token_t& tok)
+{
+  vector<trans_sym_t> flags;
+  for(auto tag : tok.tags)
+  {
+    UnicodeString flag = "@D.";
+    UnicodeString clear = "@C.";
+    encodeFlag(flag, (int)tag.i);
+    encodeFlag(clear, (int)tag.i);
+    flag += ".NO@";
+    clear += "@";
+    flags.push_back(alphabet_lookup(flag));
+    flags.push_back(alphabet_lookup(clear));
+  }
+  // uncomment this if we add negative tags on entries
+  /*for(auto tag : tok.negtags)
+  {
+    UnicodeString flag = "@D.";
+    encodeFlag(flag, (int)tag.i);
+    flag += ".YES@";
+    flags.push_back(alphabet_lookup(flag));
+  }*/
+  return flags;
+}
+
+vector<trans_sym_t>
+LexdCompiler::getSelectorFlags(token_t& tok)
+{
+  vector<trans_sym_t> flags;
+  for(auto tag : tok.tags)
+  {
+    UnicodeString flag = "@P.";
+    encodeFlag(flag, (int)tag.i);
+    flag += ".YES@";
+    flags.push_back(alphabet_lookup(flag));
+  }
+  for(auto tag : tok.negtags)
+  {
+    UnicodeString flag = "@P.";
+    encodeFlag(flag, (int)tag.i);
+    flag += ".NO@";
+    flags.push_back(alphabet_lookup(flag));
+  }
+  return flags;
+}
+
+Transducer*
+LexdCompiler::getLexiconTransducerWithFlags(pattern_element_t& tok, bool free)
+{
+  if(!free && entryTransducers.find(tok) != entryTransducers.end())
+    return entryTransducers[tok][0];
+  if(free && lexiconTransducers.find(tok) != lexiconTransducers.end())
+    return lexiconTransducers[tok];
+
+  // TODO: can this be abstracted from here and getLexiconTransducer()?
+  vector<entry_t>& lents = lexicons[tok.left.name];
+  if(tok.left.name.valid() && tok.left.part > lents[0].size())
+    die(to_wstring(name(tok.left.name)) + L"(" + to_wstring(tok.left.part) + L") - part is out of range");
+  vector<entry_t>& rents = lexicons[tok.right.name];
+  if(tok.right.name.valid() && tok.right.part > rents[0].size())
+    die(to_wstring(name(tok.right.name)) + L"(" + to_wstring(tok.right.part) + L") - part is out of range");
+  if(tok.left.name.valid() && tok.right.name.valid() && lents.size() != rents.size())
+    die(L"Cannot collate " + to_wstring(name(tok.left.name)) + L" with " + to_wstring(name(tok.right.name)) + L" - differing numbers of entries");
+  unsigned int count = (tok.left.name.valid() ? lents.size() : rents.size());
+  Transducer* trans = new Transducer();
+  bool did_anything = false;
+  for(unsigned int i = 0; i < count; i++)
+  {
+    if(tok.left.name.valid() && !tok.left.compatible(lents[i][tok.left.part-1].left))
+    {
+      continue;
+    }
+    if(tok.right.name.valid() && !tok.right.compatible(rents[i][tok.right.part-1].right))
+    {
+      continue;
+    }
+    did_anything = true;
+    lex_token_t left, right;
+    if(!free && tok.left.name.valid())
+    {
+      trans_sym_t flag = getFlagSymbol(tok.left.name, i);
+      left.symbols.push_back(flag);
+      right.symbols.push_back(flag);
+    }
+    if(!free && tok.right.name.valid() && tok.right.name != tok.left.name)
+    {
+      trans_sym_t flag = getFlagSymbol(tok.right.name, i);
+      left.symbols.push_back(flag);
+      right.symbols.push_back(flag);
+    }
+    if(tok.left.name.valid())
+    {
+      //vector<trans_sym_t> tags = getEntryFlags(lents[i][tok.left.part-1].left);
+      //left.symbols.insert(left.symbols.end(), tags.begin(), tags.end());
+      vector<trans_sym_t>& syms = lents[i][tok.left.part-1].left.symbols;
+      left.symbols.insert(left.symbols.end(), syms.begin(), syms.end());
+    }
+    if(tok.right.name.valid())
+    {
+      //vector<trans_sym_t> tags = getEntryFlags(rents[i][tok.right.part-1].right);
+      //right.symbols.insert(right.symbols.end(), tags.begin(), tags.end());
+      vector<trans_sym_t>& syms = rents[i][tok.right.part-1].right.symbols;
+      right.symbols.insert(right.symbols.end(), syms.begin(), syms.end());
+    }
+    insertEntry(trans, {.left = left, .right = right});
+  }
+  if(did_anything)
+  {
+    trans->minimize();
+    applyMode(trans, tok.mode);
+  }
+  else
+  {
+    trans = NULL;
+  }
+  if(free)
+  {
+    lexiconTransducers[tok] = trans;
+  }
+  else
+  {
+    entryTransducers[tok] = vector<Transducer*>(1, trans);
+  }
+  return trans;
 }
 
 void
