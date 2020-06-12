@@ -157,6 +157,7 @@ class LexdCompiler
 private:
   bool shouldAlign;
   bool shouldCompress;
+  bool tagsAsFlags;
 
   map<UnicodeString, string_ref> name_to_id;
   vector<UnicodeString> id_to_name;
@@ -169,6 +170,7 @@ private:
   map<token_t, Transducer*> patternTransducers;
   map<pattern_element_t, Transducer*> lexiconTransducers;
   map<pattern_element_t, vector<Transducer*>> entryTransducers;
+  map<string_ref, set<string_ref>> flagsUsed;
 
   UFILE* input;
   bool inLex;
@@ -179,7 +181,6 @@ private:
   string_ref currentPatternId;
   line_number_t lineNumber;
   bool doneReading;
-  unsigned int flagsUsed;
   unsigned int anonymousCount;
 
   void die(const wstring & msg);
@@ -192,15 +193,25 @@ private:
   void processPattern(char_iter& iter, UnicodeString& line);
   void processNextLine();
 
+  bool isLexiconToken(const pattern_element_t& tok);
+  vector<int> determineFreedom(pattern_t& pat);
   map<string_ref, unsigned int> matchedParts;
+  void applyMode(Transducer* trans, RepeatMode mode);
   void insertEntry(Transducer* trans, const lex_seg_t &seg);
   void appendLexicon(string_ref lexicon_id, const vector<entry_t> &to_append);
   Transducer* getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, vector<int> is_free, unsigned int pos);
   Transducer* buildPattern(const token_t &tok);
-  Transducer* buildPatternWithFlags(string_ref name);
+  Transducer* buildPatternWithFlags(const token_t &tok);
   trans_sym_t alphabet_lookup(const UnicodeString &symbol);
   trans_sym_t alphabet_lookup(trans_sym_t l, trans_sym_t r);
+
+  void encodeFlag(UnicodeString& str, int flag);
+  trans_sym_t getFlagSymbol(string_ref lexicon, unsigned int entry_index);
+  vector<trans_sym_t> getEntryFlags(lex_token_t& tok);
+  vector<trans_sym_t> getSelectorFlags(token_t& tok);
+  Transducer* getLexiconTransducerWithFlags(pattern_element_t& tok, bool free);
+
 public:
   LexdCompiler();
   ~LexdCompiler();
