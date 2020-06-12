@@ -18,6 +18,7 @@ tests = \
   revsieve \
   sieve \
   sieveopt \
+  slots-and-operators-nospace \
 
 sources = $(foreach test,$(tests),test-$(test).lexd)
 

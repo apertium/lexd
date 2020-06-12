@@ -424,6 +424,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       just_sieved = false;
       if(*iter == ")")
         break;
+      else if(token_boundary.indexOf(*iter) != -1)
+        --iter;
     }
   }
   if(!final_alternative)

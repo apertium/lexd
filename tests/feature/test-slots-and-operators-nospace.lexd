@@ -1,0 +1,8 @@
+PATTERNS
+X(1)|Y(1) [z]
+
+LEXICON X(2)
+x1 x2
+
+LEXICON Y(2)
+y1 y2
