@@ -5,6 +5,7 @@ tests = \
   anonlex \
   anonlex-modifier \
   anonpat \
+  anonpat-modifier \
   anonpat-nospaces \
   anonpat-ops \
   lexname-space \

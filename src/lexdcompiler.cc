@@ -380,12 +380,18 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
         *iter++;
       if(iter == iter.end() || *iter != ")")
         die(L"Missing closing ) for anonymous pattern");
+      if(final_alternative && !alternation.empty())
+      {
+        expand_alternation(pats_cur, alternation);
+        alternation.clear();
+      }
       ++iter;
       alternation.push_back({
         .left={.name=currentPatternId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
         .right={.name=currentPatternId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
         .mode=readModifier(iter)
       });
+      --iter;
       currentPatternId = temp;
       final_alternative = true;
       just_sieved = false;
