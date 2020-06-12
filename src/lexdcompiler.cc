@@ -99,6 +99,43 @@ LexdCompiler::checkName(UnicodeString& name)
   return internName(name);
 }
 
+void
+LexdCompiler::readTags(char_iter& iter, UnicodeString& line, set<string_ref>* tags, set<string_ref>* negtags)
+{
+  auto tag_start = (++iter).span();
+  bool tag_nonempty = false;
+  bool negative = false;
+  for(; iter != iter.end() && (*iter).length() > 0; ++iter)
+  {
+    if(*iter == "]" || *iter == "," || *iter == " ")
+    {
+      if(!tag_nonempty)
+        die(L"Empty tag at char " + to_wstring(iter.span().first));
+      UnicodeString s = line.tempSubStringBetween(tag_start.first, iter.span().first);
+      (negative ? negtags : tags)->insert(checkName(s));
+      tag_nonempty = false;
+      negative = false;
+      if(*iter == "]")
+      {
+        iter++;
+        return;
+      }
+    }
+    else if(!tag_nonempty && *iter == "-")
+    {
+      negative = true;
+      if(negtags == NULL)
+        die(L"Cannot declare negative tag in lexicon (u16 " + to_wstring(iter.span().first) + L")");
+    }
+    else if(!tag_nonempty)
+    {
+      tag_nonempty = true;
+      tag_start = iter.span();
+    }
+  }
+  die(L"End of line in tag list, expected ']'");
+}
+
 lex_seg_t
 LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count)
 {
@@ -126,28 +163,8 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
     {
       if(!(inleft ? seg.left : seg.right).tags.empty())
         die(L"Already provided tag list for this side.");
-      auto tag_start = (++iter).span();
-      for(; *iter != "]"; ++iter)
-      {
-        if(iter == iter.end())
-          die(L"End of line while expecting end tag list ']'");
-        if(tag_start == iter.end().span())
-        {
-          if(*iter == "-")
-            die(L"Cannot declare negative tag in lexicon (u16 " + to_wstring(iter.span().first) + L")");
-          tag_start = iter.span();
-        }
-        if(*iter == "," || *iter == " ")
-        {
-          if(tag_start == iter.span())
-            die(L"Empty tag at char " + to_wstring(iter.span().first));
-          UnicodeString s = line.tempSubStringBetween(tag_start.first, iter.span().first);
-          (inleft ? seg.left : seg.right).tags.insert(checkName(s));
-          tag_start = iter.end().span();
-        }
-      }
-      UnicodeString s = line.tempSubStringBetween(tag_start.first, iter.span().first);
-      (inleft ? seg.left : seg.right).tags.insert(checkName(s));
+      readTags(iter, line, (inleft ? &seg.left.tags : &seg.right.tags), NULL);
+      --iter;
     }
     else if(*iter == ":")
     {
@@ -186,7 +203,14 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
 token_t
 LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
 {
-  if(*iter == ' ' || *iter == ':') ++iter;
+  if(*iter == ' ')
+  {
+    die(L"Colon without lexicon name at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
+  }
+  else if(*iter == ':')
+  {
+    die(L"Double colon at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
+  }
   auto begin_charspan = iter.span();
 
   const UnicodeString token_boundary = " )]|<>";
@@ -225,40 +249,7 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
       }
       else if(*iter == '[')
       {
-        ++iter;
-        begin_charspan = iter.span();
-        for(; iter != iter.end() && *iter != ']'; ++iter)
-        {
-          if(iter == iter.end())
-            die(L"End of line while expecting end tag list ']'");
-          if(begin_charspan == iter.end().span())
-            begin_charspan = iter.span();
-          if(*iter == "," || *iter == " ")
-          {
-            if(begin_charspan == iter.span())
-              die(L"Empty tag at char " + to_wstring(iter.span().first));
-            UnicodeString s = line.tempSubStringBetween(begin_charspan.first, iter.span().first);
-            if(s.startsWith("-"))
-            {
-              s.retainBetween(1, s.length());
-              negtags.insert(checkName(s));
-            }
-            else
-              tags.insert(checkName(s));
-            begin_charspan = iter.end().span();
-          }
-        }
-	if(*iter != ']')
-	  die(L"Syntax error - unmatched ']'");
-        UnicodeString s = line.tempSubStringBetween(begin_charspan.first, iter.span().first);
-        if(s.startsWith("-"))
-        {
-          s.retainBetween(1, s.length());
-          negtags.insert(checkName(s));
-        }
-        else
-          tags.insert(checkName(s));
-        ++iter;
+        readTags(iter, line, &tags, &negtags);
       }
     }
   }
@@ -309,6 +300,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
   const UnicodeString token_boundary = " )|<>";
   const UnicodeString token_side_boundary = token_boundary + ":+*?";
   const UnicodeString token_side_name_boundary = token_side_boundary + "([]";
+  const UnicodeString modifier = "+*?";
 
   for(; iter != iter.end() && *iter != ')' && (*iter).length() > 0; ++iter)
   {
@@ -396,6 +388,10 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       final_alternative = true;
       just_sieved = false;
     }
+    else if(*iter == "?" || *iter == "*" || *iter == "+")
+    {
+      die(L"Syntax error - unexpected modifier at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
+    }
     else
     {
       if(final_alternative && !alternation.empty())
@@ -417,7 +413,9 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
           ++iter;
           if(iter != iter.end() && (*iter).length() > 0)
           {
-            if(token_boundary.indexOf(*iter) != -1)
+            if(*iter == ":")
+              die(L"Syntax error - double colon at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
+            else if(token_boundary.indexOf(*iter) != -1)
               iter--;
             else if (token_side_boundary.indexOf(*iter) == -1)
               right = readToken(iter, line);
@@ -434,6 +432,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
         break;
       else if(token_boundary.indexOf(*iter) != -1)
         --iter;
+      else if(modifier.indexOf(*iter) != -1)
+        die(L"Syntax error - unexpected modifier at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
     }
   }
   if(!final_alternative)
