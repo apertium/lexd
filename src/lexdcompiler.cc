@@ -359,11 +359,13 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
         expand_alternation(pats_cur, alternation);
         alternation.clear();
       }
+      ++iter;
       alternation.push_back({
         .left={.name=currentLexiconId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
         .right={.name=currentLexiconId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
         .mode=readModifier(iter)
       });
+      --iter;
       final_alternative = true;
       just_sieved = false;
     }

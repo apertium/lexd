@@ -3,6 +3,7 @@
 tests = \
   alt \
   anonlex \
+  anonlex-modifier \
   anonpat \
   anonpat-nospaces \
   anonpat-ops \
