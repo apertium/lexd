@@ -39,6 +39,20 @@ LexdCompiler::LexdCompiler()
   id_to_name.push_back("");
   name_to_id[""] = string_ref(0);
   lexicons[string_ref(0)] = vector<entry_t>();
+
+  left_sieve_name = internName("<");
+  token_t lsieve_tok = {.name=left_sieve_name, .part=1,
+                        .tags=set<string_ref>(), .negtags=set<string_ref>()};
+  pattern_element_t lsieve_elem = {.left=lsieve_tok, .right=lsieve_tok,
+                                   .mode=Normal};
+  left_sieve_tok = vector<pattern_element_t>(1, lsieve_elem);
+
+  right_sieve_name = internName(">");
+  token_t rsieve_tok = {.name=right_sieve_name, .part=1,
+                        .tags=set<string_ref>(), .negtags=set<string_ref>()};
+  pattern_element_t rsieve_elem = {.left=rsieve_tok, .right=rsieve_tok,
+                                   .mode=Normal};
+  right_sieve_tok = vector<pattern_element_t>(1, rsieve_elem);
 }
 
 LexdCompiler::~LexdCompiler()
@@ -309,8 +323,6 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
 {
   vector<pattern_t> pats_cur(1);
   vector<pattern_element_t> alternation;
-  vector<vector<pattern_t>> patsets_fin;
-  vector<vector<pattern_t>> patsets_pref;
   bool final_alternative = true;
   bool sieve_forward = false;
   bool just_sieved = false;
@@ -345,9 +357,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       if(!final_alternative)
         die(L"Syntax error - alternation and sieve operators without intervening token");
       expand_alternation(pats_cur, alternation);
+      expand_alternation(pats_cur, left_sieve_tok);
       alternation.clear();
-      patsets_pref.push_back(pats_cur);
-      pats_cur.clear();
       just_sieved = true;
     }
     else if(*iter == ">")
@@ -360,7 +371,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       if(!final_alternative)
         die(L"Syntax error - alternation and sieve operators without intervening token");
       expand_alternation(pats_cur, alternation);
-      patsets_fin.push_back(pats_cur);
+      expand_alternation(pats_cur, right_sieve_tok);
       alternation.clear();
       just_sieved = true;
     }
@@ -441,43 +452,9 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
   if(just_sieved)
     die(L"Syntax error - trailing sieve (< or >)");
   expand_alternation(pats_cur, alternation);
-  patsets_fin.push_back(pats_cur);
-
-  patsets_pref.push_back(vector<pattern_t>(1));
-
-  vector<pattern_t> prefixes;
-  vector<pattern_t> last_prefixes(1);
-  for(auto it = patsets_pref.rbegin(); it != patsets_pref.rend(); it++)
+  for(const auto &pat : pats_cur)
   {
-    vector<pattern_t> new_prefixes;
-    new_prefixes.reserve(last_prefixes.size() * it->size());
-    prefixes.reserve(prefixes.size() + last_prefixes.size() * it->size());
-    for(const auto &last_prefix: last_prefixes)
-    {
-      for(const auto &new_prefix: *it)
-      {
-        pattern_t p = new_prefix;
-        p.reserve(p.size() + last_prefix.size());
-        p.insert(p.end(), last_prefix.begin(), last_prefix.end());
-        new_prefixes.push_back(p);
-        prefixes.push_back(p);
-      }
-    }
-    last_prefixes = new_prefixes;
-  }
-
-  for(const auto &patset_fin: patsets_fin)
-  {
-    for(const auto &pat: patset_fin)
-    {
-      for(const auto &pref : prefixes)
-      {
-        pattern_t p = pref;
-        p.reserve(pref.size() + pat.size());
-        p.insert(p.end(), pat.begin(), pat.end());
-        patterns[currentPatternId].push_back(make_pair(lineNumber, p));
-      }
-    }
+    patterns[currentPatternId].push_back(make_pair(lineNumber, pat));
   }
 }
 
@@ -667,7 +644,17 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
     return;
   }
   const pattern_element_t& tok = pat[pos];
-  if(isLexiconToken(tok))
+  if(tok.left.name == left_sieve_name)
+  {
+    t->linkStates(t->getInitial(), state, 0);
+    buildPattern(state, t, pat, is_free, pos+1);
+  }
+  else if(tok.left.name == right_sieve_name)
+  {
+    t->setFinal(state);
+    buildPattern(state, t, pat, is_free, pos+1);
+  }
+  else if(isLexiconToken(tok))
   {
     if(is_free[pos] == 1)
     {
@@ -810,11 +797,24 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
       for(unsigned int idx = 0; idx < count; idx++)
       {
         int state = trans->getInitial();
+        vector<int> finals;
         set<string_ref> to_clear;
         bool got_null = false;
         for(unsigned int i = 0; i < pat.second.size(); i++)
         {
           pattern_element_t cur = pat.second[i];
+
+          if(cur.left.name == left_sieve_name)
+          {
+            trans->linkStates(trans->getInitial(), state, 0);
+            continue;
+          }
+          else if(cur.left.name == right_sieve_name)
+          {
+            finals.push_back(state);
+            continue;
+          }
+
           if(i == idx)
           {
             cur.left.tags.insert(tok.tags.begin(), tok.tags.end());
@@ -845,8 +845,12 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
           got_non_null = true;
           state = trans->insertTransducer(state, *t);
         }
-        if(!got_null)
+        if(!got_null || finals.size() > 0)
         {
+          for(auto fin : finals)
+          {
+            trans->linkStates(fin, state, 0);
+          }
           for(auto lex : to_clear)
           {
             if(lex.empty())

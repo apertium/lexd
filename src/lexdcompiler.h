@@ -183,6 +183,11 @@ private:
   bool doneReading;
   unsigned int anonymousCount;
 
+  string_ref left_sieve_name;
+  string_ref right_sieve_name;
+  vector<pattern_element_t> left_sieve_tok;
+  vector<pattern_element_t> right_sieve_tok;
+
   void die(const wstring & msg);
   void finishLexicon();
   string_ref internName(const UnicodeString& name);
