@@ -1,0 +1,17 @@
+PATTERNS
+A[x]
+B[x]
+
+LEXICON A[x]
+apple
+banana[-x]
+
+LEXICON A
+orange
+pear[x]
+
+LEXICON B[x]:[y]
+nope
+nope[-x]:nope
+#fail[-y] # error, can't unset y on left side
+yep:yep[-y,x] # left side gets x

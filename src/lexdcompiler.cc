@@ -82,6 +82,8 @@ LexdCompiler::finishLexicon()
     appendLexicon(currentLexiconId, currentLexicon);
     
     currentLexicon.clear();
+    currentLexicon_tags_left.clear();
+    currentLexicon_tags_right.clear();
   }
   inLex = false;
 }
@@ -155,6 +157,8 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
 {
   lex_seg_t seg;
   bool inleft = true;
+  bool left_tags_applied = false, right_tags_applied = false;
+  set<string_ref> left_negtags, right_negtags;
   if((*iter).startsWith(" "))
   {
     if((*iter).length() > 1)
@@ -175,10 +179,14 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
       break;
     else if(*iter == "[")
     {
-      if(!(inleft ? seg.left : seg.right).tags.empty())
+      auto &tags = inleft ? seg.left.tags : seg.right.tags;
+      auto &tags_applied = inleft ? left_tags_applied : right_tags_applied;
+      auto &negtags = inleft ? left_negtags : right_negtags;
+      if(tags_applied)
         die(L"Already provided tag list for this side.");
-      readTags(iter, line, (inleft ? &seg.left.tags : &seg.right.tags), NULL);
+      readTags(iter, line, &tags, &negtags);
       --iter;
+      tags_applied = true;
     }
     else if(*iter == ":")
     {
@@ -210,7 +218,20 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
     else (inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup(*iter));
   }
   if(inleft)
+  {
     seg.right = seg.left;
+    right_negtags = left_negtags;
+  }
+
+  if(!subset(left_negtags, currentLexicon_tags_left))
+    die(L"Negative tag on left side has no default to unset.");
+  else
+    seg.left.tags = unionset(seg.left.tags, subtractset(currentLexicon_tags_left, left_negtags));
+
+  if(!subset(right_negtags, currentLexicon_tags_right))
+    die(L"Negative tag on right side has no default to unset.");
+  else
+    seg.right.tags = unionset(seg.right.tags, subtractset(currentLexicon_tags_right, right_negtags));
   return seg;
 }
 
@@ -519,6 +540,25 @@ LexdCompiler::processNextLine()
     UnicodeString name = line.tempSubString(8);
     name.trim();
     finishLexicon();
+    if(name.length() > 1 && name.indexOf('[') != -1)
+    {
+      UnicodeString tags = name.tempSubString(name.indexOf('['));
+      auto c = char_iter(tags);
+      readTags(c, tags, &currentLexicon_tags_left, NULL);
+      if(c == c.end())
+        currentLexicon_tags_right = currentLexicon_tags_left;
+      else if(*c == ":")
+      {
+        ++c;
+        if(*c == "[")
+          readTags(c, tags, &currentLexicon_tags_right, NULL);
+	else
+          die(L"Expected start of default right tags '[' after ':'.");
+      }
+      if(c != c.end())
+        die(L"Unexpected character '" + to_wstring(*c) + L"' after default tags.");
+      name.retainBetween(0, name.indexOf('['));
+    }
     currentLexiconPartCount = 1;
     if(name.length() > 1 && name.endsWith(')'))
     {
