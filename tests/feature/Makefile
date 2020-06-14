@@ -8,6 +8,7 @@ tests = \
   anonpat-modifier \
   anonpat-nospaces \
   anonpat-ops \
+  lexdeftag \
   lexname-space \
   lextag \
   lexnegtag \
