@@ -12,12 +12,13 @@ void endProgram(char *name)
   if(name != NULL)
   {
     cout << basename(name) << ": compile lexd files to transducers" << endl;
-    cout << "USAGE: " << basename(name) << " [-abcf] [rule_file [output_file]]" << endl;
+    cout << "USAGE: " << basename(name) << " [-abcfmx] [rule_file [output_file]]" << endl;
     cout << "   -a, --align:      align labels (prefer a:0 b:b to a:b b:0)" << endl;
     cout << "   -b, --bin:        output as Lttoolbox binary file (default is AT&T format)" << endl;
     cout << "   -c, --compress:   condense labels (prefer a:b to 0:b a:0 - sets --align)" << endl;
     cout << "   -f, --flags:      compile using flag diacritics" << endl;
-    cout << "   -x, --statistics  print lexicon and pattern sizes to stderr" << endl;
+    cout << "   -m, --minimize:   do hyperminimization (sets -f)" << endl;
+    cout << "   -x, --statistics: print lexicon and pattern sizes to stderr" << endl;
   }
   exit(EXIT_FAILURE);
 }
@@ -46,13 +47,14 @@ int main(int argc, char *argv[])
       {"compress",  no_argument, 0, 'c'},
       {"flags",     no_argument, 0, 'f'},
       {"help",      no_argument, 0, 'h'},
+      {"minimize",  no_argument, 0, 'm'},
       {"statistics",no_argument, 0, 'x'},
       {0, 0, 0, 0}
     };
 
-    int cnt=getopt_long(argc, argv, "abcfhx", long_options, &option_index);
+    int cnt=getopt_long(argc, argv, "abcfhmx", long_options, &option_index);
 #else
-    int cnt=getopt(argc, argv, "abcfhx");
+    int cnt=getopt(argc, argv, "abcfhmx");
 #endif
     if (cnt==-1)
       break;
@@ -75,9 +77,16 @@ int main(int argc, char *argv[])
       case 'f':
         flags = true;
         break;
+
+      case 'm':
+        flags = true;
+        comp.setShouldHypermin(true);
+        break;
+
       case 'x':
         stats = true;
         break;
+
       case 'h': // fallthrough
       default:
         endProgram(argv[0]);
