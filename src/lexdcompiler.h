@@ -79,6 +79,15 @@ set<T> intersectset(const set<T> &xs, const set<T> &ys)
   return i;
 }
 
+template<typename T>
+set<T> subtractset(const set<T> &xs, const set<T> &ys)
+{
+  set<T> i = xs;
+  for(auto y: ys)
+    i.erase(y);
+  return i;
+}
+
 struct lex_token_t;
 
 struct token_t {
@@ -188,6 +197,7 @@ private:
   bool inLex;
   bool inPat;
   vector<entry_t> currentLexicon;
+  set<string_ref> currentLexicon_tags_left, currentLexicon_tags_right;
   string_ref currentLexiconId;
   unsigned int currentLexiconPartCount;
   string_ref currentPatternId;
