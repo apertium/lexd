@@ -152,12 +152,23 @@ typedef vector<pattern_element_t> pattern_t;
 typedef vector<lex_seg_t> entry_t;
 typedef int line_number_t;
 
+enum FlagDiacriticType
+{
+  Unification,
+  Positive,
+  Negative,
+  Require,
+  Disallow,
+  Clear
+};
+
 class LexdCompiler
 {
 private:
   bool shouldAlign;
   bool shouldCompress;
   bool tagsAsFlags;
+  bool shouldHypermin;
 
   map<UnicodeString, string_ref> name_to_id;
   vector<UnicodeString> id_to_name;
@@ -171,6 +182,7 @@ private:
   map<pattern_element_t, Transducer*> lexiconTransducers;
   map<pattern_element_t, vector<Transducer*>> entryTransducers;
   map<string_ref, set<string_ref>> flagsUsed;
+  map<pattern_element_t, pair<int, int>> transducerLocs;
 
   UFILE* input;
   bool inLex;
@@ -182,6 +194,8 @@ private:
   line_number_t lineNumber;
   bool doneReading;
   unsigned int anonymousCount;
+
+  Transducer* hyperminTrans;
 
   string_ref left_sieve_name;
   string_ref right_sieve_name;
@@ -209,11 +223,12 @@ private:
   Transducer* getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, vector<int> is_free, unsigned int pos);
   Transducer* buildPattern(const token_t &tok);
-  Transducer* buildPatternWithFlags(const token_t &tok);
+  Transducer* buildPatternWithFlags(const token_t &tok, int pattern_start_state);
   trans_sym_t alphabet_lookup(const UnicodeString &symbol);
   trans_sym_t alphabet_lookup(trans_sym_t l, trans_sym_t r);
 
   void encodeFlag(UnicodeString& str, int flag);
+  trans_sym_t getFlag(FlagDiacriticType type, unsigned int flag, unsigned int value);
   trans_sym_t getFlagSymbol(string_ref lexicon, unsigned int entry_index);
   vector<trans_sym_t> getEntryFlags(lex_token_t& tok);
   vector<trans_sym_t> getSelectorFlags(token_t& tok);
@@ -230,6 +245,10 @@ public:
   void setShouldCompress(bool val)
   {
     shouldCompress = val;
+  }
+  void setShouldHypermin(bool val)
+  {
+    shouldHypermin = val;
   }
   Transducer* buildTransducer(bool usingFlags);
   void readFile(UFILE* infile);

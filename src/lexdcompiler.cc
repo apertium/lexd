@@ -32,7 +32,7 @@ trans_sym_t LexdCompiler::alphabet_lookup(trans_sym_t l, trans_sym_t r)
 }
 
 LexdCompiler::LexdCompiler()
-  : shouldAlign(false), shouldCompress(false), tagsAsFlags(false),
+  : shouldAlign(false), shouldCompress(false), tagsAsFlags(false), shouldHypermin(false),
     input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false),
     anonymousCount(0)
 {
@@ -781,12 +781,15 @@ LexdCompiler::buildPattern(const token_t &tok)
 }
 
 Transducer*
-LexdCompiler::buildPatternWithFlags(const token_t &tok)
+LexdCompiler::buildPatternWithFlags(const token_t &tok, int pattern_start_state = 0)
 {
   if(patternTransducers.find(tok) == patternTransducers.end())
   {
-    Transducer* trans = new Transducer();
+    Transducer* trans = (shouldHypermin ? hyperminTrans : new Transducer());
     patternTransducers[tok] = NULL;
+    unsigned int pattern_flag_id = patternTransducers.size();
+    unsigned int transition_index = 0;
+    vector<int> pattern_finals;
     bool did_anything = false;
     for(auto& pat : patterns[tok.name])
     {
@@ -796,7 +799,7 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
       unsigned int count = (tok.tags.size() > 0 ? pat.second.size() : 1);
       for(unsigned int idx = 0; idx < count; idx++)
       {
-        int state = trans->getInitial();
+        int state = pattern_start_state;
         vector<int> finals;
         set<string_ref> to_clear;
         bool got_null = false;
@@ -815,6 +818,8 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
             continue;
           }
 
+          transition_index++;
+
           if(i == idx)
           {
             cur.left.tags.insert(tok.tags.begin(), tok.tags.end());
@@ -824,7 +829,57 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
           cur.right.negtags.insert(tok.negtags.begin(), tok.negtags.end());
 
           Transducer* t;
-          if(isLexiconToken(cur))
+          if(shouldHypermin)
+          {
+            trans_sym_t inflag = getFlag(Positive, pattern_flag_id, transition_index);
+            trans_sym_t outflag = getFlag(Require, pattern_flag_id, transition_index);
+            int in_tr = (int)alphabet_lookup(inflag, inflag);
+            int out_tr = (int)alphabet_lookup(outflag, outflag);
+            if(is_free[i] == -1 && isLexiconToken(cur))
+            {
+              to_clear.insert(cur.left.name);
+              to_clear.insert(cur.right.name);
+            }
+            if(transducerLocs.find(cur) != transducerLocs.end())
+            {
+              auto loc = transducerLocs[cur];
+              if(loc.first == loc.second)
+              {
+                t = NULL;
+              }
+              else
+              {
+                t = trans;
+                trans->linkStates(state, loc.first, in_tr);
+                state = trans->insertSingleTransduction(out_tr, loc.second);
+              }
+            }
+            else
+            {
+              int start = trans->insertSingleTransduction(in_tr, state);
+              int end = start;
+              if(isLexiconToken(cur))
+              {
+                t = getLexiconTransducerWithFlags(cur, false);
+                if(t == NULL)
+                {
+                  transducerLocs[cur] = make_pair(start, start);
+                }
+                else
+                {
+                  end = trans->insertTransducer(start, *t);
+                  transducerLocs[cur] = make_pair(start, end);
+                }
+              }
+              else
+              {
+                t = buildPatternWithFlags(cur.left, start);
+                end = transducerLocs[cur].second;
+              }
+              state = trans->insertSingleTransduction(out_tr, end);
+            }
+          }
+          else if(isLexiconToken(cur))
           {
             t = getLexiconTransducerWithFlags(cur, (is_free[i] == 1));
             if(is_free[i] == -1)
@@ -843,7 +898,10 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
             break;
           }
           got_non_null = true;
-          state = trans->insertTransducer(state, *t);
+          if(!shouldHypermin)
+          {
+            state = trans->insertTransducer(state, *t);
+          }
         }
         if(!got_null || finals.size() > 0)
         {
@@ -864,6 +922,7 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
             state = trans->insertSingleTransduction((int)alphabet_lookup(f, f), state);
           }
           trans->setFinal(state);
+          pattern_finals.push_back(state);
         }
       }
       if(!got_non_null)
@@ -874,7 +933,26 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
     }
     if(did_anything)
     {
-      trans->minimize();
+      if(shouldHypermin)
+      {
+        int end = pattern_finals[0];
+        for(auto fin : pattern_finals)
+        {
+          if(fin != end)
+          {
+            trans->linkStates(fin, end, 0);
+          }
+          if(pattern_start_state != 0)
+          {
+            trans->setFinal(fin, false);
+          }
+        }
+        transducerLocs[{.left=tok, .right=tok, .mode=Normal}] = make_pair(pattern_start_state, end);
+      }
+      else
+      {
+        trans->minimize();
+      }
     }
     else
     {
@@ -906,7 +984,14 @@ Transducer*
 LexdCompiler::buildTransducer(bool usingFlags)
 {
   token_t start = {.name = internName(" "), .part = 1, .tags = set<string_ref>(), .negtags = set<string_ref>()};
-  if(usingFlags) return buildPatternWithFlags(start);
+  if(usingFlags)
+  {
+    if(shouldHypermin)
+    {
+      hyperminTrans = new Transducer();
+    }
+    return buildPatternWithFlags(start);
+  }
   else return buildPattern(start);
 }
 
@@ -1119,6 +1204,35 @@ LexdCompiler::encodeFlag(UnicodeString& str, int flag)
     str += letters[num % 26];
     num /= 26;
   }
+}
+
+trans_sym_t
+LexdCompiler::getFlag(FlagDiacriticType type, unsigned int flag, unsigned int value)
+{
+  UnicodeString flagstr = "@";
+  switch(type)
+  {
+    case Unification:
+      flagstr += "U."; break;
+    case Positive:
+      flagstr += "P."; break;
+    case Negative:
+      flagstr += "N."; break;
+    case Require:
+      flagstr += "R."; break;
+    case Disallow:
+      flagstr += "D."; break;
+    case Clear:
+      flagstr += "C."; break;
+  }
+  encodeFlag(flagstr, (int)flag);
+  if(type != Clear)
+  {
+    flagstr += ".";
+    encodeFlag(flagstr, (int)value);
+  }
+  flagstr += "@";
+  return alphabet_lookup(flagstr);
 }
 
 trans_sym_t
