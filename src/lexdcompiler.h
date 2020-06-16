@@ -65,8 +65,15 @@ template<typename T>
 set<T> unionset(const set<T> &xs, const set<T> &ys)
 {
   set<T> u = xs;
-  u.insert(ys.begin(), ys.end());
+  unionset_inplace(xs, ys);
   return u;
+}
+
+template<typename T>
+void unionset_inplace(set<T> &xs, const set<T> &ys)
+{
+  xs.insert(ys.begin(), ys.end());
+  return;
 }
 
 template<typename T>
@@ -83,24 +90,47 @@ template<typename T>
 set<T> subtractset(const set<T> &xs, const set<T> &ys)
 {
   set<T> i = xs;
-  for(auto y: ys)
-    i.erase(y);
+  subtractset_inplace(i, ys);
   return i;
+}
+
+template<typename T>
+void subtractset_inplace(set<T> &xs, const set<T> &ys)
+{
+  for(const auto &y: ys)
+    xs.erase(y);
 }
 
 struct lex_token_t;
 
+typedef set<string_ref> tags_t;
+
+struct tag_filter_t {
+  tags_t pos, neg;
+  bool operator<(const tag_filter_t &t) const
+  {
+    return pos < t.pos || (pos == t.pos && neg < t.neg);
+  }
+  bool operator==(const tag_filter_t &t) const
+  {
+    return pos == t.pos && neg == t.neg;
+  }
+  bool compatible(const tags_t &tags) const;
+  bool applicable(const tags_t &tags) const;
+  bool try_apply(tags_t &tags) const;
+};
+
 struct token_t {
   string_ref name;
   unsigned int part;
-  set<string_ref> tags, negtags;
+  tag_filter_t tag_filter;
   bool operator<(const token_t &t) const
   {
-    return name < t.name || (name == t.name &&  part < t.part) || (name == t.name && part == t.part && tags < t.tags) || (name == t.name && part == t.part && tags == t.tags && negtags < t.negtags);
+    return name < t.name || (name == t.name &&  part < t.part) || (name == t.name && part == t.part && tag_filter < t.tag_filter);
   }
   bool operator==(const token_t &t) const
   {
-    return name == t.name && part == t.part && tags == t.tags && negtags == t.negtags;
+    return name == t.name && part == t.part && tag_filter == t.tag_filter;
   }
   bool compatible(const lex_token_t &tok) const;
 };
@@ -119,7 +149,7 @@ struct trans_sym_t {
 
 struct lex_token_t {
   vector<trans_sym_t> symbols;
-  set<string_ref> tags;
+  tags_t tags;
   bool operator ==(const lex_token_t &other) const { return symbols == other.symbols && tags == other.tags; }
 };
 
@@ -185,7 +215,7 @@ private:
   bool inLex;
   bool inPat;
   vector<entry_t> currentLexicon;
-  set<string_ref> currentLexicon_tags_left, currentLexicon_tags_right;
+  tags_t currentLexicon_tags_left, currentLexicon_tags_right;
   string_ref currentLexiconId;
   unsigned int currentLexiconPartCount;
   string_ref currentPatternId;
@@ -203,7 +233,8 @@ private:
   string_ref internName(const UnicodeString& name);
   string_ref checkName(UnicodeString& name);
   RepeatMode readModifier(char_iter& iter);
-  void readTags(char_iter& iter, UnicodeString& line, set<string_ref>* tags, set<string_ref>* negtags);
+  tag_filter_t readTagFilter(char_iter& iter, UnicodeString& line);
+  tags_t readTags(char_iter& iter, UnicodeString& line);
   lex_seg_t processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
   token_t readToken(char_iter& iter, UnicodeString& line);
   pattern_element_t readPatternElement(char_iter& iter, UnicodeString& line);

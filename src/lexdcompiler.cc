@@ -6,9 +6,25 @@ using namespace std;
 
 void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t> &alternation);
 
+bool tag_filter_t::compatible(const tags_t &tags) const
+{
+  return subset(pos, tags) && intersectset(neg, tags).empty();
+}
+bool tag_filter_t::applicable(const tags_t &tags) const
+{
+  return subset(neg, tags);
+}
+bool tag_filter_t::try_apply(tags_t &tags) const
+{
+  if(!applicable(tags))
+    return false;
+  subtractset_inplace(tags, neg);
+  unionset_inplace(tags, pos);
+  return true;
+}
 bool token_t::compatible(const lex_token_t &tok) const
 {
-  return name.empty() || (subset(tags, tok.tags) && intersectset(negtags, tok.tags).empty());
+  return name.empty() || tag_filter.compatible(tok.tags);
 }
 const UnicodeString &LexdCompiler::name(string_ref r) const
 {
@@ -42,14 +58,14 @@ LexdCompiler::LexdCompiler()
 
   left_sieve_name = internName("<");
   token_t lsieve_tok = {.name=left_sieve_name, .part=1,
-                        .tags=set<string_ref>(), .negtags=set<string_ref>()};
+                        .tag_filter=tag_filter_t()};
   pattern_element_t lsieve_elem = {.left=lsieve_tok, .right=lsieve_tok,
                                    .mode=Normal};
   left_sieve_tok = vector<pattern_element_t>(1, lsieve_elem);
 
   right_sieve_name = internName(">");
   token_t rsieve_tok = {.name=right_sieve_name, .part=1,
-                        .tags=set<string_ref>(), .negtags=set<string_ref>()};
+                        .tag_filter=tag_filter_t()};
   pattern_element_t rsieve_elem = {.left=rsieve_tok, .right=rsieve_tok,
                                    .mode=Normal};
   right_sieve_tok = vector<pattern_element_t>(1, rsieve_elem);
@@ -115,9 +131,21 @@ LexdCompiler::checkName(UnicodeString& name)
   return internName(name);
 }
 
-void
-LexdCompiler::readTags(char_iter& iter, UnicodeString& line, set<string_ref>* tags, set<string_ref>* negtags)
+tags_t
+LexdCompiler::readTags(char_iter &iter, UnicodeString &line)
 {
+  tag_filter_t filter = readTagFilter(iter, line);
+  if(filter.neg.empty())
+    return filter.pos;
+  else
+     die(L"Cannot declare negative tag in lexicon");
+  return tags_t();
+}
+
+tag_filter_t
+LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
+{
+  tag_filter_t tag_filter;
   auto tag_start = (++iter).span();
   bool tag_nonempty = false;
   bool negative = false;
@@ -128,20 +156,18 @@ LexdCompiler::readTags(char_iter& iter, UnicodeString& line, set<string_ref>* ta
       if(!tag_nonempty)
         die(L"Empty tag at char " + to_wstring(iter.span().first));
       UnicodeString s = line.tempSubStringBetween(tag_start.first, iter.span().first);
-      (negative ? negtags : tags)->insert(checkName(s));
+      (negative ? tag_filter.neg : tag_filter.pos).insert(checkName(s));
       tag_nonempty = false;
       negative = false;
       if(*iter == "]")
       {
         iter++;
-        return;
+        return tag_filter;
       }
     }
     else if(!tag_nonempty && *iter == "-")
     {
       negative = true;
-      if(negtags == NULL)
-        die(L"Cannot declare negative tag in lexicon (u16 " + to_wstring(iter.span().first) + L")");
     }
     else if(!tag_nonempty)
     {
@@ -150,6 +176,7 @@ LexdCompiler::readTags(char_iter& iter, UnicodeString& line, set<string_ref>* ta
     }
   }
   die(L"End of line in tag list, expected ']'");
+  return tag_filter_t();
 }
 
 lex_seg_t
@@ -158,7 +185,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
   lex_seg_t seg;
   bool inleft = true;
   bool left_tags_applied = false, right_tags_applied = false;
-  set<string_ref> left_negtags, right_negtags;
+  tag_filter_t left_tags, right_tags;
   if((*iter).startsWith(" "))
   {
     if((*iter).length() > 1)
@@ -179,12 +206,11 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
       break;
     else if(*iter == "[")
     {
-      auto &tags = inleft ? seg.left.tags : seg.right.tags;
       auto &tags_applied = inleft ? left_tags_applied : right_tags_applied;
-      auto &negtags = inleft ? left_negtags : right_negtags;
+      auto &tags = inleft ? left_tags : right_tags;
       if(tags_applied)
         die(L"Already provided tag list for this side.");
-      readTags(iter, line, &tags, &negtags);
+      tags = readTagFilter(iter, line);
       --iter;
       tags_applied = true;
     }
@@ -220,18 +246,27 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
   if(inleft)
   {
     seg.right = seg.left;
-    right_negtags = left_negtags;
+    right_tags = left_tags;
   }
 
-  if(!subset(left_negtags, currentLexicon_tags_left))
-    die(L"Negative tag on left side has no default to unset.");
-  else
-    seg.left.tags = unionset(seg.left.tags, subtractset(currentLexicon_tags_left, left_negtags));
+  seg.left.tags = currentLexicon_tags_left;
+  seg.right.tags = currentLexicon_tags_right;
 
-  if(!subset(right_negtags, currentLexicon_tags_right))
+  if(!left_tags.try_apply(seg.left.tags))
+  {
+    tags_t diff = subtractset(left_tags.neg, seg.left.tags);
+    for(string_ref t: diff)
+      wcerr << L"Bad tag '-" << to_wstring(name(t)) << L"'" << endl;
+    die(L"Negative tag on left side has no default to unset.");
+  }
+
+  if(!right_tags.try_apply(seg.right.tags))
+  {
+    tags_t diff = subtractset(right_tags.neg, seg.right.tags);
+    for(string_ref t: diff)
+      wcerr << L"Bad tag '-" << to_wstring(name(t)) << L"'" << endl;
     die(L"Negative tag on right side has no default to unset.");
-  else
-    seg.right.tags = unionset(seg.right.tags, subtractset(currentLexicon_tags_right, right_negtags));
+  }
   return seg;
 }
 
@@ -249,7 +284,7 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
   if(name.length() == 0)
     die(L"Symbol '" + to_wstring(*iter) + L"' without lexicon name at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
 
-  set<string_ref> tags, negtags;
+  tag_filter_t tag_filter;
   unsigned int part = 1;
   if(*iter == "(")
   {
@@ -269,10 +304,10 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
   }
   if(*iter == "[")
   {
-    readTags(iter, line, &tags, &negtags);
+    tag_filter = readTagFilter(iter, line);
   }
 
-  return token_t {.name = internName(name), .part = part, .tags = tags, .negtags = negtags};
+  return token_t {.name = internName(name), .part = part, .tag_filter = tag_filter};
 }
 
 RepeatMode
@@ -416,8 +451,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       }
       ++iter;
       alternation.push_back({
-        .left={.name=currentLexiconId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
-        .right={.name=currentLexiconId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
+        .left={.name=currentLexiconId, .part=1, .tag_filter=tag_filter_t()},
+        .right={.name=currentLexiconId, .part=1, .tag_filter=tag_filter_t()},
         .mode=readModifier(iter)
       });
       --iter;
@@ -442,8 +477,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       }
       ++iter;
       alternation.push_back({
-        .left={.name=currentPatternId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
-        .right={.name=currentPatternId, .part=1, .tags=set<string_ref>(), .negtags=set<string_ref>()},
+        .left={.name=currentPatternId, .part=1, .tag_filter=tag_filter_t()},
+        .right={.name=currentPatternId, .part=1, .tag_filter=tag_filter_t()},
         .mode=readModifier(iter)
       });
       --iter;
@@ -544,14 +579,14 @@ LexdCompiler::processNextLine()
     {
       UnicodeString tags = name.tempSubString(name.indexOf('['));
       auto c = char_iter(tags);
-      readTags(c, tags, &currentLexicon_tags_left, NULL);
+      currentLexicon_tags_left = readTags(c, tags);
       if(c == c.end())
         currentLexicon_tags_right = currentLexicon_tags_left;
       else if(*c == ":")
       {
         ++c;
         if(*c == "[")
-          readTags(c, tags, &currentLexicon_tags_right, NULL);
+          currentLexicon_tags_right = readTags(c, tags);
 	else
           die(L"Expected start of default right tags '[' after ':'.");
       }
@@ -801,11 +836,11 @@ LexdCompiler::buildPattern(const token_t &tok)
         auto pat = pat_untagged;
         for(auto &pair: pat.second)
         {
-          pair.left.negtags.insert(tok.negtags.begin(), tok.negtags.end());
-          pair.right.negtags.insert(tok.negtags.begin(), tok.negtags.end());
+          pair.left.tag_filter.neg.insert(tok.tag_filter.neg.begin(), tok.tag_filter.neg.end());
+          pair.right.tag_filter.neg.insert(tok.tag_filter.neg.begin(), tok.tag_filter.neg.end());
         }
-        pat.second[i].left.tags.insert(tok.tags.begin(), tok.tags.end());
-        pat.second[i].right.tags.insert(tok.tags.begin(), tok.tags.end());
+        pat.second[i].left.tag_filter.pos.insert(tok.tag_filter.pos.begin(), tok.tag_filter.pos.end());
+        pat.second[i].right.tag_filter.pos.insert(tok.tag_filter.pos.begin(), tok.tag_filter.pos.end());
 
         matchedParts.clear();
         lineNumber = pat.first;
@@ -840,7 +875,7 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
       lineNumber = pat.first;
       vector<int> is_free = determineFreedom(pat.second);
       bool got_non_null = false;
-      unsigned int count = (tok.tags.size() > 0 ? pat.second.size() : 1);
+      unsigned int count = (tok.tag_filter.pos.size() > 0 ? pat.second.size() : 1);
       for(unsigned int idx = 0; idx < count; idx++)
       {
         int state = trans->getInitial();
@@ -864,11 +899,11 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
 
           if(i == idx)
           {
-            cur.left.tags.insert(tok.tags.begin(), tok.tags.end());
-            cur.right.tags.insert(tok.tags.begin(), tok.tags.end());
+            cur.left.tag_filter.pos.insert(tok.tag_filter.pos.begin(), tok.tag_filter.pos.end());
+            cur.right.tag_filter.pos.insert(tok.tag_filter.pos.begin(), tok.tag_filter.pos.end());
           }
-          cur.left.negtags.insert(tok.negtags.begin(), tok.negtags.end());
-          cur.right.negtags.insert(tok.negtags.begin(), tok.negtags.end());
+          cur.left.tag_filter.neg.insert(tok.tag_filter.neg.begin(), tok.tag_filter.neg.end());
+          cur.right.tag_filter.neg.insert(tok.tag_filter.neg.begin(), tok.tag_filter.neg.end());
 
           Transducer* t;
           if(isLexiconToken(cur))
@@ -952,7 +987,7 @@ LexdCompiler::readFile(UFILE* infile)
 Transducer*
 LexdCompiler::buildTransducer(bool usingFlags)
 {
-  token_t start = {.name = internName(" "), .part = 1, .tags = set<string_ref>(), .negtags = set<string_ref>()};
+  token_t start = {.name = internName(" "), .part = 1, .tag_filter=tag_filter_t()};
   if(usingFlags) return buildPatternWithFlags(start);
   else return buildPattern(start);
 }
@@ -1209,14 +1244,14 @@ vector<trans_sym_t>
 LexdCompiler::getSelectorFlags(token_t& tok)
 {
   vector<trans_sym_t> flags;
-  for(auto tag : tok.tags)
+  for(auto tag : tok.tag_filter.pos)
   {
     UnicodeString flag = "@P.";
     encodeFlag(flag, (int)tag.i);
     flag += ".YES@";
     flags.push_back(alphabet_lookup(flag));
   }
-  for(auto tag : tok.negtags)
+  for(auto tag : tok.tag_filter.neg)
   {
     UnicodeString flag = "@P.";
     encodeFlag(flag, (int)tag.i);
