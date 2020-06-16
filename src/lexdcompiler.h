@@ -105,6 +105,21 @@ struct lex_token_t;
 
 typedef set<string_ref> tags_t;
 
+struct tag_filter_t {
+  tags_t pos, neg;
+  bool operator<(const tag_filter_t &t) const
+  {
+    return pos < t.pos || (pos == t.pos && neg < t.neg);
+  }
+  bool operator==(const tag_filter_t &t) const
+  {
+    return pos == t.pos && neg == t.neg;
+  }
+  bool compatible(const tags_t &tags) const;
+  bool applicable(const tags_t &tags) const;
+  bool try_apply(tags_t &tags) const;
+};
+
 struct token_t {
   string_ref name;
   unsigned int part;
@@ -158,33 +173,33 @@ enum RepeatMode
 
 struct pattern_element_t {
   token_t left, right;
-  tags_t tags, negtags;
+  tag_filter_t tag_filter;
   RepeatMode mode;
 
   bool operator<(const pattern_element_t& o) const
   {
-    return left < o.left || (left == o.left && right < o.right) || (left == o.left && right == o.right && mode < o.mode) || (left == o.left && right == o.right && mode == o.mode && tags < o.tags) || (left == o.left && right == o.right && mode == o.mode && tags == o.tags && negtags < o.negtags);
+    return left < o.left || (left == o.left && right < o.right) || (left == o.left && right == o.right && mode < o.mode) || (left == o.left && right == o.right && mode == o.mode && tag_filter < o.tag_filter);
   }
 
   bool operator==(const pattern_element_t& o) const
   {
-    return left == o.left && right == o.right && mode == o.mode && tags == o.tags && negtags == o.negtags;
+    return left == o.left && right == o.right && mode == o.mode && tag_filter == o.tag_filter;
   }
 
   bool compatible(const lex_seg_t &tok) const;
 
   void addTags(const pattern_element_t& tok)
   {
-    tags.insert(tok.tags.begin(), tok.tags.end());
+    tag_filter.pos.insert(tok.tag_filter.pos.begin(), tok.tag_filter.pos.end());
   }
   void addNegTags(const pattern_element_t& tok)
   {
-    negtags.insert(tok.negtags.begin(), tok.negtags.end());
+    tag_filter.neg.insert(tok.tag_filter.neg.begin(), tok.tag_filter.neg.end());
   }
   void clearTags()
   {
-    tags.clear();
-    negtags.clear();
+    tag_filter.pos.clear();
+    tag_filter.neg.clear();
   }
 };
 
@@ -251,7 +266,8 @@ private:
   string_ref internName(const UnicodeString& name);
   string_ref checkName(UnicodeString& name);
   RepeatMode readModifier(char_iter& iter);
-  void readTags(char_iter& iter, UnicodeString& line, tags_t* tags, tags_t* negtags);
+  tag_filter_t readTagFilter(char_iter& iter, UnicodeString& line);
+  tags_t readTags(char_iter& iter, UnicodeString& line);
   lex_seg_t processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
   token_t readToken(char_iter& iter, UnicodeString& line);
   pattern_element_t readPatternElement(char_iter& iter, UnicodeString& line);
@@ -271,8 +287,8 @@ private:
   trans_sym_t alphabet_lookup(const UnicodeString &symbol);
   trans_sym_t alphabet_lookup(trans_sym_t l, trans_sym_t r);
 
-  int insertPreTags(Transducer* t, int state, tags_t& tags, tags_t& negtags);
-  int insertPostTags(Transducer* t, int state, tags_t& tags, tags_t& negtags);
+  int insertPreTags(Transducer* t, int state, tag_filter_t &tags);
+  int insertPostTags(Transducer* t, int state, tag_filter_t &tags);
   void encodeFlag(UnicodeString& str, int flag);
   trans_sym_t getFlag(FlagDiacriticType type, string_ref flag, unsigned int value);
   Transducer* getLexiconTransducerWithFlags(pattern_element_t& tok, bool free);
