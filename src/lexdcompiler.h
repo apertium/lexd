@@ -100,7 +100,7 @@ struct token_t {
   }
   bool operator==(const token_t &t) const
   {
-    return name == t.name && part == t.part && tags == t.tags;
+    return name == t.name && part == t.part && tags == t.tags && negtags == t.negtags;
   }
   bool compatible(const lex_token_t &tok) const;
 };
