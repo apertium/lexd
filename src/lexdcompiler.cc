@@ -1123,7 +1123,10 @@ LexdCompiler::buildTransducer(bool usingFlags)
     {
       hyperminTrans = new Transducer();
     }
-    return buildPatternWithFlags(start);
+    Transducer *t = buildPatternWithFlags(start);
+    if(shouldHypermin)
+      t->minimize();
+    return t;
   }
   else return buildPattern(start);
 }
