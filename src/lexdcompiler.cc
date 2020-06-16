@@ -1006,9 +1006,7 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok, int pattern_start_state 
           {
             t = buildPatternWithFlags(cur.left);
           }
-	  if(t && t->hasNoFinals())
-	    t = NULL;
-          if(t == NULL)
+          if(t == NULL || t->hasNoFinals())
           {
             got_null = true;
             break;
@@ -1086,7 +1084,12 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok, int pattern_start_state 
     }
     else
     {
-      trans = NULL;
+      if(!shouldHypermin)
+        trans = NULL;
+      else
+      {
+        wcerr << "FIXME" << endl;
+      }
     }
     patternTransducers[tok] = trans;
   }
