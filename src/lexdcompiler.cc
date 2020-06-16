@@ -705,12 +705,16 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
   }
   else
   {
-    int new_state = t->insertTransducer(state, *buildPattern(tok.left));
-    if(tok.mode & Optional)
-      t->linkStates(state, new_state, 0);
-    if(tok.mode & Repeated)
-      t->linkStates(new_state, state, 0);
-    buildPattern(new_state, t, pat, is_free, pos+1);
+    Transducer *p = buildPattern(tok.left);
+    if(p)
+    {
+      int new_state = t->insertTransducer(state, *p);
+      if(tok.mode & Optional)
+        t->linkStates(state, new_state, 0);
+      if(tok.mode & Repeated)
+        t->linkStates(new_state, state, 0);
+      buildPattern(new_state, t, pat, is_free, pos+1);
+    }
     return;
   }
 }
@@ -770,8 +774,11 @@ LexdCompiler::buildPattern(const token_t &tok)
       }
     }
     tempMatch.swap(matchedParts);
-    t->minimize();
-    patternTransducers[tok] = t;
+    if(!t->hasNoFinals())
+    {
+      t->minimize();
+      patternTransducers[tok] = t;
+    }
   }
   else if(patternTransducers[tok] == NULL)
   {

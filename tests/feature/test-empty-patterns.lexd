@@ -1,0 +1,13 @@
+PATTERNS
+Case[t]
+Case[s] # comment to get the correct answer
+
+LEXICON Obl
+<suff>
+
+LEXICON OblCase
+<case>[t]
+
+PATTERN Case
+Obl OblCase
+
