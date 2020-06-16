@@ -18,6 +18,7 @@ void endProgram(char *name)
     cout << "   -c, --compress:   condense labels (prefer a:b to 0:b a:0 - sets --align)" << endl;
     cout << "   -f, --flags:      compile using flag diacritics" << endl;
     cout << "   -m, --minimize:   do hyperminimization (sets -f)" << endl;
+    cout << "   -t, --tags:       compile tags and filters with flag diacritics (sets -f)" << endl;
     cout << "   -x, --statistics: print lexicon and pattern sizes to stderr" << endl;
   }
   exit(EXIT_FAILURE);
@@ -48,13 +49,14 @@ int main(int argc, char *argv[])
       {"flags",     no_argument, 0, 'f'},
       {"help",      no_argument, 0, 'h'},
       {"minimize",  no_argument, 0, 'm'},
+      {"tags",      no_argument, 0, 't'},
       {"statistics",no_argument, 0, 'x'},
       {0, 0, 0, 0}
     };
 
-    int cnt=getopt_long(argc, argv, "abcfhmx", long_options, &option_index);
+    int cnt=getopt_long(argc, argv, "abcfhmtx", long_options, &option_index);
 #else
-    int cnt=getopt(argc, argv, "abcfhmx");
+    int cnt=getopt(argc, argv, "abcfhmtx");
 #endif
     if (cnt==-1)
       break;
@@ -81,6 +83,11 @@ int main(int argc, char *argv[])
       case 'm':
         flags = true;
         comp.setShouldHypermin(true);
+        break;
+
+      case 't':
+        flags = true;
+        comp.setTagsAsFlags(true);
         break;
 
       case 'x':

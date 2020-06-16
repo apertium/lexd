@@ -237,11 +237,10 @@ private:
   trans_sym_t alphabet_lookup(const UnicodeString &symbol);
   trans_sym_t alphabet_lookup(trans_sym_t l, trans_sym_t r);
 
+  int insertPreTags(Transducer* t, int state, set<string_ref>& tags, set<string_ref>& negtags, bool isLeft);
+  int insertPostTags(Transducer* t, int state, set<string_ref>& tags, set<string_ref>& negtags, bool isLeft);
   void encodeFlag(UnicodeString& str, int flag);
-  trans_sym_t getFlag(FlagDiacriticType type, unsigned int flag, unsigned int value);
-  trans_sym_t getFlagSymbol(string_ref lexicon, unsigned int entry_index);
-  vector<trans_sym_t> getEntryFlags(lex_token_t& tok);
-  vector<trans_sym_t> getSelectorFlags(token_t& tok);
+  trans_sym_t getFlag(FlagDiacriticType type, string_ref flag, unsigned int value, bool isLeftTag = false);
   Transducer* getLexiconTransducerWithFlags(pattern_element_t& tok, bool free);
 
 public:
@@ -255,6 +254,10 @@ public:
   void setShouldCompress(bool val)
   {
     shouldCompress = val;
+  }
+  void setTagsAsFlags(bool val)
+  {
+    tagsAsFlags = val;
   }
   void setShouldHypermin(bool val)
   {
