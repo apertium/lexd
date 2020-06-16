@@ -4,22 +4,35 @@
 using namespace icu;
 using namespace std;
 
+bool tag_filter_t::combinable(const tag_filter_t &other) const
+{
+  return intersectset(pos(), other.neg()).empty() && intersectset(other.pos(), neg()).empty();
+}
+bool tag_filter_t::combine(const tag_filter_t &other)
+{
+  if(!combinable(other))
+    return false;
+  unionset_inplace(_pos, other._pos);
+  unionset_inplace(_neg, other._neg);
+  return true;
+}
+
 void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t> &alternation);
 
 bool tag_filter_t::compatible(const tags_t &tags) const
 {
-  return subset(pos, tags) && intersectset(neg, tags).empty();
+  return subset(pos(), tags) && intersectset(neg(), tags).empty();
 }
 bool tag_filter_t::applicable(const tags_t &tags) const
 {
-  return subset(neg, tags);
+  return subset(neg(), tags);
 }
 bool tag_filter_t::try_apply(tags_t &tags) const
 {
   if(!applicable(tags))
     return false;
-  subtractset_inplace(tags, neg);
-  unionset_inplace(tags, pos);
+  subtractset_inplace(tags, neg());
+  unionset_inplace(tags, pos());
   return true;
 }
 bool token_t::compatible(const lex_token_t &tok) const
@@ -135,8 +148,8 @@ tags_t
 LexdCompiler::readTags(char_iter &iter, UnicodeString &line)
 {
   tag_filter_t filter = readTagFilter(iter, line);
-  if(filter.neg.empty())
-    return filter.pos;
+  if(filter.neg().empty())
+    return tags_t((set<string_ref>)filter.pos());
   else
      die(L"Cannot declare negative tag in lexicon");
   return tags_t();
@@ -156,7 +169,11 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
       if(!tag_nonempty)
         die(L"Empty tag at char " + to_wstring(iter.span().first));
       UnicodeString s = line.tempSubStringBetween(tag_start.first, iter.span().first);
-      (negative ? tag_filter.neg : tag_filter.pos).insert(checkName(s));
+      if(!tag_filter.combine(
+        negative ? tag_filter_t(neg_tag_filter_t {checkName(s)})
+                 : tag_filter_t(pos_tag_filter_t {checkName(s)})
+      ))
+        die(L"Illegal tag filter.");
       tag_nonempty = false;
       negative = false;
       if(*iter == "]")
@@ -254,7 +271,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
 
   if(!left_tags.try_apply(seg.left.tags))
   {
-    tags_t diff = subtractset(left_tags.neg, seg.left.tags);
+    set<string_ref> diff = subtractset(left_tags.neg(), seg.left.tags);
     for(string_ref t: diff)
       wcerr << L"Bad tag '-" << to_wstring(name(t)) << L"'" << endl;
     die(L"Negative tag on left side has no default to unset.");
@@ -262,7 +279,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
 
   if(!right_tags.try_apply(seg.right.tags))
   {
-    tags_t diff = subtractset(right_tags.neg, seg.right.tags);
+    set<string_ref> diff = subtractset(right_tags.neg(), seg.right.tags);
     for(string_ref t: diff)
       wcerr << L"Bad tag '-" << to_wstring(name(t)) << L"'" << endl;
     die(L"Negative tag on right side has no default to unset.");
@@ -587,7 +604,7 @@ LexdCompiler::processNextLine()
         ++c;
         if(*c == "[")
           currentLexicon_tags_right = readTags(c, tags);
-	else
+        else
           die(L"Expected start of default right tags '[' after ':'.");
       }
       if(c != c.end())
@@ -836,11 +853,15 @@ LexdCompiler::buildPattern(const token_t &tok)
         auto pat = pat_untagged;
         for(auto &pair: pat.second)
         {
-          pair.left.tag_filter.neg.insert(tok.tag_filter.neg.begin(), tok.tag_filter.neg.end());
-          pair.right.tag_filter.neg.insert(tok.tag_filter.neg.begin(), tok.tag_filter.neg.end());
+          if(!pair.left.tag_filter.combine(tok.tag_filter.neg()))
+            die(L"Incompatible tag filters.");
+          if(!pair.right.tag_filter.combine(tok.tag_filter.neg()))
+            die(L"Incompatible tag filters.");
         }
-        pat.second[i].left.tag_filter.pos.insert(tok.tag_filter.pos.begin(), tok.tag_filter.pos.end());
-        pat.second[i].right.tag_filter.pos.insert(tok.tag_filter.pos.begin(), tok.tag_filter.pos.end());
+        if(!pat.second[i].left.tag_filter.combine(tok.tag_filter.pos()))
+          die(L"Incompatible tag filters.");
+        if(!pat.second[i].right.tag_filter.combine(tok.tag_filter.pos()))
+          die(L"Incompatible tag filters.");
 
         matchedParts.clear();
         lineNumber = pat.first;
@@ -875,7 +896,7 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
       lineNumber = pat.first;
       vector<int> is_free = determineFreedom(pat.second);
       bool got_non_null = false;
-      unsigned int count = (tok.tag_filter.pos.size() > 0 ? pat.second.size() : 1);
+      unsigned int count = (tok.tag_filter.pos().size() > 0 ? pat.second.size() : 1);
       for(unsigned int idx = 0; idx < count; idx++)
       {
         int state = trans->getInitial();
@@ -899,11 +920,15 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok)
 
           if(i == idx)
           {
-            cur.left.tag_filter.pos.insert(tok.tag_filter.pos.begin(), tok.tag_filter.pos.end());
-            cur.right.tag_filter.pos.insert(tok.tag_filter.pos.begin(), tok.tag_filter.pos.end());
+            if(!cur.left.tag_filter.combine(tok.tag_filter.pos()))
+              die(L"Incompatible tag filters.");
+            if(!cur.right.tag_filter.combine(tok.tag_filter.pos()))
+              die(L"Incompatible tag filters.");
           }
-          cur.left.tag_filter.neg.insert(tok.tag_filter.neg.begin(), tok.tag_filter.neg.end());
-          cur.right.tag_filter.neg.insert(tok.tag_filter.neg.begin(), tok.tag_filter.neg.end());
+          if(!cur.left.tag_filter.combine(tok.tag_filter.neg()))
+            die(L"Incompatible tag filters.");
+          if(!cur.right.tag_filter.combine(tok.tag_filter.neg()))
+            die(L"Incompatible tag filters.");
 
           Transducer* t;
           if(isLexiconToken(cur))
@@ -1244,14 +1269,14 @@ vector<trans_sym_t>
 LexdCompiler::getSelectorFlags(token_t& tok)
 {
   vector<trans_sym_t> flags;
-  for(auto tag : tok.tag_filter.pos)
+  for(auto tag : tok.tag_filter.pos())
   {
     UnicodeString flag = "@P.";
     encodeFlag(flag, (int)tag.i);
     flag += ".YES@";
     flags.push_back(alphabet_lookup(flag));
   }
-  for(auto tag : tok.tag_filter.neg)
+  for(auto tag : tok.tag_filter.neg())
   {
     UnicodeString flag = "@P.";
     encodeFlag(flag, (int)tag.i);
