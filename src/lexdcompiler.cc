@@ -1006,7 +1006,7 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok, int pattern_start_state 
           {
             t = buildPatternWithFlags(cur.left);
           }
-          if(t == NULL || t->hasNoFinals())
+          if(t == NULL || (!shouldHypermin && t->hasNoFinals()))
           {
             got_null = true;
             break;
