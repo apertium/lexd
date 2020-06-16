@@ -103,21 +103,46 @@ void subtractset_inplace(set<T> &xs, const set<T> &ys)
 
 struct lex_token_t;
 
-typedef set<string_ref> tags_t;
+class tags_t : public set<string_ref>
+{
+  using set<string_ref>::set;
+  public:
+  tags_t(const set<string_ref> &s) : set(s) { }
+};
+class pos_tag_filter_t : public set<string_ref>
+{
+  using set<string_ref>::set;
+};
+class neg_tag_filter_t : public set<string_ref>
+{
+  using set<string_ref>::set;
+};
 
 struct tag_filter_t {
-  tags_t pos, neg;
+  tag_filter_t() = default;
+  tag_filter_t(const pos_tag_filter_t &pos) : _pos(pos) {}
+  tag_filter_t(const neg_tag_filter_t &neg) : _neg(neg) {}
   bool operator<(const tag_filter_t &t) const
   {
-    return pos < t.pos || (pos == t.pos && neg < t.neg);
+    return _pos < t._pos || (_pos == t._pos && _neg < t._neg);
   }
   bool operator==(const tag_filter_t &t) const
   {
-    return pos == t.pos && neg == t.neg;
+    return _pos == t._pos && _neg == t._neg;
   }
   bool compatible(const tags_t &tags) const;
+  bool combinable(const tag_filter_t &other) const;
   bool applicable(const tags_t &tags) const;
   bool try_apply(tags_t &tags) const;
+  const pos_tag_filter_t &pos() const { return _pos; }
+  const neg_tag_filter_t &neg() const { return _neg; }
+  const tags_t tags() { return unionset(tags_t(_pos), tags_t(_neg)); }
+
+  bool combine(const tag_filter_t &other);
+
+  private:
+  pos_tag_filter_t _pos;
+  neg_tag_filter_t _neg;
 };
 
 struct token_t {
@@ -188,19 +213,6 @@ struct pattern_element_t {
 
   bool compatible(const lex_seg_t &tok) const;
 
-  void addTags(const pattern_element_t& tok)
-  {
-    tag_filter.pos.insert(tok.tag_filter.pos.begin(), tok.tag_filter.pos.end());
-  }
-  void addNegTags(const pattern_element_t& tok)
-  {
-    tag_filter.neg.insert(tok.tag_filter.neg.begin(), tok.tag_filter.neg.end());
-  }
-  void clearTags()
-  {
-    tag_filter.pos.clear();
-    tag_filter.neg.clear();
-  }
 };
 
 typedef vector<pattern_element_t> pattern_t;

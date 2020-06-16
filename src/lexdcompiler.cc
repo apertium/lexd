@@ -4,22 +4,35 @@
 using namespace icu;
 using namespace std;
 
+bool tag_filter_t::combinable(const tag_filter_t &other) const
+{
+  return intersectset(pos(), other.neg()).empty() && intersectset(other.pos(), neg()).empty();
+}
+bool tag_filter_t::combine(const tag_filter_t &other)
+{
+  if(!combinable(other))
+    return false;
+  unionset_inplace(_pos, other._pos);
+  unionset_inplace(_neg, other._neg);
+  return true;
+}
+
 void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t> &alternation);
 
 bool tag_filter_t::compatible(const tags_t &tags) const
 {
-  return subset(pos, tags) && intersectset(neg, tags).empty();
+  return subset(pos(), tags) && intersectset(neg(), tags).empty();
 }
 bool tag_filter_t::applicable(const tags_t &tags) const
 {
-  return subset(neg, tags);
+  return subset(neg(), tags);
 }
 bool tag_filter_t::try_apply(tags_t &tags) const
 {
   if(!applicable(tags))
     return false;
-  subtractset_inplace(tags, neg);
-  unionset_inplace(tags, pos);
+  subtractset_inplace(tags, neg());
+  unionset_inplace(tags, pos());
   return true;
 }
 bool pattern_element_t::compatible(const lex_seg_t &tok) const
@@ -135,8 +148,8 @@ tags_t
 LexdCompiler::readTags(char_iter &iter, UnicodeString &line)
 {
   tag_filter_t filter = readTagFilter(iter, line);
-  if(filter.neg.empty())
-    return filter.pos;
+  if(filter.neg().empty())
+    return tags_t((set<string_ref>)filter.pos());
   else
      die(L"Cannot declare negative tag in lexicon");
   return tags_t();
@@ -156,7 +169,11 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
       if(!tag_nonempty)
         die(L"Empty tag at char " + to_wstring(iter.span().first));
       UnicodeString s = line.tempSubStringBetween(tag_start.first, iter.span().first);
-      (negative ? tag_filter.neg : tag_filter.pos).insert(checkName(s));
+      if(!tag_filter.combine(
+        negative ? tag_filter_t(neg_tag_filter_t {checkName(s)})
+                 : tag_filter_t(pos_tag_filter_t {checkName(s)})
+      ))
+        die(L"Illegal tag filter.");
       tag_nonempty = false;
       negative = false;
       if(*iter == "]")
@@ -251,7 +268,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
 
   if(!tags.try_apply(seg.tags))
   {
-    tags_t diff = subtractset(tags.neg, seg.tags);
+    tags_t diff = subtractset(tags.neg(), seg.tags);
     for(string_ref t: diff)
       wcerr << L"Bad tag '-" << to_wstring(name(t)) << L"'" << endl;
     die(L"Negative tag has no default to unset.");
@@ -351,7 +368,7 @@ LexdCompiler::readPatternElement(char_iter& iter, UnicodeString& line)
       {
         if(boundary.indexOf(*iter) == -1)
         {
-          if(!tok.tag_filter.pos.empty() || !tok.tag_filter.neg.empty())
+          if(!tok.tag_filter.pos().empty() || !tok.tag_filter.neg().empty())
           {
             wcerr << L"WARNING: one-sided tags are deprecated and will be removed soon (line " << lineNumber << L")" << endl;
           }
@@ -834,9 +851,11 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
         auto pat = pat_untagged;
         for(auto &pair: pat.second)
         {
-          pair.addNegTags(tok);
+          if(!pair.tag_filter.combine(tok.tag_filter.neg()))
+            die(L"Incompatible tag filters.");
         }
-        pat.second[i].addTags(tok);
+        if(!pat.second[i].tag_filter.combine(tok.tag_filter.pos()))
+          die(L"Incompatible tag filters.");
 
         matchedParts.clear();
         lineNumber = pat.first;
@@ -862,12 +881,12 @@ int
 LexdCompiler::insertPreTags(Transducer* t, int state, tag_filter_t &tags)
 {
   int end = state;
-  for(auto tag : tags.pos)
+  for(auto tag : tags.pos())
   {
     trans_sym_t flag = getFlag(Positive, tag, 1);
     end = t->insertSingleTransduction((int)alphabet_lookup(flag, flag), end);
   }
-  for(auto tag : tags.neg)
+  for(auto tag : tags.neg())
   {
     trans_sym_t flag = getFlag(Positive, tag, 2);
     end = t->insertSingleTransduction((int)alphabet_lookup(flag, flag), end);
@@ -880,7 +899,7 @@ LexdCompiler::insertPostTags(Transducer* t, int state, tag_filter_t &tags)
 {
   int end = 0;
   int flag_dest = 0;
-  for(auto tag : tags.pos)
+  for(auto tag : tags.pos())
   {
     trans_sym_t flag = getFlag(Disallow, tag, 1);
     trans_sym_t clear = getFlag(Clear, tag, 0);
@@ -899,7 +918,7 @@ LexdCompiler::insertPostTags(Transducer* t, int state, tag_filter_t &tags)
   {
     end = state;
   }
-  for(auto tag : tags.neg)
+  for(auto tag : tags.neg())
   {
     trans_sym_t clear = getFlag(Clear, tag, 0);
     end = t->insertSingleTransduction((int)alphabet_lookup(clear, clear), end);
@@ -922,7 +941,7 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
       lineNumber = pat.first;
       vector<int> is_free = determineFreedom(pat.second);
       bool got_non_null = false;
-      unsigned int count = (tok.tag_filter.pos.size() > 0 ? pat.second.size() : 1);
+      unsigned int count = (tok.tag_filter.pos().size() > 0 ? pat.second.size() : 1);
       for(unsigned int idx = 0; idx < count; idx++)
       {
         int state = pattern_start_state;
@@ -954,14 +973,16 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
           vector<tag_filter_t> tags;
           if(i == idx)
           {
-            cur.addTags(tok);
+            if(!cur.tag_filter.combine(tok.tag_filter.pos()))
+              die(L"Incompatible tag filters.");
           }
-          cur.addNegTags(tok);
+          if(!cur.tag_filter.combine(tok.tag_filter.neg()))
+            die(L"Incompatible tag filters.");
           if(tagsAsFlags && isLex)
           {
             state = insertPreTags(trans, state, cur.tag_filter);
             tags.push_back(cur.tag_filter);
-            cur.clearTags();
+            cur.tag_filter = tag_filter_t();
           }
 
           Transducer* t;
@@ -1171,7 +1192,7 @@ LexdCompiler::buildAllLexicons()
   lexiconFreedom[string_ref(0)] = true;
   for(auto tok : lexicons_to_build)
   {
-    tok.clearTags();
+    tok.tag_filter = tag_filter_t();
     tok.mode = Normal;
     bool free = ((tok.left.name.empty() || lexiconFreedom[tok.left.name]) &&
                  (tok.right.name.empty() || lexiconFreedom[tok.right.name]));
@@ -1193,7 +1214,7 @@ LexdCompiler::buildPatternSingleLexicon(pattern_element_t tok, int start_state)
       size_t next_start_idx = 0;
       lineNumber = pattern.first;
       set<string_ref> to_clear;
-      size_t count = (tok.tag_filter.pos.empty() ? 1 : pattern.second.size());
+      size_t count = (tok.tag_filter.pos().empty() ? 1 : pattern.second.size());
       for(size_t tag_idx = 0; tag_idx < count; tag_idx++)
       {
         int state = next_start_state;
@@ -1224,22 +1245,22 @@ LexdCompiler::buildPatternSingleLexicon(pattern_element_t tok, int start_state)
           {
             next_start_state = state;
             next_start_idx = tag_idx;
-            cur.addTags(tok);
+            cur.tag_filter.combine(tok.tag_filter.pos());
           }
-          cur.addNegTags(tok);
+          cur.tag_filter.combine(tok.tag_filter.neg());
 
           int mode_state = state;
 
           if(isLexiconToken(cur))
           {
-            tags_t tags = unionset(cur.tag_filter.pos, cur.tag_filter.neg);
+            tags_t tags = cur.tag_filter.tags();
             for(auto tag : tags)
             {
               trans_sym_t flag = getFlag(Clear, tag, 0);
               state = hyperminTrans->insertSingleTransduction((int)alphabet_lookup(flag, flag), state);
             }
             pattern_element_t untagged = cur;
-            untagged.clearTags();
+            untagged.tag_filter = tag_filter_t();
             untagged.mode = Normal;
             bool free = (lexiconFreedom[cur.left.name] && lexiconFreedom[cur.right.name]);
             if(!free)
@@ -1265,12 +1286,12 @@ LexdCompiler::buildPatternSingleLexicon(pattern_element_t tok, int start_state)
               state = loc.second;
             }
             state = hyperminTrans->insertSingleTransduction((int)alphabet_lookup(outflag, outflag), state);
-            for(auto tag : cur.tag_filter.pos)
+            for(auto tag : cur.tag_filter.pos())
             {
               trans_sym_t flag = getFlag(Require, tag, 1);
               state = hyperminTrans->insertSingleTransduction((int)alphabet_lookup(flag, flag), state);
             }
-            for(auto tag : cur.tag_filter.neg)
+            for(auto tag : cur.tag_filter.neg())
             {
               trans_sym_t flag = getFlag(Disallow, tag, 1);
               state = hyperminTrans->insertSingleTransduction((int)alphabet_lookup(flag, flag), state);
