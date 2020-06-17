@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
 {
   bool bin = false;
   bool flags = false;
+  bool single = false;
   bool stats = false;
   UFILE* input = u_finit(stdin, NULL, NULL);
   FILE* output = stdout;
@@ -49,14 +50,15 @@ int main(int argc, char *argv[])
       {"flags",     no_argument, 0, 'f'},
       {"help",      no_argument, 0, 'h'},
       {"minimize",  no_argument, 0, 'm'},
+      {"single",    no_argument, 0, 's'},
       {"tags",      no_argument, 0, 't'},
       {"statistics",no_argument, 0, 'x'},
       {0, 0, 0, 0}
     };
 
-    int cnt=getopt_long(argc, argv, "abcfhmtx", long_options, &option_index);
+    int cnt=getopt_long(argc, argv, "abcfhmstx", long_options, &option_index);
 #else
-    int cnt=getopt(argc, argv, "abcfhmtx");
+    int cnt=getopt(argc, argv, "abcfhmstx");
 #endif
     if (cnt==-1)
       break;
@@ -83,6 +85,10 @@ int main(int argc, char *argv[])
       case 'm':
         flags = true;
         comp.setShouldHypermin(true);
+        break;
+
+      case 's':
+        single = true;
         break;
 
       case 't':
@@ -144,7 +150,7 @@ int main(int argc, char *argv[])
 
   comp.readFile(input);
   u_fclose(input);
-  Transducer* transducer = comp.buildTransducer(flags);
+  Transducer* transducer = (single ? comp.buildTransducerSingleLexicon() : comp.buildTransducer(flags));
   if(stats)
     comp.printStatistics();
   if(bin)
