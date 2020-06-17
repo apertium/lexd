@@ -34,7 +34,7 @@ trans_sym_t LexdCompiler::alphabet_lookup(trans_sym_t l, trans_sym_t r)
 LexdCompiler::LexdCompiler()
   : shouldAlign(false), shouldCompress(false), tagsAsFlags(false), shouldHypermin(false),
     input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false),
-    anonymousCount(0)
+    anonymousCount(0), transitionCount(0)
 {
   id_to_name.push_back("");
   name_to_id[""] = string_ref(0);
