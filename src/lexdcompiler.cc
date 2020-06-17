@@ -1101,6 +1101,174 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok, int pattern_start_state 
 }
 
 void
+LexdCompiler::buildAllLexicons()
+{
+  // find out if there are any lexicons that we can build without flags
+  vector<pattern_element_t> lexicons_to_build;
+  for(auto pattern : patterns)
+  {
+    for(auto pat : pattern.second)
+    {
+      lineNumber = pat.first;
+      vector<int> free = determineFreedom(pat.second);
+      for(size_t i = 0; i < pat.second.size(); i++)
+      {
+        if(isLexiconToken(pat.second[i]))
+        {
+          pattern_element_t& tok = pat.second[i];
+          if(free[i] == -1)
+          {
+            lexiconFreedom[tok.left.name] = false;
+            lexiconFreedom[tok.right.name] = false;
+          }
+          else
+          {
+            if(lexiconFreedom.find(tok.left.name) == lexiconFreedom.end())
+            {
+              lexiconFreedom[tok.left.name] = true;
+            }
+            if(lexiconFreedom.find(tok.right.name) == lexiconFreedom.end())
+            {
+              lexiconFreedom[tok.right.name] = true;
+            }
+          }
+          lexicons_to_build.push_back(tok);
+        }
+      }
+    }
+  }
+  lexiconFreedom[string_ref(0)] = true;
+  for(auto tok : lexicons_to_build)
+  {
+    tok.clearTags();
+    tok.mode = Normal;
+    bool free = ((tok.left.name.empty() || lexiconFreedom[tok.left.name]) &&
+                 (tok.right.name.empty() || lexiconFreedom[tok.right.name]));
+    getLexiconTransducerWithFlags(tok, free);
+  }
+}
+
+int
+LexdCompiler::buildPatternSingleLexicon(token_t tok, int start_state)
+{
+  if(patternTransducers.find(tok) == patternTransducers.end() || patternTransducers[tok] != NULL)
+  {
+    patternTransducers[tok] = NULL;
+    int end = -1;
+    string_ref transition_flag = internName(" ");
+    for(auto pattern : patterns[tok.name])
+    {
+      int next_start_state = start_state;
+      size_t next_start_idx = 0;
+      lineNumber = pattern.first;
+      size_t count = (tok.tags.empty() ? 1 : pattern.second.size());
+      for(size_t tag_idx = 0; tag_idx < count; tag_idx++)
+      {
+        int state = next_start_state;
+        bool finished = true;
+        for(size_t i = next_start_idx; i < pattern.second.size(); i++)
+        {
+          pattern_element_t cur = pattern.second[i];
+
+          if(cur.left.name == left_sieve_name)
+          {
+            hyperminTrans->linkStates(start_state, state, 0);
+            continue;
+          }
+          else if(cur.left.name == right_sieve_name)
+          {
+            if(end == -1)
+            {
+              end = hyperminTrans->insertNewSingleTransduction(0, state);
+            }
+            else
+            {
+              hyperminTrans->linkStates(state, end, 0);
+            }
+            continue;
+          }
+
+          if(i == tag_idx)
+          {
+            next_start_state = state;
+            next_start_idx = tag_idx;
+            cur.addTags(tok);
+          }
+          cur.addNegTags(tok);
+
+          int mode_state = state;
+
+          if(isLexiconToken(cur))
+          {
+            state = insertPreTags(hyperminTrans, state, cur.left.tags, cur.left.negtags, true);
+            state = insertPreTags(hyperminTrans, state, cur.right.tags, cur.right.negtags, false);
+            pattern_element_t untagged = cur;
+            untagged.clearTags();
+            untagged.mode = Normal;
+            bool free = (lexiconFreedom[cur.left.name] && lexiconFreedom[cur.right.name]);
+            trans_sym_t inflag = getFlag(Positive, transition_flag, transitionCount);
+            trans_sym_t outflag = getFlag(Require, transition_flag, transitionCount);
+            transitionCount++;
+            if(transducerLocs.find(untagged) == transducerLocs.end())
+            {
+              state = hyperminTrans->insertSingleTransduction((int)alphabet_lookup(inflag, inflag), state);
+              Transducer* lex = getLexiconTransducerWithFlags(untagged, free);
+              int start = state;
+              state = hyperminTrans->insertTransducer(state, *lex);
+              transducerLocs[untagged] = make_pair(start, state);
+            }
+            else
+            {
+              auto loc = transducerLocs[untagged];
+              hyperminTrans->linkStates(state, loc.first, (int)alphabet_lookup(inflag, inflag));
+              state = loc.second;
+            }
+            state = hyperminTrans->insertSingleTransduction((int)alphabet_lookup(outflag, outflag), state);
+            state = insertPostTags(hyperminTrans, state, cur.left.tags, cur.left.negtags, true);
+            state = insertPostTags(hyperminTrans, state, cur.right.tags, cur.right.negtags, false);
+          }
+          else
+          {
+            state = buildPatternSingleLexicon(cur.left, state);
+            if(state == -1)
+            {
+              finished = false;
+              break;
+            }
+          }
+
+          if(cur.mode & Optional)
+          {
+            hyperminTrans->linkStates(mode_state, state, 0);
+          }
+          if(cur.mode & Repeated)
+          {
+            hyperminTrans->linkStates(state, mode_state, 0);
+          }
+        }
+        if(finished)
+        {
+          if(end == -1)
+          {
+            end = state;
+          }
+          else
+          {
+            hyperminTrans->linkStates(state, end, 0);
+          }
+        }
+      }
+    }
+    return end;
+  }
+  else
+  {
+    die(L"Cannot compile self-recursive pattern " + to_wstring(name(tok.name)));
+    return 0;
+  }
+}
+
+void
 LexdCompiler::readFile(UFILE* infile)
 {
   input = infile;
@@ -1129,6 +1297,23 @@ LexdCompiler::buildTransducer(bool usingFlags)
     return t;
   }
   else return buildPattern(start);
+}
+
+Transducer*
+LexdCompiler::buildTransducerSingleLexicon()
+{
+  tagsAsFlags = true;
+  token_t start = {.name = internName(" "), .part = 1, .tags = set<string_ref>(), .negtags = set<string_ref>()};
+  hyperminTrans = new Transducer();
+  buildAllLexicons();
+  int end = buildPatternSingleLexicon(start, 0);
+  if(end == -1)
+  {
+    die(L"No non-empty patterns found");
+  }
+  hyperminTrans->setFinal(end);
+  hyperminTrans->minimize();
+  return hyperminTrans;
 }
 
 void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t> &alternation)

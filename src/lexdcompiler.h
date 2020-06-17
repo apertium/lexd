@@ -155,6 +155,24 @@ struct pattern_element_t {
   {
     return left == o.left && right == o.right && mode == o.mode;
   }
+
+  void addTags(const token_t& tok)
+  {
+    left.tags.insert(tok.tags.begin(), tok.tags.end());
+    right.tags.insert(tok.tags.begin(), tok.tags.end());
+  }
+  void addNegTags(const token_t& tok)
+  {
+    left.negtags.insert(tok.negtags.begin(), tok.negtags.end());
+    right.negtags.insert(tok.negtags.begin(), tok.negtags.end());
+  }
+  void clearTags()
+  {
+    left.tags.clear();
+    right.tags.clear();
+    left.negtags.clear();
+    right.negtags.clear();
+  }
 };
 
 typedef vector<pattern_element_t> pattern_t;
@@ -192,6 +210,7 @@ private:
   map<pattern_element_t, vector<Transducer*>> entryTransducers;
   map<string_ref, set<string_ref>> flagsUsed;
   map<pattern_element_t, pair<int, int>> transducerLocs;
+  map<string_ref, bool> lexiconFreedom;
 
   UFILE* input;
   bool inLex;
@@ -204,6 +223,7 @@ private:
   line_number_t lineNumber;
   bool doneReading;
   unsigned int anonymousCount;
+  unsigned int transitionCount;
 
   Transducer* hyperminTrans;
 
@@ -243,6 +263,9 @@ private:
   trans_sym_t getFlag(FlagDiacriticType type, string_ref flag, unsigned int value, bool isLeftTag = false);
   Transducer* getLexiconTransducerWithFlags(pattern_element_t& tok, bool free);
 
+  void buildAllLexicons();
+  int buildPatternSingleLexicon(token_t tok, int start_state);
+
 public:
   LexdCompiler();
   ~LexdCompiler();
@@ -264,6 +287,7 @@ public:
     shouldHypermin = val;
   }
   Transducer* buildTransducer(bool usingFlags);
+  Transducer* buildTransducerSingleLexicon();
   void readFile(UFILE* infile);
   void printStatistics() const;
 };
