@@ -19,6 +19,7 @@ tests = \
   pattag \
   pattag-coherent \
   pattag-details \
+  pattern-independence \
   revsieve \
   sieve \
   sieveopt \
