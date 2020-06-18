@@ -1,0 +1,15 @@
+PATTERNS
+parentpat
+parentpat2
+
+PATTERN parentpat
+childpat
+
+PATTERN parentpat2
+childpat
+
+PATTERN childpat
+child
+
+LEXICON child
+x
