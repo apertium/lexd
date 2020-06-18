@@ -1279,6 +1279,7 @@ LexdCompiler::buildPatternSingleLexicon(token_t tok, int start_state)
         }
       }
     }
+    patternTransducers.erase(tok);
     return end;
   }
   else

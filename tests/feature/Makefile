@@ -13,6 +13,7 @@ tests = \
   lexname-space \
   lextag \
   lexnegtag \
+  nontree \
   oneside \
   opt \
   pairs \
