@@ -1,0 +1,14 @@
+PATTERNS
+X A
+B B
+
+PATTERN X
+A A
+
+LEXICON A
+a1
+a2
+
+LEXICON B
+b1
+b2

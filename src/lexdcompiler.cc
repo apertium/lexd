@@ -1113,6 +1113,11 @@ LexdCompiler::buildAllLexicons()
       vector<int> free = determineFreedom(pat.second);
       for(size_t i = 0; i < pat.second.size(); i++)
       {
+        if(pat.second[i].left.name == left_sieve_name ||
+           pat.second[i].left.name == right_sieve_name)
+        {
+          continue;
+        }
         if(isLexiconToken(pat.second[i]))
         {
           pattern_element_t& tok = pat.second[i];
@@ -1161,6 +1166,7 @@ LexdCompiler::buildPatternSingleLexicon(token_t tok, int start_state)
       int next_start_state = start_state;
       size_t next_start_idx = 0;
       lineNumber = pattern.first;
+      set<string_ref> to_clear;
       size_t count = (tok.tags.empty() ? 1 : pattern.second.size());
       for(size_t tag_idx = 0; tag_idx < count; tag_idx++)
       {
@@ -1206,6 +1212,11 @@ LexdCompiler::buildPatternSingleLexicon(token_t tok, int start_state)
             untagged.clearTags();
             untagged.mode = Normal;
             bool free = (lexiconFreedom[cur.left.name] && lexiconFreedom[cur.right.name]);
+            if(!free)
+            {
+              to_clear.insert(cur.left.name);
+              to_clear.insert(cur.right.name);
+            }
             trans_sym_t inflag = getFlag(Positive, transition_flag, transitionCount);
             trans_sym_t outflag = getFlag(Require, transition_flag, transitionCount);
             transitionCount++;
@@ -1248,6 +1259,15 @@ LexdCompiler::buildPatternSingleLexicon(token_t tok, int start_state)
         }
         if(finished)
         {
+          for(auto lex : to_clear)
+          {
+            if(lex.empty())
+            {
+              continue;
+            }
+            trans_sym_t flag = getFlag(Clear, lex, 0);
+            state = hyperminTrans->insertSingleTransduction((int)alphabet_lookup(flag, flag), state);
+          }
           if(end == -1)
           {
             end = state;
