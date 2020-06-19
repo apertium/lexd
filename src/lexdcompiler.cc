@@ -1062,19 +1062,22 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok, int pattern_start_state 
     {
       if(shouldHypermin)
       {
-        int end = pattern_finals[0];
-        for(auto fin : pattern_finals)
+        if(pattern_finals.size() > 0)
         {
-          if(fin != end)
+          int end = pattern_finals[0];
+          for(auto fin : pattern_finals)
           {
-            trans->linkStates(fin, end, 0);
+            if(fin != end)
+            {
+              trans->linkStates(fin, end, 0);
+            }
+            if(pattern_start_state != 0)
+            {
+              trans->setFinal(fin, 0, false);
+            }
           }
-          if(pattern_start_state != 0)
-          {
-            trans->setFinal(fin, 0, false);
-          }
+          transducerLocs[{.left=tok, .right=tok, .mode=Normal}] = make_pair(pattern_start_state, end);
         }
-        transducerLocs[{.left=tok, .right=tok, .mode=Normal}] = make_pair(pattern_start_state, end);
       }
       else
       {
