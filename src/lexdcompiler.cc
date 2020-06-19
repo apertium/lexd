@@ -1081,7 +1081,7 @@ LexdCompiler::buildPatternWithFlags(const token_t &tok, int pattern_start_state 
       }
       else
       {
-	if(!trans->hasNoFinals())
+        if(!trans->hasNoFinals())
           trans->minimize();
       }
     }
