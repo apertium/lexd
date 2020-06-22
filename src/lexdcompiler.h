@@ -93,16 +93,14 @@ struct lex_token_t;
 struct token_t {
   string_ref name;
   unsigned int part;
-  set<string_ref> tags, negtags;
   bool operator<(const token_t &t) const
   {
-    return name < t.name || (name == t.name &&  part < t.part) || (name == t.name && part == t.part && tags < t.tags) || (name == t.name && part == t.part && tags == t.tags && negtags < t.negtags);
+    return name < t.name || (name == t.name &&  part < t.part);
   }
   bool operator==(const token_t &t) const
   {
-    return name == t.name && part == t.part && tags == t.tags && negtags == t.negtags;
+    return name == t.name && part == t.part;
   }
-  bool compatible(const lex_token_t &tok) const;
 };
 
 struct trans_sym_t {
@@ -119,15 +117,15 @@ struct trans_sym_t {
 
 struct lex_token_t {
   vector<trans_sym_t> symbols;
-  set<string_ref> tags;
-  bool operator ==(const lex_token_t &other) const { return symbols == other.symbols && tags == other.tags; }
+  bool operator ==(const lex_token_t &other) const { return symbols == other.symbols; }
 };
 
 struct lex_seg_t {
   lex_token_t left, right;
+  set<string_ref> tags;
   bool operator == (const lex_seg_t &t) const
   {
-    return left == t.left && right == t.right;
+    return left == t.left && right == t.right && tags == t.tags;
   }
 };
 
@@ -144,34 +142,33 @@ enum RepeatMode
 
 struct pattern_element_t {
   token_t left, right;
+  set<string_ref> tags, negtags;
   RepeatMode mode;
 
   bool operator<(const pattern_element_t& o) const
   {
-    return left < o.left || (left == o.left && right < o.right) || (left == o.left && right == o.right && mode < o.mode);
+    return left < o.left || (left == o.left && right < o.right) || (left == o.left && right == o.right && mode < o.mode) || (left == o.left && right == o.right && mode == o.mode && tags < o.tags) || (left == o.left && right == o.right && mode == o.mode && tags == o.tags && negtags < o.negtags);
   }
 
   bool operator==(const pattern_element_t& o) const
   {
-    return left == o.left && right == o.right && mode == o.mode;
+    return left == o.left && right == o.right && mode == o.mode && tags == o.tags && negtags == o.negtags;
   }
 
-  void addTags(const token_t& tok)
+  bool compatible(const lex_seg_t &tok) const;
+
+  void addTags(const pattern_element_t& tok)
   {
-    left.tags.insert(tok.tags.begin(), tok.tags.end());
-    right.tags.insert(tok.tags.begin(), tok.tags.end());
+    tags.insert(tok.tags.begin(), tok.tags.end());
   }
-  void addNegTags(const token_t& tok)
+  void addNegTags(const pattern_element_t& tok)
   {
-    left.negtags.insert(tok.negtags.begin(), tok.negtags.end());
-    right.negtags.insert(tok.negtags.begin(), tok.negtags.end());
+    negtags.insert(tok.negtags.begin(), tok.negtags.end());
   }
   void clearTags()
   {
-    left.tags.clear();
-    right.tags.clear();
-    left.negtags.clear();
-    right.negtags.clear();
+    tags.clear();
+    negtags.clear();
   }
 };
 
@@ -196,6 +193,7 @@ private:
   bool shouldCompress;
   bool tagsAsFlags;
   bool shouldHypermin;
+  bool tagsAsMinFlags;
 
   map<UnicodeString, string_ref> name_to_id;
   vector<UnicodeString> id_to_name;
@@ -205,7 +203,7 @@ private:
   map<string_ref, vector<entry_t>> lexicons;
   // { id => [ ( line, [ pattern ] ) ] }
   map<string_ref, vector<pair<line_number_t, pattern_t>>> patterns;
-  map<token_t, Transducer*> patternTransducers;
+  map<pattern_element_t, Transducer*> patternTransducers;
   map<pattern_element_t, Transducer*> lexiconTransducers;
   map<pattern_element_t, vector<Transducer*>> entryTransducers;
   map<string_ref, set<string_ref>> flagsUsed;
@@ -216,7 +214,7 @@ private:
   bool inLex;
   bool inPat;
   vector<entry_t> currentLexicon;
-  set<string_ref> currentLexicon_tags_left, currentLexicon_tags_right;
+  set<string_ref> currentLexicon_tags;
   string_ref currentLexiconId;
   unsigned int currentLexiconPartCount;
   string_ref currentPatternId;
@@ -252,19 +250,19 @@ private:
   void appendLexicon(string_ref lexicon_id, const vector<entry_t> &to_append);
   Transducer* getLexiconTransducer(pattern_element_t tok, unsigned int entry_index, bool free);
   void buildPattern(int state, Transducer* t, const pattern_t& pat, vector<int> is_free, unsigned int pos);
-  Transducer* buildPattern(const token_t &tok);
-  Transducer* buildPatternWithFlags(const token_t &tok, int pattern_start_state);
+  Transducer* buildPattern(const pattern_element_t &tok);
+  Transducer* buildPatternWithFlags(const pattern_element_t &tok, int pattern_start_state);
   trans_sym_t alphabet_lookup(const UnicodeString &symbol);
   trans_sym_t alphabet_lookup(trans_sym_t l, trans_sym_t r);
 
-  int insertPreTags(Transducer* t, int state, set<string_ref>& tags, set<string_ref>& negtags, bool isLeft);
-  int insertPostTags(Transducer* t, int state, set<string_ref>& tags, set<string_ref>& negtags, bool isLeft);
+  int insertPreTags(Transducer* t, int state, set<string_ref>& tags, set<string_ref>& negtags);
+  int insertPostTags(Transducer* t, int state, set<string_ref>& tags, set<string_ref>& negtags);
   void encodeFlag(UnicodeString& str, int flag);
-  trans_sym_t getFlag(FlagDiacriticType type, string_ref flag, unsigned int value, bool isLeftTag = false);
+  trans_sym_t getFlag(FlagDiacriticType type, string_ref flag, unsigned int value);
   Transducer* getLexiconTransducerWithFlags(pattern_element_t& tok, bool free);
 
   void buildAllLexicons();
-  int buildPatternSingleLexicon(token_t tok, int start_state);
+  int buildPatternSingleLexicon(pattern_element_t tok, int start_state);
 
 public:
   LexdCompiler();
