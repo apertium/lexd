@@ -1,5 +1,36 @@
 # Lexd Syntax
 
+## Invocation
+
+The `lexd` binary generates AT&T format transducers.
+
+We compile a transducer taking `cat` to `dog`:
+```
+$ echo -e "PATTERNS\n[cat:dog]" | lexd - > catdog.att
+```
+
+To compile to an `lttoolbox` transducer dictionary, use `lt-comp`;
+this can be used for lookup with `lt-proc`:
+```
+$ lt-comp lr test.att test.dix
+$ echo 'cat' | lt-proc test.dix
+^cat/dog$
+```
+
+To extract forms, first convert to `hfst` format:
+```
+$ hfst-txt2fst catdog.att -o catdog.hfst
+```
+
+Then you can use `hfst-fst2strings`:
+```
+$ hfst-fst2strings catdog.hfst
+cat:dog
+```
+
+Note that if you are using flag diacritics, `lttoolbox` will ignore
+them, and `hfst` will need flags to respect them.
+
 ## Basic Syntax
 
 A Lexd rule file defines lexicons and patterns. Each lexicon consists of a list of entries which have an analysis side and a generation side, similar to lexicons in HFST Lexc. Patterns, meanwhile, replace Lexc's continuation lexicons. Each pattern consists of a list of lexicons or named patterns which the compiler concatenates in that order.
