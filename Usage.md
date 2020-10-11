@@ -4,32 +4,49 @@
 
 The `lexd` binary generates AT&T format transducers.
 
-We compile a transducer taking `cat` to `dog`:
+Sample, save to `verb.lexd`:
+```verb.lexd
+PATTERNS
+VerbRoot VerbInfl
+
+LEXICON VerbRoot
+sing
+walk
+dance
+
+LEXICON VerbInfl
+<v><pres>:
+<v><pres><p3><sg>:s
 ```
-$ echo -e "PATTERNS\n[cat:dog]" | lexd - > catdog.att
+
+Compile it (without flag diacritics):
+```
+$ lexd verb.lexd > verb-generator.att
 ```
 
 To compile to an `lttoolbox` transducer dictionary, use `lt-comp`;
 this can be used for lookup with `lt-proc`:
 ```
-$ lt-comp lr test.att test.dix
-$ echo 'cat' | lt-proc test.dix
-^cat/dog$
+$ lt-comp rl verb-generator.att verb-analyser.dix
+$ echo 'sings' | lt-proc verb-analyser.dix
+^sings/sing<v><pres><p3><sg>
 ```
 
 To extract forms, first convert to `hfst` format:
 ```
-$ hfst-txt2fst catdog.att -o catdog.hfst
+$ hfst-txt2fst verb-generator.att -o verb-generator.hfst
 ```
 
 Then you can use `hfst-fst2strings`:
 ```
-$ hfst-fst2strings catdog.hfst
-cat:dog
+$ hfst-fst2strings verb-generator.hfst
+sing<v><pres>:sing
+sing<v><pres><p3><sg>:sings
+walk<v><pres>:walk
+walk<v><pres><p3><sg>:walks
+dance<v><pres>:dance
+dance<v><pres><p3><sg>:dances
 ```
-
-Note that if you are using flag diacritics, `lttoolbox` will ignore
-them, and `hfst` will need flags to respect them.
 
 ## Basic Syntax
 
