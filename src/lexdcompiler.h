@@ -65,8 +65,15 @@ template<typename T>
 set<T> unionset(const set<T> &xs, const set<T> &ys)
 {
   set<T> u = xs;
-  u.insert(ys.begin(), ys.end());
+  unionset_inplace(u, ys);
   return u;
+}
+
+template<typename T>
+void unionset_inplace(set<T> &xs, const set<T> &ys)
+{
+  xs.insert(ys.begin(), ys.end());
+  return;
 }
 
 template<typename T>
@@ -83,9 +90,15 @@ template<typename T>
 set<T> subtractset(const set<T> &xs, const set<T> &ys)
 {
   set<T> i = xs;
-  for(auto y: ys)
-    i.erase(y);
+  subtractset_inplace(i, ys);
   return i;
+}
+
+template<typename T>
+void subtractset_inplace(set<T> &xs, const set<T> &ys)
+{
+  for(const auto &y: ys)
+    xs.erase(y);
 }
 
 struct lex_token_t;
