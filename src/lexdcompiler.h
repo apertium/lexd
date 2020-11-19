@@ -103,6 +103,8 @@ void subtractset_inplace(set<T> &xs, const set<T> &ys)
 
 struct lex_token_t;
 
+typedef set<string_ref> tags_t;
+
 struct token_t {
   string_ref name;
   unsigned int part;
@@ -130,12 +132,13 @@ struct trans_sym_t {
 
 struct lex_token_t {
   vector<trans_sym_t> symbols;
-  bool operator ==(const lex_token_t &other) const { return symbols == other.symbols; }
+  tags_t tags;
+  bool operator ==(const lex_token_t &other) const { return symbols == other.symbols && tags == other.tags; }
 };
 
 struct lex_seg_t {
   lex_token_t left, right;
-  set<string_ref> tags;
+  tags_t tags;
   bool operator == (const lex_seg_t &t) const
   {
     return left == t.left && right == t.right && tags == t.tags;
@@ -155,7 +158,7 @@ enum RepeatMode
 
 struct pattern_element_t {
   token_t left, right;
-  set<string_ref> tags, negtags;
+  tags_t tags, negtags;
   RepeatMode mode;
 
   bool operator<(const pattern_element_t& o) const
@@ -227,7 +230,7 @@ private:
   bool inLex;
   bool inPat;
   vector<entry_t> currentLexicon;
-  set<string_ref> currentLexicon_tags;
+  tags_t currentLexicon_tags;
   string_ref currentLexiconId;
   unsigned int currentLexiconPartCount;
   string_ref currentPatternId;
@@ -248,7 +251,7 @@ private:
   string_ref internName(const UnicodeString& name);
   string_ref checkName(UnicodeString& name);
   RepeatMode readModifier(char_iter& iter);
-  void readTags(char_iter& iter, UnicodeString& line, set<string_ref>* tags, set<string_ref>* negtags);
+  void readTags(char_iter& iter, UnicodeString& line, tags_t* tags, tags_t* negtags);
   lex_seg_t processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
   token_t readToken(char_iter& iter, UnicodeString& line);
   pattern_element_t readPatternElement(char_iter& iter, UnicodeString& line);
@@ -268,8 +271,8 @@ private:
   trans_sym_t alphabet_lookup(const UnicodeString &symbol);
   trans_sym_t alphabet_lookup(trans_sym_t l, trans_sym_t r);
 
-  int insertPreTags(Transducer* t, int state, set<string_ref>& tags, set<string_ref>& negtags);
-  int insertPostTags(Transducer* t, int state, set<string_ref>& tags, set<string_ref>& negtags);
+  int insertPreTags(Transducer* t, int state, tags_t& tags, tags_t& negtags);
+  int insertPostTags(Transducer* t, int state, tags_t& tags, tags_t& negtags);
   void encodeFlag(UnicodeString& str, int flag);
   trans_sym_t getFlag(FlagDiacriticType type, string_ref flag, unsigned int value);
   Transducer* getLexiconTransducerWithFlags(pattern_element_t& tok, bool free);

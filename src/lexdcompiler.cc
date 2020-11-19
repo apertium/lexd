@@ -44,16 +44,16 @@ LexdCompiler::LexdCompiler()
   left_sieve_name = internName("<");
   token_t lsieve_tok = {.name=left_sieve_name, .part=1};
   pattern_element_t lsieve_elem = {.left=lsieve_tok, .right=lsieve_tok,
-                                   .tags=set<string_ref>(),
-                                   .negtags=set<string_ref>(),
+                                   .tags=tags_t(),
+                                   .negtags=tags_t(),
                                    .mode=Normal};
   left_sieve_tok = vector<pattern_element_t>(1, lsieve_elem);
 
   right_sieve_name = internName(">");
   token_t rsieve_tok = {.name=right_sieve_name, .part=1};
   pattern_element_t rsieve_elem = {.left=rsieve_tok, .right=rsieve_tok,
-                                   .tags=set<string_ref>(),
-                                   .negtags=set<string_ref>(),
+                                   .tags=tags_t(),
+                                   .negtags=tags_t(),
                                    .mode=Normal};
   right_sieve_tok = vector<pattern_element_t>(1, rsieve_elem);
 }
@@ -118,7 +118,7 @@ LexdCompiler::checkName(UnicodeString& name)
 }
 
 void
-LexdCompiler::readTags(char_iter& iter, UnicodeString& line, set<string_ref>* tags, set<string_ref>* negtags)
+LexdCompiler::readTags(char_iter& iter, UnicodeString& line, tags_t* tags, tags_t* negtags)
 {
   auto tag_start = (++iter).span();
   bool tag_nonempty = false;
@@ -160,7 +160,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
   lex_seg_t seg;
   bool inleft = true;
   bool left_tags_applied = false, right_tags_applied = false;
-  set<string_ref> negtags;
+  tags_t negtags;
   if((*iter).startsWith(" "))
   {
     if((*iter).length() > 1)
@@ -828,7 +828,7 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
 }
 
 int
-LexdCompiler::insertPreTags(Transducer* t, int state, set<string_ref>& tags, set<string_ref>& negtags)
+LexdCompiler::insertPreTags(Transducer* t, int state, tags_t& tags, tags_t& negtags)
 {
   int end = state;
   for(auto tag : tags)
@@ -845,7 +845,7 @@ LexdCompiler::insertPreTags(Transducer* t, int state, set<string_ref>& tags, set
 }
 
 int
-LexdCompiler::insertPostTags(Transducer* t, int state, set<string_ref>& tags, set<string_ref>& negtags)
+LexdCompiler::insertPostTags(Transducer* t, int state, tags_t& tags, tags_t& negtags)
 {
   int end = 0;
   int flag_dest = 0;
@@ -920,7 +920,7 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
           int mode_start = state;
           cur.mode = Normal;
 
-          vector<set<string_ref>> tags;
+          vector<tags_t> tags;
           if(i == idx)
           {
             cur.addTags(tok);
@@ -1202,7 +1202,7 @@ LexdCompiler::buildPatternSingleLexicon(pattern_element_t tok, int start_state)
 
           if(isLexiconToken(cur))
           {
-            set<string_ref> tags = unionset(cur.tags, cur.negtags);
+            tags_t tags = unionset(cur.tags, cur.negtags);
             for(auto tag : tags)
             {
               trans_sym_t flag = getFlag(Clear, tag, 0);
@@ -1315,7 +1315,7 @@ LexdCompiler::buildTransducer(bool usingFlags)
 {
   token_t start_tok = {.name = internName(" "), .part = 1};
   pattern_element_t start_pat = {.left=start_tok, .right=start_tok,
-                                 .tags=set<string_ref>(), .negtags=set<string_ref>(),
+                                 .tags=tags_t(), .negtags=tags_t(),
                                  .mode=Normal};
   if(usingFlags)
   {
@@ -1337,7 +1337,7 @@ LexdCompiler::buildTransducerSingleLexicon()
   tagsAsMinFlags = true;
   token_t start_tok = {.name = internName(" "), .part = 1};
   pattern_element_t start_pat = {.left=start_tok, .right=start_tok,
-                                 .tags=set<string_ref>(), .negtags=set<string_ref>(),
+                                 .tags=tags_t(), .negtags=tags_t(),
                                  .mode=Normal};
   hyperminTrans = new Transducer();
   buildAllLexicons();
