@@ -19,20 +19,20 @@ LEXICON VerbInfl
 <v><pres><p3><sg>:s
 ```
 
-Compile it (without flag diacritics):
+Compile it (without flag diacritics) to ATT transducer format:
 ```
 $ lexd verb.lexd > verb-generator.att
 ```
 
-To compile to an `lttoolbox` transducer dictionary, use `lt-comp`;
-this can be used for lookup with `lt-proc`:
+To compile to an `lttoolbox` transducer binary dictionary, use
+`lt-comp`; this can be used for lookup with `lt-proc`:
 ```
 $ lt-comp rl verb-generator.att verb-analyser.dix
 $ echo 'sings' | lt-proc verb-analyser.dix
 ^sings/sing<v><pres><p3><sg>
 ```
 
-To extract forms, first convert to `hfst` format:
+To extract forms, first convert to `hfst` binary format:
 ```
 $ hfst-txt2fst verb-generator.att -o verb-generator.hfst
 ```
