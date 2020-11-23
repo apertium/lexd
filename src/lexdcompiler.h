@@ -112,14 +112,19 @@ class tags_t : public set<string_ref>
 class pos_tag_filter_t : public set<string_ref>
 {
   using set<string_ref>::set;
+  public:
+  pos_tag_filter_t(const set<string_ref> &s) : set(s) { }
 };
 class neg_tag_filter_t : public set<string_ref>
 {
   using set<string_ref>::set;
+  public:
+  neg_tag_filter_t(const set<string_ref> &s) : set(s) { }
 };
 
 struct tag_filter_t {
   tag_filter_t() = default;
+  tag_filter_t(const pos_tag_filter_t &pos, const neg_tag_filter_t &neg) : _pos(pos), _neg(neg) { }
   tag_filter_t(const pos_tag_filter_t &pos) : _pos(pos) {}
   tag_filter_t(const neg_tag_filter_t &neg) : _neg(neg) {}
   bool operator<(const tag_filter_t &t) const
