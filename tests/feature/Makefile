@@ -16,6 +16,7 @@ tests = \
   nontree \
   oneside \
   opt \
+  or-filter \
   pairs \
   pattag \
   pattag-coherent \
@@ -25,6 +26,8 @@ tests = \
   sieve \
   sieveopt \
   slots-and-operators-nospace \
+  xor-filter \
+  xor-multi \
 
 sources = $(foreach test,$(tests),test-$(test).lexd)
 

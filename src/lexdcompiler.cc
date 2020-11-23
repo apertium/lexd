@@ -199,6 +199,30 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
     {
       negative = true;
     }
+    else if(!tag_nonempty && (*iter == "|" || *iter == "^"))
+    {
+      const UnicodeString s = *iter;
+      if(negative)
+        die(L"Illegal negated operation.");
+      *iter++;
+      if (*iter == "[")
+      {
+        shared_ptr<op_tag_filter_t> op;
+        tags_t operands = readTags(iter, line);
+        if (s == "|")
+          op = make_shared<or_tag_filter_t>(operands);
+        else if (s == "^")
+          op = make_shared<xor_tag_filter_t>(operands);
+        ops.push_back(op);
+      }
+      else
+        die(L"Expected list of operands.");
+      if(*iter == "]")
+      {
+        iter++;
+        return tag_filter_t(tag_filter.pos(), tag_filter.neg(), ops);
+      }
+    }
     else if(!tag_nonempty)
     {
       tag_nonempty = true;

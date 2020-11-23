@@ -176,6 +176,45 @@ struct tag_filter_t {
   neg_tag_filter_t _neg;
   vector<shared_ptr<op_tag_filter_t>> _ops;
 };
+class or_tag_filter_t : public op_tag_filter_t
+{
+  using op_tag_filter_t::op_tag_filter_t;
+  public:
+  or_tag_filter_t(const set<string_ref> &s) : op_tag_filter_t(s) { }
+  virtual std::vector<tag_filter_t> distribute(const tag_filter_t &tags) const {
+    std::vector<tag_filter_t> res;
+    for (auto &tag : *this)
+    {
+      tag_filter_t tags_ = tags;
+      if(!tags_.combine(tag_filter_t(pos_tag_filter_t { tag })))
+        continue;
+      res.push_back(tags_);
+    }
+    return res;
+  }
+};
+class xor_tag_filter_t : public op_tag_filter_t
+{
+  using op_tag_filter_t::op_tag_filter_t;
+  public:
+  xor_tag_filter_t(const set<string_ref> &s) : op_tag_filter_t(s) { }
+  virtual std::vector<tag_filter_t> distribute(const tag_filter_t &tags) const {
+    std::vector<tag_filter_t> res;
+    for (auto &tag : *this)
+    {
+      tag_filter_t tags_ = tags;
+      if(!tags_.combine(tag_filter_t(pos_tag_filter_t { tag })))
+        continue;
+      neg_tag_filter_t neg(*this);
+      subtractset_inplace(neg, { tag });
+      if(!tags_.combine(tag_filter_t(neg)))
+        continue;
+      res.push_back(tags_);
+    }
+    return res;
+  }
+};
+
 
 struct token_t {
   string_ref name;
