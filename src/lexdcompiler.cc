@@ -1,12 +1,13 @@
 #include "lexdcompiler.h"
 #include <unicode/unistr.h>
+#include <memory>
 
 using namespace icu;
 using namespace std;
 
 bool tag_filter_t::combinable(const tag_filter_t &other) const
 {
-  return intersectset(pos(), other.neg()).empty() && intersectset(other.pos(), neg()).empty();
+  return intersectset(pos(), other.neg()).empty() && intersectset(other.pos(), neg()).empty() && ops().empty() && other.ops().empty();
 }
 bool tag_filter_t::combine(const tag_filter_t &other)
 {
@@ -18,14 +19,25 @@ bool tag_filter_t::combine(const tag_filter_t &other)
 }
 
 void expand_alternation(vector<pattern_t> &pats, const vector<pattern_element_t> &alternation);
+vector<pattern_element_t> distribute_tag_expressions(const pattern_element_t &token)
+{
+  vector<pattern_element_t> result;
+  for(const auto &f: token.tag_filter.distribute())
+  {
+    pattern_element_t new_token = token;
+    new_token.tag_filter = f;
+    result.push_back(new_token);
+  }
+  return result;
+}
 
 bool tag_filter_t::compatible(const tags_t &tags) const
 {
-  return subset(pos(), tags) && intersectset(neg(), tags).empty();
+  return subset(pos(), tags) && intersectset(neg(), tags).empty() && ops().empty();
 }
 bool tag_filter_t::applicable(const tags_t &tags) const
 {
-  return subset(neg(), tags);
+  return subset(neg(), tags) && ops().empty();
 }
 bool tag_filter_t::try_apply(tags_t &tags) const
 {
@@ -148,7 +160,7 @@ tags_t
 LexdCompiler::readTags(char_iter &iter, UnicodeString &line)
 {
   tag_filter_t filter = readTagFilter(iter, line);
-  if(filter.neg().empty())
+  if(filter.neg().empty() && filter.ops().empty())
     return tags_t((set<string_ref>)filter.pos());
   else
      die(L"Cannot declare negative tag in lexicon");
@@ -162,6 +174,7 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
   auto tag_start = (++iter).span();
   bool tag_nonempty = false;
   bool negative = false;
+  vector<shared_ptr<op_tag_filter_t>> ops;
   for(; iter != iter.end() && (*iter).length() > 0; ++iter)
   {
     if(*iter == "]" || *iter == "," || *iter == " ")
@@ -179,7 +192,7 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
       if(*iter == "]")
       {
         iter++;
-        return tag_filter;
+        return tag_filter_t(tag_filter.pos(), tag_filter.neg(), ops);
       }
     }
     else if(!tag_nonempty && *iter == "-")
@@ -513,7 +526,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
         expand_alternation(pats_cur, alternation);
         alternation.clear();
       }
-      alternation.push_back(readPatternElement(iter, line));
+      for(const auto &tok : distribute_tag_expressions(readPatternElement(iter, line)))
+        alternation.push_back(tok);
       iter--;
       final_alternative = true;
       just_sieved = false;

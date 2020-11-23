@@ -14,6 +14,7 @@
 #include <iostream>
 #include <vector>
 #include <set>
+#include <memory>
 
 using namespace std;
 using namespace icu;
@@ -122,18 +123,28 @@ class neg_tag_filter_t : public set<string_ref>
   neg_tag_filter_t(const set<string_ref> &s) : set(s) { }
 };
 
+class tag_filter_t;
+class op_tag_filter_t : public set<string_ref>
+{
+  using set<string_ref>::set;
+  public:
+  op_tag_filter_t(const set<string_ref> &s) : set(s) { }
+  virtual std::vector<tag_filter_t> distribute(const tag_filter_t &tags) const = 0;
+};
 struct tag_filter_t {
   tag_filter_t() = default;
+  tag_filter_t(const pos_tag_filter_t &pos, const neg_tag_filter_t &neg, const vector<shared_ptr<op_tag_filter_t>> &ops) : _pos(pos), _neg(neg), _ops(ops) { }
   tag_filter_t(const pos_tag_filter_t &pos, const neg_tag_filter_t &neg) : _pos(pos), _neg(neg) { }
   tag_filter_t(const pos_tag_filter_t &pos) : _pos(pos) {}
   tag_filter_t(const neg_tag_filter_t &neg) : _neg(neg) {}
+  tag_filter_t(const vector<shared_ptr<op_tag_filter_t>> &ops) : _ops(ops) {}
   bool operator<(const tag_filter_t &t) const
   {
-    return _pos < t._pos || (_pos == t._pos && _neg < t._neg);
+    return _pos < t._pos || (_pos == t._pos && _neg < t._neg) || (_pos == t._pos && _neg == t._neg && _ops < t._ops);
   }
   bool operator==(const tag_filter_t &t) const
   {
-    return _pos == t._pos && _neg == t._neg;
+    return _pos == t._pos && _neg == t._neg && _ops == t._ops;
   }
   bool compatible(const tags_t &tags) const;
   bool combinable(const tag_filter_t &other) const;
@@ -141,13 +152,29 @@ struct tag_filter_t {
   bool try_apply(tags_t &tags) const;
   const pos_tag_filter_t &pos() const { return _pos; }
   const neg_tag_filter_t &neg() const { return _neg; }
+  const vector<shared_ptr<op_tag_filter_t>> &ops() const { return _ops; }
   const tags_t tags() { return unionset(tags_t(_pos), tags_t(_neg)); }
 
   bool combine(const tag_filter_t &other);
 
+  vector<tag_filter_t> distribute() const
+  {
+    vector<tag_filter_t> filters = { tag_filter_t(_pos, _neg) };
+    for (auto op : ops())
+    {
+      vector<tag_filter_t> next_filters;
+      for (auto &f : filters)
+        for (auto &nf : op->distribute(f))
+          next_filters.push_back(nf);
+      filters = next_filters;
+    }
+    return filters;
+  }
+
   private:
   pos_tag_filter_t _pos;
   neg_tag_filter_t _neg;
+  vector<shared_ptr<op_tag_filter_t>> _ops;
 };
 
 struct token_t {
