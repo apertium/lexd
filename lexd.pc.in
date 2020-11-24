@@ -1,0 +1,5 @@
+prefix=@prefix@
+
+Name: lexd
+Description: lexd lexicon compiler specialising in non-suffixational morphologies
+Version: @VERSION@

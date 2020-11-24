@@ -41,6 +41,7 @@ AX_CHECK_COMPILE_FLAG([-std=c++20], [CXXFLAGS="$CXXFLAGS -std=c++20"], [
 ])
 
 AC_CONFIG_FILES([
+                 lexd.pc
                  Makefile
                  src/Makefile
                  ])

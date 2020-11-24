@@ -3,6 +3,8 @@ SUBDIRS = src
 
 EXTRA_DIST=autogen.sh
 check_targets = check-plain check-flags check-minimize-tags check-tags check-minimize check-single
+pkgconfigdir = $(libdir)/pkgconfig
+dist_pkgconfig_DATA = lexd.pc
 
 timing-test: all
 	(cd tests || exit && ./timing.sh wad && ./timing.sh heb)
