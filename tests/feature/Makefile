@@ -27,7 +27,7 @@ tests = \
   sieveopt \
   slots-and-operators-nospace \
   xor-filter \
-  xor-multi \
+  #xor-multi \
 
 sources = $(foreach test,$(tests),test-$(test).lexd)
 
