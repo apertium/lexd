@@ -892,6 +892,7 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
       vector<int> is_free = determineFreedom(pat.second);
       bool got_non_null = false;
       unsigned int count = (tok.tags.size() > 0 ? pat.second.size() : 1);
+      if(tagsAsFlags) count = 1;
       for(unsigned int idx = 0; idx < count; idx++)
       {
         int state = pattern_start_state;
@@ -921,17 +922,20 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
           cur.mode = Normal;
 
           vector<set<string_ref>> tags;
-          if(i == idx)
-          {
-            cur.addTags(tok);
-          }
-          cur.addNegTags(tok);
-          if(tagsAsFlags && isLex)
+          if(tagsAsFlags)
           {
             state = insertPreTags(trans, state, cur.tags, cur.negtags);
             tags.push_back(cur.tags);
             tags.push_back(cur.negtags);
             cur.clearTags();
+          }
+          else
+          {
+            if(i == idx)
+            {
+              cur.addTags(tok);
+            }
+            cur.addNegTags(tok);
           }
 
           Transducer* t;
@@ -1008,7 +1012,7 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
           {
             state = trans->insertTransducer(state, *t);
           }
-          if(tagsAsFlags && isLex)
+          if(tagsAsFlags)
           {
             state = insertPostTags(trans, state, tags[0], tags[1]);
           }
