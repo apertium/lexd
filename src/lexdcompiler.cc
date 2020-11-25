@@ -980,6 +980,7 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
       vector<int> is_free = determineFreedom(pat.second);
       bool got_non_null = false;
       unsigned int count = (tok.tag_filter.pos().size() > 0 ? pat.second.size() : 1);
+      if(tagsAsFlags) count = 1;
       for(unsigned int idx = 0; idx < count; idx++)
       {
         int state = pattern_start_state;
@@ -1008,19 +1009,22 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
           int mode_start = state;
           cur.mode = Normal;
 
-          vector<tag_filter_t> tags;
-          if(i == idx)
-          {
-            if(!cur.tag_filter.combine(tok.tag_filter.pos()))
-              die(L"Incompatible tag filters.");
-          }
-          if(!cur.tag_filter.combine(tok.tag_filter.neg()))
-            die(L"Incompatible tag filters.");
-          if(tagsAsFlags && isLex)
+          tag_filter_t current_tags;
+          if(tagsAsFlags)
           {
             state = insertPreTags(trans, state, cur.tag_filter);
-            tags.push_back(cur.tag_filter);
+            current_tags = cur.tag_filter;
             cur.tag_filter = tag_filter_t();
+          }
+          else
+          {
+            if(i == idx)
+            {
+              if(!cur.tag_filter.combine(tok.tag_filter.pos()))
+                die(L"Incompatible tag filters.");
+            }
+            if(!cur.tag_filter.combine(tok.tag_filter.neg()))
+              die(L"Incompatible tag filters.");
           }
 
           Transducer* t;
@@ -1097,9 +1101,9 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
           {
             state = trans->insertTransducer(state, *t);
           }
-          if(tagsAsFlags && isLex)
+          if(tagsAsFlags)
           {
-            state = insertPostTags(trans, state, tags[0]);
+            state = insertPostTags(trans, state, current_tags);
           }
           if(pat.second[i].mode & Optional)
           {
