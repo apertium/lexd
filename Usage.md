@@ -359,3 +359,11 @@ Distribution rules are as follows:
 (A B)[-x] = A[-x] B[-x]
 ```
 
+Union and symmetric difference are implemented with the following
+syntax:
+
+```
+A[|[x,y]] = A[x]    | A[y]    # union / logical or
+A[^[x,y]] = A[x,-y] | A[-x,y] # symmetric difference / exclusive-or
+```
+
