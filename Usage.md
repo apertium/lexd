@@ -30,8 +30,9 @@ To compile to an `lttoolbox` transducer binary dictionary, use
 `lt-comp`; this can be used for lookup with `lt-proc`:
 ```
 $ lt-comp rl verb-generator.att verb-analyser.dix
+main@standard 17 19
 $ echo 'sings' | lt-proc verb-analyser.dix
-^sings/sing<v><pres><p3><sg>
+^sings/sing<v><pres><p3><sg>$
 ```
 
 To extract forms, use the [HFST] first convert to `hfst` binary format:
