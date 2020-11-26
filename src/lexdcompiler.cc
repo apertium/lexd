@@ -523,16 +523,20 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
         *iter++;
       if(iter == iter.end() || *iter != ")")
         die(L"Missing closing ) for anonymous pattern");
+      ++iter;
+      tag_filter_t filter;
+      if(*iter == "[")
+        filter = readTagFilter(iter, line);
       if(final_alternative && !alternation.empty())
       {
         expand_alternation(pats_cur, alternation);
         alternation.clear();
       }
-      ++iter;
       pattern_element_t anon;
       anon.left = {.name=currentPatternId, .part=1};
       anon.right = anon.left;
       anon.mode = readModifier(iter);
+      anon.tag_filter = filter;
       alternation.push_back(anon);
       --iter;
       currentPatternId = temp;
