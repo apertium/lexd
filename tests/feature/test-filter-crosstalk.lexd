@@ -1,0 +1,14 @@
+PATTERNS
+Phrase[nofruit,-nocolor]
+Phrase[-nofruit,nocolor]
+
+PATTERN Phrase
+Adj Noun
+
+LEXICON Adj
+bright[nofruit]
+
+LEXICON Noun
+apple[nocolor]
+orange[nofruit]
+

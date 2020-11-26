@@ -9,6 +9,7 @@ tests = \
   anonpat-nospaces \
   anonpat-ops \
   empty-patterns \
+  filter-crosstalk \
   lexdeftag \
   lexname-space \
   lextag \
