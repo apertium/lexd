@@ -317,6 +317,15 @@ rice[mass]
 sand[count,mass]
 ```
 
+Or tags can be applied-by-default to an entire block:
+
+```
+LEXICON NounRoot[count]
+sock
+rice[mass,-count]
+sand[mass]
+```
+
 When referring the lexicon, these tags can then be selected for:
 
 ```
