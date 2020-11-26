@@ -35,7 +35,8 @@ $ echo 'sings' | lt-proc verb-analyser.dix
 ^sings/sing<v><pres><p3><sg>$
 ```
 
-To extract forms, use the [HFST] first convert to `hfst` binary format:
+To extract forms, use the [HFST] to first compile to `hfst` binary
+format:
 
 [HFST]: https://hfst.github.io/
 
