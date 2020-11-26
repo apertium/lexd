@@ -2,7 +2,9 @@
 
 ## Invocation
 
-The `lexd` binary generates AT&T format transducers.
+The `lexd` binary generates [AT&T format] transducers.
+
+[AT&T Format]: https://wiki.apertium.org/wiki/ATT_format
 
 Sample, save to `verb.lexd`:
 ```verb.lexd
@@ -32,7 +34,10 @@ $ echo 'sings' | lt-proc verb-analyser.dix
 ^sings/sing<v><pres><p3><sg>
 ```
 
-To extract forms, first convert to `hfst` binary format:
+To extract forms, use the [HFST] first convert to `hfst` binary format:
+
+[HFST]: https://hfst.github.io/
+
 ```
 $ hfst-txt2fst verb-generator.att -o verb-generator.hfst
 ```
