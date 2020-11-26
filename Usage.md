@@ -332,8 +332,7 @@ PATTERNS
 NounRoot[-count] [<n>:]       # 'rice' only
 ```
 
-Tag selectors can also be applied to patterns, which will then apply that selection
-to every part of the pattern:
+Tag selectors can also be applied to patterns:
 
 ```
 PATTERN NounStem
@@ -343,3 +342,11 @@ PATTERNS
 NounStem[count] Number
 NounStem[mass]
 ```
+
+Distribution rules are as follows:
+
+```
+(A B)[x]  = (A[x] B) | (A B[x])
+(A B)[-x] = A[-x] B[-x]
+```
+
