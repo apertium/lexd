@@ -1,0 +1,7 @@
+PATTERNS
+(A)[^[a,b]]
+
+LEXICON A
+apple[a]
+banana[b]
+orange[a,b]

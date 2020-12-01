@@ -537,7 +537,8 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       anon.right = anon.left;
       anon.mode = readModifier(iter);
       anon.tag_filter = filter;
-      alternation.push_back(anon);
+      for(const auto &tok : distribute_tag_expressions(anon))
+        alternation.push_back(tok);
       --iter;
       currentPatternId = temp;
       final_alternative = true;

@@ -6,6 +6,7 @@ tests = \
   anonlex-modifier \
   anonpat \
   anonpat-filter \
+  anonpat-filter-ops \
   anonpat-modifier \
   anonpat-nospaces \
   anonpat-ops \
