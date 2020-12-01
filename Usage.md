@@ -374,3 +374,39 @@ A[|[x,y]] = A[x]    | A[y]    # union / logical or
 A[^[x,y]] = A[x,-y] | A[-x,y] # symmetric difference / exclusive-or
 ```
 
+These can be useful with lexically conditioned patterns. Here's an
+example showing declension paradigms and noun class:
+
+```
+PATTERNS
+(NounStem CaseEnding)[^[Decl1,Decl2],^[N,M,F]]
+
+LEXICON NounStem
+mensa:mens[Decl1,F]     # table
+poeta:poet[Decl1,M]     # poet
+dominus:domin[Decl2,M]  # master
+bellum:bell[Decl2,N]    # war
+
+LEXICON CaseEnding[Decl2]
+<nom>:>us[M]
+<nom>:>um[N]
+<acc>:>um    # M or N
+
+LEXICON CaseEnding[Decl1]
+<nom>:>a     # any gender
+<acc>:>am    # any gender
+```
+
+produces the forms (through `lexd | hfst-txt2fst | hfst-fst2strings`)
+
+```
+poeta<nom>:poet>a
+poeta<acc>:poet>am
+mensa<nom>:mens>a
+mensa<acc>:mens>am
+bellum<nom>:bell>um
+bellum<acc>:bell>um
+dominus<nom>:domin>us
+dominus<acc>:domin>um
+```
+
