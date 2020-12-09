@@ -138,6 +138,7 @@ struct tag_filter_t {
   tag_filter_t(const pos_tag_filter_t &pos) : _pos(pos) {}
   tag_filter_t(const neg_tag_filter_t &neg) : _neg(neg) {}
   tag_filter_t(const vector<shared_ptr<op_tag_filter_t>> &ops) : _ops(ops) {}
+  bool empty() const { return pos().empty() && neg().empty() && ops().empty(); }
   bool operator<(const tag_filter_t &t) const
   {
     return _pos < t._pos || (_pos == t._pos && _neg < t._neg) || (_pos == t._pos && _neg == t._neg && _ops < t._ops);

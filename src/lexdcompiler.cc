@@ -7,6 +7,9 @@ using namespace std;
 
 bool tag_filter_t::combinable(const tag_filter_t &other) const
 {
+  // TODO: make ops combinable even with non-empty filters?
+  if(empty() || other.empty())
+    return true;
   return intersectset(pos(), other.neg()).empty() && intersectset(other.pos(), neg()).empty() && ops().empty() && other.ops().empty();
 }
 bool tag_filter_t::combine(const tag_filter_t &other)
@@ -15,6 +18,8 @@ bool tag_filter_t::combine(const tag_filter_t &other)
     return false;
   unionset_inplace(_pos, other._pos);
   unionset_inplace(_neg, other._neg);
+  for(const auto &op: other._ops)
+    _ops.push_back(op);
   return true;
 }
 
