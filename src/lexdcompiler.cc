@@ -401,7 +401,7 @@ LexdCompiler::readPatternElement(char_iter& iter, UnicodeString& line)
     tok.left = readToken(iter, line);
     if(*iter == "[")
     {
-      tok.tag_filter = readTagFilter(iter, line);
+      tok.tag_filter.combine(readTagFilter(iter, line));
     }
     if(*iter == ":")
     {
@@ -410,10 +410,6 @@ LexdCompiler::readPatternElement(char_iter& iter, UnicodeString& line)
       {
         if(boundary.indexOf(*iter) == -1)
         {
-          if(!tok.tag_filter.pos().empty() || !tok.tag_filter.neg().empty())
-          {
-            wcerr << L"WARNING: one-sided tags are deprecated and will be removed soon (line " << lineNumber << L")" << endl;
-          }
           tok.right = readToken(iter, line);
         }
       }
@@ -425,7 +421,7 @@ LexdCompiler::readPatternElement(char_iter& iter, UnicodeString& line)
   }
   if(*iter == "[")
   {
-    tok.tag_filter = readTagFilter(iter, line);
+    tok.tag_filter.combine(readTagFilter(iter, line));
   }
   tok.mode = readModifier(iter);
 
