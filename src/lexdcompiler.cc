@@ -1627,22 +1627,17 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
   bool did_anything = false;
   for(unsigned int i = 0; i < count; i++)
   {
-    if(tok.left.name.valid() && !tok.compatible(lents[i][tok.left.part-1]))
-    {
-      if(!free)
-        trans.push_back(NULL);
-      continue;
-    }
-    if(tok.right.name.valid() && !tok.compatible(rents[i][tok.right.part-1]))
-    {
-      if(!free)
-        trans.push_back(NULL);
-      continue;
-    }
     lex_seg_t& le = (tok.left.name.valid() ? lents[i][tok.left.part-1] : empty);
     lex_seg_t& re = (tok.right.name.valid() ? rents[i][tok.right.part-1] : empty);
+    tags_t tags = unionset(le.tags, re.tags);
+    if(!tok.tag_filter.compatible(tags))
+    {
+      if(!free)
+        trans.push_back(NULL);
+      continue;
+    }
     Transducer* t = free ? trans[0] : new Transducer();
-    insertEntry(t, {.left=le.left, .right=re.right, .tags=unionset(le.tags, re.tags)});
+    insertEntry(t, {.left=le.left, .right=re.right, .tags=tags});
     did_anything = true;
     if(!free)
     {
@@ -1738,14 +1733,14 @@ LexdCompiler::getLexiconTransducerWithFlags(pattern_element_t& tok, bool free)
     die(L"Cannot collate " + to_wstring(name(tok.left.name)) + L" with " + to_wstring(name(tok.right.name)) + L" - differing numbers of entries");
   unsigned int count = (tok.left.name.valid() ? lents.size() : rents.size());
   Transducer* trans = new Transducer();
+  lex_seg_t empty;
   bool did_anything = false;
   for(unsigned int i = 0; i < count; i++)
   {
-    if(tok.left.name.valid() && !tok.compatible(lents[i][tok.left.part-1]))
-    {
-      continue;
-    }
-    if(tok.right.name.valid() && !tok.compatible(rents[i][tok.right.part-1]))
+    lex_seg_t& le = (tok.left.name.valid() ? lents[i][tok.left.part-1] : empty);
+    lex_seg_t& re = (tok.right.name.valid() ? rents[i][tok.right.part-1] : empty);
+    tags_t tags = unionset(le.tags, re.tags);
+    if(!tok.tag_filter.compatible(tags))
     {
       continue;
     }
@@ -1765,16 +1760,13 @@ LexdCompiler::getLexiconTransducerWithFlags(pattern_element_t& tok, bool free)
     }
     if(tok.left.name.valid())
     {
-      lex_seg_t& le = lents[i][tok.left.part-1];
       seg.left.symbols.insert(seg.left.symbols.end(), le.left.symbols.begin(), le.left.symbols.end());
-      seg.tags.insert(le.tags.begin(), le.tags.end());
     }
     if(tok.right.name.valid())
     {
-      lex_seg_t& re = rents[i][tok.right.part-1];
       seg.right.symbols.insert(seg.right.symbols.end(), re.right.symbols.begin(), re.right.symbols.end());
-      seg.tags.insert(re.tags.begin(), re.tags.end());
     }
+    seg.tags.insert(tags.begin(), tags.end());
     insertEntry(trans, seg);
   }
   if(did_anything)

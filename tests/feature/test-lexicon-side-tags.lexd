@@ -1,0 +1,7 @@
+PATTERNS
+X(1):X(2)[tag]
+
+
+LEXICON X(2)
+a[tag]	b
+

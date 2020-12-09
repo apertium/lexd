@@ -13,6 +13,7 @@ tests = \
   empty-patterns \
   filter-crosstalk \
   lexdeftag \
+  lexicon-side-tags \
   lexname-space \
   lextag \
   lexnegtag \
