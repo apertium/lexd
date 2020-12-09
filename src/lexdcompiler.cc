@@ -916,7 +916,7 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
   }
   else if(patternTransducers[tok] == NULL)
   {
-    die(L"Cannot compile self-recursive pattern '" + to_wstring(name(tok.left.name)) + L"'");
+    die(L"Cannot compile self-recursive or empty pattern '" + to_wstring(name(tok.left.name)) + L"'");
   }
   return patternTransducers[tok];
 }
