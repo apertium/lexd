@@ -153,7 +153,9 @@ int main(int argc, char *argv[])
   Transducer* transducer = (single ? comp.buildTransducerSingleLexicon() : comp.buildTransducer(flags));
   if(stats)
     comp.printStatistics();
-  if(bin)
+  if(!transducer)
+    cerr << "Warning: output is empty transducer." << endl;
+  else if(bin)
   {
     // TODO: finish this!
     //fwrite(HEADER_LTTOOLBOX, 1, 4, output);
