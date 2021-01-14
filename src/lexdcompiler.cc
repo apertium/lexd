@@ -257,6 +257,10 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
     }
     ++iter;
   }
+  if((*iter).startsWith("/") && seg.left.symbols.size() == 0)
+  {
+    die(L"Lexicon entries beginning with unescaped / are reserved for future use. Please use \\/");
+  }
   if(iter == iter.end() && seg.left.symbols.size() == 0)
     die(L"Expected " + to_wstring(currentLexiconPartCount) + L" parts, found " + to_wstring(part_count));
   for(; iter != iter.end(); ++iter)
