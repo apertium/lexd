@@ -585,8 +585,10 @@ LexdCompiler::processNextLine()
   UChar c;
   bool escape = false;
   bool comment = false;
+  bool lastWasSpace = false;
   while((c = u_fgetc(input)) != L'\n')
   {
+    bool space = false;
     if(c == U_EOF)
     {
       doneReading = true;
@@ -609,12 +611,14 @@ LexdCompiler::processNextLine()
     }
     else if(u_isWhitespace(c))
     {
-      if(line.length() > 0 && !line.endsWith(' '))
+      if(line.length() > 0 && !lastWasSpace)
       {
         line += ' ';
       }
+      space = (line.length() > 0);
     }
     else line += c;
+    lastWasSpace = space;
   }
   lineNumber++;
   if(escape) die(L"Trailing backslash");
