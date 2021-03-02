@@ -1812,4 +1812,15 @@ LexdCompiler::printStatistics() const
   for(const auto &pair: patterns)
     x += pair.second.size();
   wcerr << x << endl;
+  wcerr << endl;
+  wcerr << "Counts for individual lexicons:" << endl;
+  unsigned int anon = 0;
+  for(const auto &lex: lexicons)
+  {
+	if(empty(lex.first)) continue;
+	wstring n = to_wstring(name(lex.first));
+	if(n[0] == L' ') anon += lex.second.size();
+	else wcerr << n << ": " << lex.second.size() << endl;
+  }
+  wcerr << "All anonymous lexicons: " << anon << endl;
 }
