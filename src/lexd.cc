@@ -19,6 +19,7 @@ void endProgram(char *name)
     cout << "   -f, --flags:      compile using flag diacritics" << endl;
     cout << "   -m, --minimize:   do hyperminimization (sets -f)" << endl;
     cout << "   -t, --tags:       compile tags and filters with flag diacritics (sets -f)" << endl;
+	cout << "   -U, --no-combine: represent multi-codepoint glyphs as multiple transitions" << endl;
     cout << "   -x, --statistics: print lexicon and pattern sizes to stderr" << endl;
   }
   exit(EXIT_FAILURE);
@@ -52,13 +53,14 @@ int main(int argc, char *argv[])
       {"minimize",  no_argument, 0, 'm'},
       {"single",    no_argument, 0, 's'},
       {"tags",      no_argument, 0, 't'},
+	  {"no-combine",no_argument, 0, 'U'},
       {"statistics",no_argument, 0, 'x'},
       {0, 0, 0, 0}
     };
 
-    int cnt=getopt_long(argc, argv, "abcfhmstx", long_options, &option_index);
+    int cnt=getopt_long(argc, argv, "abcfhmstUx", long_options, &option_index);
 #else
-    int cnt=getopt(argc, argv, "abcfhmstx");
+    int cnt=getopt(argc, argv, "abcfhmstUx");
 #endif
     if (cnt==-1)
       break;
@@ -95,6 +97,10 @@ int main(int argc, char *argv[])
         flags = true;
         comp.setTagsAsFlags(true);
         break;
+
+	  case 'U':
+		comp.setShouldCombine(false);
+		break;
 
       case 'x':
         stats = true;

@@ -78,7 +78,7 @@ trans_sym_t LexdCompiler::alphabet_lookup(trans_sym_t l, trans_sym_t r)
 }
 
 LexdCompiler::LexdCompiler()
-  : shouldAlign(false), shouldCompress(false),
+  : shouldAlign(false), shouldCompress(false), shouldCombine(true),
     tagsAsFlags(false), shouldHypermin(false), tagsAsMinFlags(false),
     input(NULL), inLex(false), inPat(false), lineNumber(0), doneReading(false),
     anonymousCount(0), transitionCount(0)
@@ -285,7 +285,18 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
     }
     else if(*iter == "\\")
     {
-      (inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup(*++iter));
+	  if(shouldCombine)
+	  {
+		(inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup(*++iter));
+	  }
+	  else
+	  {
+		++iter;
+		for(int c = 0; c < (*iter).length(); c++)
+		{
+		  (inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup((*iter)[c]));
+		}
+	  }
     }
     else if(*iter == "{" || *iter == "<")
     {
@@ -303,6 +314,13 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
         die(L"Multichar entry didn't end; searching for " + to_wstring(end));
       }
     }
+	else if(!shouldCombine)
+	{
+	  for(int c = 0; c < (*iter).length(); c++)
+	  {
+		(inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup((*iter)[c]));
+	  }
+	}
     else (inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup(*iter));
   }
   if(inleft)

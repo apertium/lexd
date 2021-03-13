@@ -306,6 +306,7 @@ class LexdCompiler
 private:
   bool shouldAlign;
   bool shouldCompress;
+  bool shouldCombine;
   bool tagsAsFlags;
   bool shouldHypermin;
   bool tagsAsMinFlags;
@@ -391,6 +392,10 @@ public:
   void setShouldCompress(bool val)
   {
     shouldCompress = val;
+  }
+  void setShouldCombine(bool val)
+  {
+	shouldCombine = val;
   }
   void setTagsAsFlags(bool val)
   {
