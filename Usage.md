@@ -29,9 +29,9 @@ $ lexd verb.lexd > verb-generator.att
 To compile to an `lttoolbox` transducer binary dictionary, use
 `lt-comp`; this can be used for lookup with `lt-proc`:
 ```
-$ lt-comp rl verb-generator.att verb-analyser.dix
+$ lt-comp rl verb-generator.att verb-analyser.bin
 main@standard 17 19
-$ echo 'sings' | lt-proc verb-analyser.dix
+$ echo 'sings' | lt-proc verb-analyser.bin
 ^sings/sing<v><pres><p3><sg>$
 ```
 
