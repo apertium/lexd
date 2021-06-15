@@ -87,7 +87,7 @@ Lexicon::getTransducer(Alphabet& alpha, Side side, unsigned int part, unsigned i
 }
 
 Transducer*
-Lexicon::getTransducerWithFlags(Alphabet& alpha, Side side, unsigned int part, wstring flag)
+Lexicon::getTransducerWithFlags(Alphabet& alpha, Side side, unsigned int part, UString flag)
 {
   Transducer* t = new Transducer();
   for(unsigned int e = 0; e < entries.size(); e++)

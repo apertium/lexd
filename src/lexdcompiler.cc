@@ -1,6 +1,7 @@
 #include "lexdcompiler.h"
 #include <unicode/unistr.h>
 #include <memory>
+#include <lttoolbox/string_utils.h>
 
 using namespace icu;
 using namespace std;
@@ -105,10 +106,24 @@ LexdCompiler::LexdCompiler()
 LexdCompiler::~LexdCompiler()
 {}
 
-void
-LexdCompiler::die(const wstring &msg)
+const UChar*
+err(const UnicodeString& s)
 {
-  wcerr << L"Error on line " << lineNumber << ": " << msg << endl;
+  // u_*printf only accept const UChar*
+  // so here's a wrapper so we don't have to write all this out every time
+  return to_ustring(s).c_str();
+}
+
+void
+LexdCompiler::die(const char* msg, ...)
+{
+  UFILE* err_out = u_finit(stderr, NULL, NULL);
+  u_fprintf(err_out, "Error on line %d: ", lineNumber);
+  va_list argptr;
+  va_start(argptr, msg);
+  u_vfprintf(err_out, msg, argptr);
+  va_end(argptr);
+  u_fputc('\n', err_out);
   exit(EXIT_FAILURE);
 }
 
@@ -125,7 +140,9 @@ LexdCompiler::finishLexicon()
 {
   if(inLex)
   {
-    if(currentLexicon.size() == 0) die(L"Lexicon '" + to_wstring(name(currentLexiconId)) + L"' is empty.");
+    if (currentLexicon.size() == 0) {
+      die("Lexicon '%S' is empty.", err(name(currentLexiconId)));
+    }
     appendLexicon(currentLexiconId, currentLexicon);
     
     currentLexicon.clear();
@@ -151,11 +168,11 @@ LexdCompiler::checkName(UnicodeString& name)
   const static UnicodeString forbidden = " :?|()<>[]*+";
   name.trim();
   int l = name.length();
-  if(l == 0) die(L"Unnamed pattern or lexicon");
+  if(l == 0) die("Unnamed pattern or lexicon.");
 
   for(const auto &c: char_iter(forbidden)) {
     if(name.indexOf(c) != -1) {
-      die(L"Lexicon/pattern names cannot contain character '" + to_wstring(c) + L"'");
+      die("Lexicon/pattern names cannot contain character '%C'", c);
     }
   }
   return internName(name);
@@ -168,7 +185,7 @@ LexdCompiler::readTags(char_iter &iter, UnicodeString &line)
   if(filter.neg().empty() && filter.ops().empty())
     return tags_t((set<string_ref>)filter.pos());
   else
-     die(L"Cannot declare negative tag in lexicon");
+     die("Cannot declare negative tag in lexicon");
   return tags_t();
 }
 
@@ -185,13 +202,13 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
     if(*iter == "]" || *iter == "," || *iter == " ")
     {
       if(!tag_nonempty)
-        die(L"Empty tag at char " + to_wstring(iter.span().first));
+        die("Empty tag at char %d", + iter.span().first);
       UnicodeString s = line.tempSubStringBetween(tag_start.first, iter.span().first);
       if(!tag_filter.combine(
         negative ? tag_filter_t(neg_tag_filter_t {checkName(s)})
                  : tag_filter_t(pos_tag_filter_t {checkName(s)})
       ))
-        die(L"Illegal tag filter.");
+        die("Illegal tag filter.");
       tag_nonempty = false;
       negative = false;
       if(*iter == "]")
@@ -208,7 +225,7 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
     {
       const UnicodeString s = *iter;
       if(negative)
-        die(L"Illegal negated operation.");
+        die("Illegal negated operation.");
       *iter++;
       if (*iter == "[")
       {
@@ -221,7 +238,7 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
         ops.push_back(op);
       }
       else
-        die(L"Expected list of operands.");
+        die("Expected list of operands.");
       if(*iter == "]")
       {
         iter++;
@@ -234,7 +251,7 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
       tag_start = iter.span();
     }
   }
-  die(L"End of line in tag list, expected ']'");
+  die("End of line in tag list, expected ']'");
   return tag_filter_t();
 }
 
@@ -259,10 +276,10 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
   }
   if((*iter).startsWith("/") && seg.left.symbols.size() == 0)
   {
-    die(L"Lexicon entries beginning with unescaped / are reserved for future use. Please use \\/");
+    die("Lexicon entries beginning with unescaped / are reserved for future use. Please use \\/");
   }
   if(iter == iter.end() && seg.left.symbols.size() == 0)
-    die(L"Expected " + to_wstring(currentLexiconPartCount) + L" parts, found " + to_wstring(part_count));
+    die("Expected %d parts, found %d", currentLexiconPartCount, part_count);
   for(; iter != iter.end(); ++iter)
   {
     if((*iter).startsWith(" ") || *iter == ']')
@@ -271,7 +288,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
     {
       auto &tags_applied = inleft ? left_tags_applied : right_tags_applied;
       if(tags_applied)
-        die(L"Already provided tag list for this side.");
+        die("Already provided tag list for this side.");
       tags = readTagFilter(iter, line);
       --iter;
       tags_applied = true;
@@ -281,7 +298,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
       if(inleft)
         inleft = false;
       else
-        die(L"Lexicon entry contains multiple colons");
+        die("Lexicon entry contains multiple colons");
     }
     else if(*iter == "\\")
     {
@@ -311,7 +328,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
       }
       else
       {
-        die(L"Multichar entry didn't end; searching for " + to_wstring(end));
+        die("Multichar entry didn't end; searching for %S", err(end));
       }
     }
 	else if(!shouldCombine)
@@ -334,8 +351,8 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
   {
     tags_t diff = subtractset(tags.neg(), seg.tags);
     for(string_ref t: diff)
-      wcerr << L"Bad tag '-" << to_wstring(name(t)) << L"'" << endl;
-    die(L"Negative tag has no default to unset.");
+      cerr << "Bad tag '-" << to_ustring(name(t)) << "'" << endl;
+    die("Negative tag has no default to unset.");
   }
 
   return seg;
@@ -353,7 +370,7 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
   line.extract(begin_charspan.first, (iter == iter.end() ? line.length() : iter.span().first) - begin_charspan.first, name);
 
   if(name.length() == 0)
-    die(L"Symbol '" + to_wstring(*iter) + L"' without lexicon name at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
+    die("Symbol '%S' without lexicon name at u16 %d-%d", err(*iter), iter.span().first, iter.span().second-1);
 
   unsigned int part = 1;
   if(*iter == "(")
@@ -363,13 +380,13 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
     for(; iter != iter.end() && (*iter).length() > 0 && *iter != ")"; iter++)
     {
       if((*iter).length() != 1 || !u_isdigit((*iter).charAt(0)))
-        die(L"Syntax error - non-numeric index in parentheses: " + to_wstring(*iter));
+        die("Syntax error - non-numeric index in parentheses: %S", err(*iter));
     }
     if(*iter != ")")
-      die(L"Syntax error - unmatched parenthesis");
+      die("Syntax error - unmatched parenthesis");
     if(iter.span().first == begin_charspan.first)
-      die(L"Syntax error - missing index in parenthesis");
-    part = (unsigned int)stoul(to_wstring(line.tempSubStringBetween(begin_charspan.first, iter.span().first)));
+      die("Syntax error - missing index in parenthesis");
+    part = (unsigned int)StringUtils::stoi(to_ustring(line.tempSubStringBetween(begin_charspan.first, iter.span().first)));
     ++iter;
   }
 
@@ -408,15 +425,15 @@ LexdCompiler::readPatternElement(char_iter& iter, UnicodeString& line)
     if(boundary.indexOf(*iter) != -1)
     {
       if(*iter == ":")
-        die(L"Syntax error - double colon");
+        die("Syntax error - double colon");
       else
-        die(L"Colon without lexicon or pattern name");
+        die("Colon without lexicon or pattern name");
     }
     tok.right = readToken(iter, line);
   }
   else if(boundary.indexOf(*iter) != -1)
   {
-    die(L"Unexpected symbol '" + to_wstring(*iter) + L"' at " + to_wstring(iter.span().first));
+    die("Unexpected symbol '%S' at column %d", err(*iter), iter.span().first);
   }
   else
   {
@@ -471,23 +488,23 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
     else if(*iter == "|")
     {
       if(alternation.empty())
-        die(L"Syntax error - initial |");
+        die("Syntax error - initial |");
       if(!final_alternative)
-        die(L"Syntax error - multiple consecutive |");
+        die("Syntax error - multiple consecutive |");
       if(just_sieved)
-        die(L"Syntax error - sieve and alternation operators without intervening token");
+        die("Syntax error - sieve and alternation operators without intervening token");
       final_alternative = false;
     }
     else if(*iter == "<")
     {
       if(sieve_forward)
-        die(L"Syntax error - cannot sieve backwards after forwards.");
+        die("Syntax error - cannot sieve backwards after forwards.");
       if(alternation.empty())
-        die(L"Backward sieve without token?");
+        die("Backward sieve without token?");
       if(just_sieved)
-        die(L"Syntax error - multiple consecutive sieve operators");
+        die("Syntax error - multiple consecutive sieve operators");
       if(!final_alternative)
-        die(L"Syntax error - alternation and sieve operators without intervening token");
+        die("Syntax error - alternation and sieve operators without intervening token");
       expand_alternation(pats_cur, alternation);
       expand_alternation(pats_cur, left_sieve_tok);
       alternation.clear();
@@ -497,11 +514,11 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
     {
       sieve_forward = true;
       if(alternation.empty())
-        die(L"Forward sieve without token?");
+        die("Forward sieve without token?");
       if(just_sieved)
-        die(L"Syntax error - multiple consecutive sieve operators");
+        die("Syntax error - multiple consecutive sieve operators");
       if(!final_alternative)
-        die(L"Syntax error - alternation and sieve operators without intervening token");
+        die("Syntax error - alternation and sieve operators without intervening token");
       expand_alternation(pats_cur, alternation);
       expand_alternation(pats_cur, right_sieve_tok);
       alternation.clear();
@@ -517,7 +534,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       entry.push_back(processLexiconSegment(++iter, line, 0));
       if(*iter == " ") iter++;
       if(*iter != "]")
-        die(L"Missing closing ] for anonymous lexicon");
+        die("Missing closing ] for anonymous lexicon");
       currentLexicon.push_back(entry);
       finishLexicon();
       if(final_alternative && !alternation.empty())
@@ -545,7 +562,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       if(*iter == " ")
         *iter++;
       if(iter == iter.end() || *iter != ")")
-        die(L"Missing closing ) for anonymous pattern");
+        die("Missing closing ) for anonymous pattern");
       ++iter;
       tag_filter_t filter;
       if(*iter == "[")
@@ -569,7 +586,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
     }
     else if(*iter == "?" || *iter == "*" || *iter == "+")
     {
-      die(L"Syntax error - unexpected modifier at u16 " + to_wstring(iter.span().first) + L"-" + to_wstring(iter.span().second-1));
+      die("Syntax error - unexpected modifier at u16 %d-%d", iter.span().first, iter.span().second);
     }
     else
     {
@@ -586,9 +603,9 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
     }
   }
   if(!final_alternative)
-    die(L"Syntax error - trailing |");
+    die("Syntax error - trailing |");
   if(just_sieved)
-    die(L"Syntax error - trailing sieve (< or >)");
+    die("Syntax error - trailing sieve (< or >)");
   expand_alternation(pats_cur, alternation);
   for(const auto &pat : pats_cur)
   {
@@ -639,7 +656,7 @@ LexdCompiler::processNextLine()
     lastWasSpace = space;
   }
   lineNumber++;
-  if(escape) die(L"Trailing backslash");
+  if(escape) die("Trailing backslash");
   if(line.length() == 0) return;
 
   if(line == "PATTERNS" || line == "PATTERNS ")
@@ -668,15 +685,15 @@ LexdCompiler::processNextLine()
       currentLexicon_tags = readTags(c, tags);
       if(c != c.end() && *c == ":")
       {
-        wcerr << L"WARNING: One-sided tags are deprecated and will soon be removed (line " << lineNumber << L")" << endl;
+        cerr << "WARNING: One-sided tags are deprecated and will soon be removed (line " << lineNumber << ")" << endl;
         ++c;
         if(*c == "[")
           unionset_inplace(currentLexicon_tags, readTags(c, tags));
 	else
-          die(L"Expected start of default right tags '[' after ':'.");
+          die("Expected start of default right tags '[' after ':'.");
       }
       if(c != c.end())
-        die(L"Unexpected character '" + to_wstring(*c) + L"' after default tags.");
+        die("Unexpected character '%C' after default tags.", *c);
       name.retainBetween(0, name.indexOf('['));
     }
     currentLexiconPartCount = 1;
@@ -688,17 +705,17 @@ LexdCompiler::processNextLine()
         if(u_isdigit(name[i])) num = name[i] + num;
         else if(name[i] == L'(' && num.length() > 0)
         {
-          currentLexiconPartCount = (unsigned int)stoi(to_wstring(num));
+          currentLexiconPartCount = (unsigned int)StringUtils::stoi(to_ustring(num));
           name = name.retainBetween(0, i);
         }
         else break;
       }
-      if(name.length() == 0) die(L"Unnamed lexicon");
+      if(name.length() == 0) die("Unnamed lexicon");
     }
     currentLexiconId = checkName(name);
     if(lexicons.find(currentLexiconId) != lexicons.end()) {
       if(lexicons[currentLexiconId][0].size() != currentLexiconPartCount) {
-        die(L"Multiple incompatible definitions for lexicon '" + to_wstring(name) + L"'");
+        die("Multiple incompatible definitions for lexicon '%S'.", err(name));
       }
     }
     inLex = true;
@@ -709,12 +726,12 @@ LexdCompiler::processNextLine()
     finishLexicon();
     if(line.endsWith(' ')) line.retainBetween(0, line.length()-1);
     int loc = line.indexOf(" ", 6);
-    if(loc == -1) die(L"Expected 'ALIAS lexicon alt_name'");
+    if(loc == -1) die("Expected 'ALIAS lexicon alt_name'");
     UnicodeString name = line.tempSubString(6, loc-6);
     UnicodeString alt = line.tempSubString(loc+1);
     string_ref altid = checkName(alt);
     string_ref lexid = checkName(name);
-    if(lexicons.find(lexid) == lexicons.end()) die(L"Attempt to alias undefined lexicon '" + to_wstring(name) + L"'");
+    if(lexicons.find(lexid) == lexicons.end()) die("Attempt to alias undefined lexicon '%S'.", err(name));
     lexicons[altid] = lexicons[lexid];
     inLex = false;
     inPat = false;
@@ -724,7 +741,7 @@ LexdCompiler::processNextLine()
     char_iter iter = char_iter(line);
     processPattern(iter, line);
     if(iter != iter.end() && (*iter).length() > 0)
-      die(L"Unexpected " + to_wstring(*iter));
+      die("Unexpected %S", err(*iter));
   }
   else if(inLex)
   {
@@ -736,10 +753,10 @@ LexdCompiler::processNextLine()
     }
     if(*iter == ' ') ++iter;
     if(iter != iter.end())
-      die(L"Lexicon entry has '" + to_wstring(*iter) + L"' (found at u16 " + to_wstring(iter.span().first) + L"), more than " + to_wstring(currentLexiconPartCount) + L" components");
+      die("Lexicon entry has '%S' (found at u16 %d), more than %d components", err(*iter), iter.span().first, currentLexiconPartCount);
     currentLexicon.push_back(entry);
   }
-  else die(L"Expected 'PATTERNS' or 'LEXICON'");
+  else die("Expected 'PATTERNS' or 'LEXICON'");
 }
 
 bool
@@ -757,38 +774,38 @@ LexdCompiler::isLexiconToken(const pattern_element_t& tok)
   {
     if(tok.left.part != 1 || tok.right.part != 1)
     {
-      die(L"Cannote select part of pattern " + to_wstring(name(tok.right.name)));
+      die("Cannote select part of pattern %S", err(name(tok.right.name)));
     }
     return false;
   }
   // Any other scenario is an error, so we need to die()
   if(lpat && rpat)
   {
-    die(L"Cannot collate pattern " + to_wstring(name(tok.left.name)) + L" with " + to_wstring(name(tok.right.name)));
+    die("Cannot collate pattern %S with %S", err(name(tok.left.name)), err(name(tok.right.name)));
   }
   else if((lpat && tok.right.name.empty()) || (rpat && tok.left.name.empty()))
   {
-    die(L"Cannot select side of pattern " + to_wstring(name(tok.left.name.valid() ? tok.left.name : tok.right.name)));
+    die("Cannot select side of pattern %S", err(name(tok.left.name.valid() ? tok.left.name : tok.right.name)));
   }
   else if(llex && rpat)
   {
-    die(L"Cannot collate lexicon " + to_wstring(name(tok.left.name)) + L" with pattern " + to_wstring(name(tok.right.name)));
+    die("Cannot collate lexicon %S with pattern %S", err(name(tok.left.name)), err(name(tok.right.name)));
   }
   else if(lpat && rlex)
   {
-    die(L"Cannot collate pattern " + to_wstring(name(tok.left.name)) + L" with lexicon " + to_wstring(name(tok.right.name)));
+    die("Cannot collate pattern %S with lexicon %S", err(name(tok.left.name)), err(name(tok.right.name)));
   }
   else
   {
-    wcerr << "Patterns: ";
+    cerr << "Patterns: ";
     for(auto pat: patterns)
-      wcerr << to_wstring(name(pat.first)) << " ";
-    wcerr << endl;
-    wcerr << "Lexicons: ";
+      cerr << to_ustring(name(pat.first)) << " ";
+    cerr << endl;
+    cerr << "Lexicons: ";
     for(auto l: lexicons)
-      wcerr << to_wstring(name(l.first)) << " ";
-    wcerr << endl;
-    die(L"Lexicon or pattern '" + to_wstring(name((llex || lpat) ? tok.right.name : tok.left.name)) + L"' is not defined");
+      cerr << to_ustring(name(l.first)) << " ";
+    cerr << endl;
+    die("Lexicon or pattern '%S' is not defined.", err(name((llex || lpat) ? tok.right.name : tok.left.name)));
   }
   // we never reach this point, but the compiler doesn't understand die()
   // so we put a fake return value to keep it happy
@@ -854,7 +871,7 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
     if(tok.right.name.valid() && matchedParts.find(tok.right.name) == matchedParts.end())
       matchedParts[tok.right.name] = matchedParts[tok.left.name];
     if(tok.left.name.valid() && tok.right.name.valid() && matchedParts[tok.left.name] != matchedParts[tok.right.name])
-      die(L"Cannot collate " + to_wstring(name(tok.left.name)) + L" with " + to_wstring(name(tok.right.name)) + L" - both appear in free variation earlier in the pattern.");
+      die("Cannot collate %S with %S - both appear in free variation earlier in the pattern.", err(name(tok.left.name)), err(name(tok.right.name)));
     Transducer* lex = getLexiconTransducer(pat[pos], matchedParts[tok.left.name || tok.right.name], false);
     if(lex)
     {
@@ -907,7 +924,7 @@ Transducer*
 LexdCompiler::buildPattern(const pattern_element_t &tok)
 {
   if(tok.left.part != 1 || tok.right.part != 1)
-    die(L"Cannot build collated pattern " + to_wstring(name(tok.left.name)));
+    die("Cannot build collated pattern %S", err(name(tok.left.name)));
   if(patternTransducers.find(tok) == patternTransducers.end())
   {
     Transducer* t = new Transducer();
@@ -922,10 +939,10 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
         for(auto &pair: pat.second)
         {
           if(!pair.tag_filter.combine(tok.tag_filter.neg()))
-            die(L"Incompatible tag filters.");
+            die("Incompatible tag filters.");
         }
         if(!pat.second[i].tag_filter.combine(tok.tag_filter.pos()))
-          die(L"Incompatible tag filters.");
+          die("Incompatible tag filters.");
 
         matchedParts.clear();
         lineNumber = pat.first;
@@ -942,7 +959,7 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
   }
   else if(patternTransducers[tok] == NULL)
   {
-    die(L"Cannot compile self-recursive or empty pattern '" + to_wstring(name(tok.left.name)) + L"'");
+    die("Cannot compile self-recursive or empty pattern '%S'", err(name(tok.left.name)));
   }
   return patternTransducers[tok];
 }
@@ -1053,10 +1070,10 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
             if(i == idx)
             {
               if(!cur.tag_filter.combine(tok.tag_filter.pos()))
-                die(L"Incompatible tag filters.");
+                die("Incompatible tag filters.");
             }
             if(!cur.tag_filter.combine(tok.tag_filter.neg()))
-              die(L"Incompatible tag filters.");
+              die("Incompatible tag filters.");
           }
 
           Transducer* t;
@@ -1209,14 +1226,14 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
         trans = NULL;
       else
       {
-        wcerr << "FIXME" << endl;
+        cerr << "FIXME" << endl;
       }
     }
     patternTransducers[tok] = trans;
   }
   else if(patternTransducers[tok] == NULL)
   {
-    die(L"Cannot compile self-recursive pattern '" + to_wstring(name(tok.left.name)) + L"'");
+    die("Cannot compile self-recursive pattern '%S'", err(name(tok.left.name)));
   }
   return patternTransducers[tok];
 }
@@ -1417,7 +1434,7 @@ LexdCompiler::buildPatternSingleLexicon(pattern_element_t tok, int start_state)
   }
   else
   {
-    die(L"Cannot compile self-recursive pattern " + to_wstring(name(tok.left.name)));
+    die("Cannot compile self-recursive pattern '%S'", err(name(tok.left.name)));
     return 0;
   }
 }
@@ -1469,7 +1486,7 @@ LexdCompiler::buildTransducerSingleLexicon()
   int end = buildPatternSingleLexicon(start_pat, 0);
   if(end == -1)
   {
-    die(L"No non-empty patterns found");
+    die("No non-empty patterns found");
   }
   hyperminTrans->setFinal(end);
   hyperminTrans->minimize();
@@ -1637,12 +1654,12 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
 
   vector<entry_t>& lents = lexicons[tok.left.name];
   if(tok.left.name.valid() && tok.left.part > lents[0].size())
-    die(to_wstring(name(tok.left.name)) + L"(" + to_wstring(tok.left.part) + L") - part is out of range");
+    die("%S(%d) - part is out of range", err(name(tok.left.name)), tok.left.part);
   vector<entry_t>& rents = lexicons[tok.right.name];
   if(tok.right.name.valid() && tok.right.part > rents[0].size())
-    die(to_wstring(name(tok.right.name)) + L"(" + to_wstring(tok.right.part) + L") - part is out of range");
+    die("%S(%d) - part is out of range", err(name(tok.right.name)), tok.right.part);
   if(tok.left.name.valid() && tok.right.name.valid() && lents.size() != rents.size())
-    die(L"Cannot collate " + to_wstring(name(tok.left.name)) + L" with " + to_wstring(name(tok.right.name)) + L" - differing numbers of entries");
+    die("Cannot collate %S with %S - differing numbers of entries", err(name(tok.left.name)), err(name(tok.right.name)));
   unsigned int count = (tok.left.name.valid() ? lents.size() : rents.size());
   vector<Transducer*> trans;
   if(free)
@@ -1707,27 +1724,27 @@ LexdCompiler::encodeFlag(UnicodeString& str, int flag)
 trans_sym_t
 LexdCompiler::getFlag(FlagDiacriticType type, string_ref flag, unsigned int value)
 {
-  //wcerr << L"getFlag(" << type << L", " << to_wstring(name(flag)) << L", " << value << L")" << endl;
+  //cerr << "getFlag(" << type << ", " << to_ustring(name(flag)) << ", " << value << ")" << endl;
   UnicodeString flagstr = "@";
   switch(type)
   {
     case Unification:
-      //wcerr << "  Unification" << endl;
+      //cerr << "  Unification" << endl;
       flagstr += "U."; break;
     case Positive:
-      //wcerr << "  Positive" << endl;
+      //cerr << "  Positive" << endl;
       flagstr += "P."; break;
     case Negative:
-      //wcerr << "  Negative" << endl;
+      //cerr << "  Negative" << endl;
       flagstr += "N."; break;
     case Require:
-      //wcerr << "  Require" << endl;
+      //cerr << "  Require" << endl;
       flagstr += "R."; break;
     case Disallow:
-      //wcerr << "  Disallow" << endl;
+      //cerr << "  Disallow" << endl;
       flagstr += "D."; break;
     case Clear:
-      //wcerr << "  Clear" << endl;
+      //cerr << "  Clear" << endl;
       flagstr += "C."; break;
   }
   encodeFlag(flagstr, (int)flag.i);
@@ -1751,12 +1768,12 @@ LexdCompiler::getLexiconTransducerWithFlags(pattern_element_t& tok, bool free)
   // TODO: can this be abstracted from here and getLexiconTransducer()?
   vector<entry_t>& lents = lexicons[tok.left.name];
   if(tok.left.name.valid() && tok.left.part > lents[0].size())
-    die(to_wstring(name(tok.left.name)) + L"(" + to_wstring(tok.left.part) + L") - part is out of range");
+    die("%S(%d) - part is out of range", err(name(tok.left.name)), tok.left.part);
   vector<entry_t>& rents = lexicons[tok.right.name];
   if(tok.right.name.valid() && tok.right.part > rents[0].size())
-    die(to_wstring(name(tok.right.name)) + L"(" + to_wstring(tok.right.part) + L") - part is out of range");
+    die("%S(%d) - part is out of range", err(name(tok.right.name)), tok.right.part);
   if(tok.left.name.valid() && tok.right.name.valid() && lents.size() != rents.size())
-    die(L"Cannot collate " + to_wstring(name(tok.left.name)) + L" with " + to_wstring(name(tok.right.name)) + L" - differing numbers of entries");
+    die("Cannot collate %S with %S - differing numbers of entries", err(name(tok.left.name)), err(name(tok.right.name)));
   unsigned int count = (tok.left.name.valid() ? lents.size() : rents.size());
   Transducer* trans = new Transducer();
   lex_seg_t empty;
@@ -1818,27 +1835,27 @@ LexdCompiler::getLexiconTransducerWithFlags(pattern_element_t& tok, bool free)
 void
 LexdCompiler::printStatistics() const
 {
-  wcerr << "Lexicons: " << lexicons.size() << endl;
-  wcerr << "Lexicon entries: ";
+  cerr << "Lexicons: " << lexicons.size() << endl;
+  cerr << "Lexicon entries: ";
   unsigned int x = 0;
   for(const auto &lex: lexicons)
     x += lex.second.size();
-  wcerr << x << endl;
+  cerr << x << endl;
   x = 0;
-  wcerr << "Patterns: " << patterns.size() << endl;
-  wcerr << "Pattern entries: ";
+  cerr << "Patterns: " << patterns.size() << endl;
+  cerr << "Pattern entries: ";
   for(const auto &pair: patterns)
     x += pair.second.size();
-  wcerr << x << endl;
-  wcerr << endl;
-  wcerr << "Counts for individual lexicons:" << endl;
+  cerr << x << endl;
+  cerr << endl;
+  cerr << "Counts for individual lexicons:" << endl;
   unsigned int anon = 0;
   for(const auto &lex: lexicons)
   {
 	if(empty(lex.first)) continue;
-	wstring n = to_wstring(name(lex.first));
-	if(n[0] == L' ') anon += lex.second.size();
-	else wcerr << n << ": " << lex.second.size() << endl;
+	UString n = to_ustring(name(lex.first));
+	if(n[0] == ' ') anon += lex.second.size();
+	else cerr << n << ": " << lex.second.size() << endl;
   }
-  wcerr << "All anonymous lexicons: " << anon << endl;
+  cerr << "All anonymous lexicons: " << anon << endl;
 }

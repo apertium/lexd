@@ -15,6 +15,7 @@
 #include <vector>
 #include <set>
 #include <memory>
+#include <cstdarg>
 
 using namespace std;
 using namespace icu;
@@ -346,7 +347,7 @@ private:
   vector<pattern_element_t> left_sieve_tok;
   vector<pattern_element_t> right_sieve_tok;
 
-  void die(const wstring & msg);
+  void die(const char* msg, ...);
   void finishLexicon();
   string_ref internName(const UnicodeString& name);
   string_ref checkName(UnicodeString& name);

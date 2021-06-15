@@ -5,6 +5,7 @@
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
+#include <lttoolbox/ustring.h>
 #include <map>
 #include <string>
 
@@ -62,6 +63,6 @@ class char_iter
 
 char_iter rev_char_iter(const icu::UnicodeString &s);
 
-std::wstring to_wstring(const icu::UnicodeString &str);
+UString to_ustring(const icu::UnicodeString &str);
 
 #endif

@@ -188,38 +188,9 @@ pair<int, int> char_iter::span() const
   return it.span();
 }
 
-std::wstring to_wstring(const UnicodeString &str)
+UString to_ustring(const UnicodeString &str)
 {
-  auto buf = str.getBuffer();
-  if(!buf)
-  {
-    cerr << "buffer is null" << endl;
-    exit(1);
-  }
-
-  UErrorCode result = U_ZERO_ERROR;
-  int32_t wlen = 0;
-  u_strToWCS(NULL, 0, &wlen, buf, str.length(), &result);
-  if (U_FAILURE(result) && result != U_BUFFER_OVERFLOW_ERROR) {
-    cerr << "Error decoding unicode string; error code " << result;
-    cerr << "; the string was length " << str.length() << endl;
-    exit(1);
-  }
-
-  result = U_ZERO_ERROR;
-
-  int32_t written = 0;
-  wstring wc(static_cast<size_t>(wlen+1), 0);
-  u_strToWCS(&wc[0], wlen+1, &written, buf, str.length(), &result);
-  if (result) {
-    cerr << "Error decoding unicode string; error code " << result << endl;;
-    exit(1);
-  }
-  if (written != wlen) {
-    cerr << "Wrote " << written << " wchar_t when " << wlen << " was expected";
-    exit(1);
-  }
-
-  wc.resize(static_cast<size_t>(wlen));
-  return wc;
+  UString temp;
+  temp.append(str.getBuffer(), str.length());
+  return temp;
 }

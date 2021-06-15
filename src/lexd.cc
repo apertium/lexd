@@ -169,10 +169,10 @@ int main(int argc, char *argv[])
     //write_le(output, features);
 
     // letters
-    //Compression::wstring_write(L"", output);
+    //Compression::string_write(""_u, output);
     //comp.alphabet.write(output);
     //Compression::multibyte_write(1, output);
-    //Compression::wstring_write(L"main", output);
+    //Compression::string_write("main"_u, output);
     //transducer->write(output);
   }
   else
