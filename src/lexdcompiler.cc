@@ -63,13 +63,13 @@ const UnicodeString &LexdCompiler::name(string_ref r) const
 
 trans_sym_t LexdCompiler::alphabet_lookup(const UnicodeString &symbol)
 {
-  wstring wsymbol = to_wstring(symbol);
-  if(wsymbol.length() == 1)
-    return trans_sym_t((int)wsymbol[0]);
-  else
-  {
-    alphabet.includeSymbol(wsymbol);
-    return trans_sym_t(alphabet(wsymbol));
+  if (!symbol.hasMoreChar32Than(0, symbol.length(), 1)) {
+    return trans_sym_t((int)symbol.char32At(0));
+  } else {
+    UString temp;
+    temp.append(symbol.getBuffer(), symbol.length());
+    alphabet.includeSymbol(temp);
+    return trans_sym_t(alphabet(temp));
   }
 }
 trans_sym_t LexdCompiler::alphabet_lookup(trans_sym_t l, trans_sym_t r)
