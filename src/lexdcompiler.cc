@@ -621,7 +621,7 @@ LexdCompiler::processNextLine()
   bool escape = false;
   bool comment = false;
   bool lastWasSpace = false;
-  while((c = u_fgetc(input)) != L'\n')
+  while((c = u_fgetc(input)) != '\n')
   {
     bool space = false;
     if(c == U_EOF)
@@ -635,12 +635,12 @@ LexdCompiler::processNextLine()
       line += c;
       escape = false;
     }
-    else if(c == L'\\')
+    else if(c == '\\')
     {
       escape = true;
       line += c;
     }
-    else if(c == L'#')
+    else if(c == '#')
     {
       comment = true;
     }
@@ -703,7 +703,7 @@ LexdCompiler::processNextLine()
       for(int i = name.length()-2; i > 0; i--)
       {
         if(u_isdigit(name[i])) num = name[i] + num;
-        else if(name[i] == L'(' && num.length() > 0)
+        else if(name[i] == '(' && num.length() > 0)
         {
           currentLexiconPartCount = (unsigned int)StringUtils::stoi(to_ustring(num));
           name = name.retainBetween(0, i);
