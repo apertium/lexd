@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   bool single = false;
   bool stats = false;
   UFILE* input = u_finit(stdin, NULL, NULL);
-  FILE* output = stdout;
+  UFILE* output = u_finit(stdout, NULL, NULL);
   LexdCompiler comp;
 
   LtLocale::tryToSetLocale();
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 
   if(outfile != "" && outfile != "-")
   {
-    output = fopen(outfile.c_str(), "wb");
+    output = u_fopen(outfile.c_str(), "wb", NULL, NULL);
     if(!output)
     {
       cerr << "Error: Cannot open file '" << outfile << "' for writing." << endl;
@@ -169,17 +169,17 @@ int main(int argc, char *argv[])
     //write_le(output, features);
 
     // letters
-    //Compression::wstring_write(L"", output);
+    //Compression::string_write(""_u, output);
     //comp.alphabet.write(output);
     //Compression::multibyte_write(1, output);
-    //Compression::wstring_write(L"main", output);
-    transducer->write(output);
+    //Compression::string_write("main"_u, output);
+    //transducer->write(output);
   }
   else
   {
     transducer->show(comp.alphabet, output, 0, true);
   }
-  if(output != stdout) fclose(output);
+  u_fclose(output);
   delete transducer;
   return 0;
 }

@@ -87,7 +87,7 @@ Lexicon::getTransducer(Alphabet& alpha, Side side, unsigned int part, unsigned i
 }
 
 Transducer*
-Lexicon::getTransducerWithFlags(Alphabet& alpha, Side side, unsigned int part, wstring flag)
+Lexicon::getTransducerWithFlags(Alphabet& alpha, Side side, unsigned int part, UString flag)
 {
   Transducer* t = new Transducer();
   for(unsigned int e = 0; e < entries.size(); e++)
@@ -95,7 +95,9 @@ Lexicon::getTransducerWithFlags(Alphabet& alpha, Side side, unsigned int part, w
     int state = t->getInitial();
     if(flag.size() > 0)
     {
-      wstring f = L"@U." + flag + L"." + to_wstring(e) + L"@";
+      UChar buf[64];
+      u_snprintf(buf, 64, "@U.%S.%d@", flag.c_str(), e);
+      UString f = buf;
       alpha.includeSymbol(f);
       int s = alpha(f);
       state = t->insertSingleTransduction(alpha(s, s), state);

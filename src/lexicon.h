@@ -33,7 +33,7 @@ public:
   ~Lexicon();
   void addEntries(vector<vector<pair<vector<int>, vector<int>>>> newEntries);
   Transducer* getTransducer(Alphabet& alpha, Side side, unsigned int part, unsigned int index);
-  Transducer* getTransducerWithFlags(Alphabet& alpha, Side side, unsigned int part, wstring flag);
+  Transducer* getTransducerWithFlags(Alphabet& alpha, Side side, unsigned int part, UString flag);
   unsigned int getEntryCount()
   {
     return entryCount;
