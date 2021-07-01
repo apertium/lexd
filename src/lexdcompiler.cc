@@ -172,7 +172,7 @@ LexdCompiler::checkName(UnicodeString& name)
 
   for(const auto &c: char_iter(forbidden)) {
     if(name.indexOf(c) != -1) {
-      die("Lexicon/pattern names cannot contain character '%C'", c);
+      die("Lexicon/pattern names cannot contain character '%C'", c[0]);
     }
   }
   return internName(name);
@@ -693,7 +693,7 @@ LexdCompiler::processNextLine()
           die("Expected start of default right tags '[' after ':'.");
       }
       if(c != c.end())
-        die("Unexpected character '%C' after default tags.", *c);
+        die("Unexpected character '%C' after default tags.", (*c)[0]);
       name.retainBetween(0, name.indexOf('['));
     }
     currentLexiconPartCount = 1;
