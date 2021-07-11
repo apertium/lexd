@@ -1,0 +1,25 @@
+name: lexd CI Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: dependencies
+      run: |
+           sudo apt-get -qy update
+           sudo apt-get -qfy install apt-utils wget ca-certificates
+           wget -q https://apertium.projectjj.com/apt/install-nightly.sh -O - | sudo bash
+           sudo apt-get -qfy install --no-install-recommends build-essential automake autotools-dev pkg-config lttoolbox-dev hfst
+    - name: autoreconf
+      run: autoreconf -fvi
+    - name: configure
+      run: ./configure
+    - name: build
+      run: make -j4 V=1 VERBOSE=1
+    - name: tests
+      run: make test
+    - name: make install
+      run: sudo make install
