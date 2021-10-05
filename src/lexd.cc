@@ -27,6 +27,8 @@ void endProgram(char *name)
 
 int main(int argc, char *argv[])
 {
+  LtLocale::tryToSetLocale();
+
   bool bin = false;
   bool flags = false;
   bool single = false;
@@ -34,8 +36,6 @@ int main(int argc, char *argv[])
   UFILE* input = u_finit(stdin, NULL, NULL);
   UFILE* output = u_finit(stdout, NULL, NULL);
   LexdCompiler comp;
-
-  LtLocale::tryToSetLocale();
 
 #if HAVE_GETOPT_LONG
   int option_index=0;
