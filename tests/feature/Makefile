@@ -10,6 +10,7 @@ tests = \
   anonpat-modifier \
   anonpat-nospaces \
   anonpat-ops \
+  empty \
   empty-patterns \
   filter-crosstalk \
   lexdeftag \

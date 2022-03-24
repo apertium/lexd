@@ -1486,10 +1486,12 @@ LexdCompiler::buildTransducerSingleLexicon()
   int end = buildPatternSingleLexicon(start_pat, 0);
   if(end == -1)
   {
-    die("No non-empty patterns found");
+    cerr << "WARNING: No non-empty patterns found." << endl;
   }
-  hyperminTrans->setFinal(end);
-  hyperminTrans->minimize();
+  else {
+    hyperminTrans->setFinal(end);
+    hyperminTrans->minimize();
+  }
   return hyperminTrans;
 }
 
