@@ -26,19 +26,14 @@ LIBS="$LIBS $LTTOOLBOX_LIBS $ICU_LIBS $ICU_UC_LIBS $ICU_IO_LIBS"
 
 # Checks for highest supported C++ standard
 AC_LANG(C++)
-AX_CHECK_COMPILE_FLAG([-std=c++20], [CXXFLAGS="$CXXFLAGS -std=c++20"], [
- AX_CHECK_COMPILE_FLAG([-std=c++2a], [CXXFLAGS="$CXXFLAGS -std=c++2a"], [
-  AX_CHECK_COMPILE_FLAG([-std=c++17], [CXXFLAGS="$CXXFLAGS -std=c++17"], [
-   AX_CHECK_COMPILE_FLAG([-std=c++1z], [CXXFLAGS="$CXXFLAGS -std=c++1z"], [
-    AX_CHECK_COMPILE_FLAG([-std=c++14], [CXXFLAGS="$CXXFLAGS -std=c++14"], [
-     AX_CHECK_COMPILE_FLAG([-std=c++1y], [CXXFLAGS="$CXXFLAGS -std=c++1y"], [
-      AC_MSG_ERROR([Could not enable at least C++1y (C++14) - upgrade your compiler])
-     ])
-    ])
-   ])
-  ])
- ])
+for version in 23 2b 20 2a 17 1z 14 1y; do
+  version_flag="-std=c++${version}"
+  AX_CHECK_COMPILE_FLAG([${version_flag}], [break], [version_flag=none])
+done
+AS_IF([test "$version_flag" == none], [
+  AC_MSG_ERROR([Could not enable at least C++1y (C++14) - upgrade your compiler])
 ])
+CXXFLAGS="$CXXFLAGS ${version_flag}"
 
 AC_CONFIG_FILES([
                  lexd.pc
