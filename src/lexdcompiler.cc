@@ -89,14 +89,14 @@ LexdCompiler::LexdCompiler()
   lexicons[string_ref(0)] = vector<entry_t>();
 
   left_sieve_name = internName("<");
-  token_t lsieve_tok = {.name=left_sieve_name, .part=1};
+  token_t lsieve_tok = {.name=left_sieve_name, .part=1, .optional=false};
   pattern_element_t lsieve_elem = {.left=lsieve_tok, .right=lsieve_tok,
                                    .tag_filter=tag_filter_t(),
                                    .mode=Normal};
   left_sieve_tok = vector<pattern_element_t>(1, lsieve_elem);
 
   right_sieve_name = internName(">");
-  token_t rsieve_tok = {.name=right_sieve_name, .part=1};
+  token_t rsieve_tok = {.name=right_sieve_name, .part=1, .optional=false};
   pattern_element_t rsieve_elem = {.left=rsieve_tok, .right=rsieve_tok,
                                    .tag_filter=tag_filter_t(),
                                    .mode=Normal};
@@ -372,6 +372,16 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
   if(name.length() == 0)
     die("Symbol '%S' without lexicon name at u16 %d-%d", err(*iter), iter.span().first, iter.span().second-1);
 
+  bool optional = false;
+  if(*iter == "?") {
+    iter++;
+    if(*iter == "(") {
+      optional = true;
+    } else {
+      iter--;
+    }
+  }
+
   unsigned int part = 1;
   if(*iter == "(")
   {
@@ -390,7 +400,7 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
     ++iter;
   }
 
-  return token_t {.name = internName(name), .part = part};
+  return token_t {.name = internName(name), .part = part, .optional = optional};
 }
 
 RepeatMode
@@ -544,7 +554,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       }
       ++iter;
       pattern_element_t anon;
-      anon.left = {.name=currentLexiconId, .part=1};
+      anon.left = {.name=currentLexiconId, .part=1, .optional=false};
       anon.right = anon.left;
       anon.mode = readModifier(iter);
       alternation.push_back(anon);
@@ -573,7 +583,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
         alternation.clear();
       }
       pattern_element_t anon;
-      anon.left = {.name=currentPatternId, .part=1};
+      anon.left = {.name=currentPatternId, .part=1, .optional=false};
       anon.right = anon.left;
       anon.mode = readModifier(iter);
       anon.tag_filter = filter;
@@ -847,6 +857,7 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
             matchedParts.find(tok.right.name) == matchedParts.end())
     {
       unsigned int max = lexicons[tok.left.name || tok.right.name].size();
+      if (tok.optional()) max++;
       for(unsigned int index = 0; index < max; index++)
       {
         Transducer *lex = getLexiconTransducer(pat[pos], index, false);
@@ -900,11 +911,24 @@ vector<int>
 LexdCompiler::determineFreedom(pattern_t& pat)
 {
   vector<int> is_free = vector<int>(pat.size(), 0);
+  map<string_ref, bool> is_optional;
   for(unsigned int i = 0; i < pat.size(); i++)
   {
+    const pattern_element_t& t1 = pat[i];
+    if (is_optional.find(t1.left.name) != is_optional.end() && is_optional[t1.left.name] != t1.optional()) {
+      die("Lexicon %S cannot be both optional and non-optional in a single pattern.", name(t1.left.name));
+    }
+    if (is_optional.find(t1.right.name) != is_optional.end() && is_optional[t1.right.name] != t1.optional()) {
+      die("Lexicon %S cannot be both optional and non-optional in a single pattern.", name(t1.right.name));
+    }
+    if (t1.left.name.valid()) {
+      is_optional[t1.left.name] = t1.optional();
+    }
+    if (t1.right.name.valid()) {
+      is_optional[t1.right.name] = t1.optional();
+    }
     if(is_free[i] != 0)
       continue;
-    const pattern_element_t& t1 = pat[i];
     for(unsigned int j = i+1; j < pat.size(); j++)
     {
       const pattern_element_t& t2 = pat[j];
@@ -1455,7 +1479,7 @@ LexdCompiler::readFile(UFILE* infile)
 Transducer*
 LexdCompiler::buildTransducer(bool usingFlags)
 {
-  token_t start_tok = {.name = internName(" "), .part = 1};
+  token_t start_tok = {.name = internName(" "), .part = 1, .optional = false};
   pattern_element_t start_pat = {.left=start_tok, .right=start_tok,
                                  .tag_filter=tag_filter_t(),
                                  .mode=Normal};
@@ -1477,7 +1501,7 @@ Transducer*
 LexdCompiler::buildTransducerSingleLexicon()
 {
   tagsAsMinFlags = true;
-  token_t start_tok = {.name = internName(" "), .part = 1};
+  token_t start_tok = {.name = internName(" "), .part = 1, .optional = false};
   pattern_element_t start_pat = {.left=start_tok, .right=start_tok,
                                  .tag_filter=tag_filter_t(),
                                  .mode=Normal};
@@ -1690,6 +1714,17 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
       trans.push_back(t);
     }
   }
+  if(tok.optional()) {
+    Transducer* t = free ? trans[0] : new Transducer();
+    tags_t empty_tags;
+    insertEntry(t, {.left=empty.left, .right=empty.right, .tags=empty_tags});
+    did_anything = true;
+    if (!free) {
+      applyMode(t, tok.mode);
+      trans.push_back(t);
+    }
+    did_anything = true;
+  }
   if(free)
   {
     if(!did_anything)
@@ -1812,6 +1847,20 @@ LexdCompiler::getLexiconTransducerWithFlags(pattern_element_t& tok, bool free)
       seg.right.symbols.insert(seg.right.symbols.end(), re.right.symbols.begin(), re.right.symbols.end());
     }
     seg.tags.insert(tags.begin(), tags.end());
+    insertEntry(trans, seg);
+  }
+  if(tok.optional()) {
+    lex_seg_t seg;
+    if (!free && tok.left.name.valid()) {
+      trans_sym_t flag = getFlag(Unification, tok.left.name, count);
+      seg.left.symbols.push_back(flag);
+      seg.right.symbols.push_back(flag);
+    }
+    if (!free && tok.right.name.valid() && tok.right.name != tok.left.name) {
+      trans_sym_t flag = getFlag(Unification, tok.right.name, count);
+      seg.left.symbols.push_back(flag);
+      seg.right.symbols.push_back(flag);
+    }
     insertEntry(trans, seg);
   }
   if(did_anything)

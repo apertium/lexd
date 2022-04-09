@@ -221,13 +221,14 @@ class xor_tag_filter_t : public op_tag_filter_t
 struct token_t {
   string_ref name;
   unsigned int part;
+  bool optional;
   bool operator<(const token_t &t) const
   {
-    return name < t.name || (name == t.name &&  part < t.part);
+    return name < t.name || (name == t.name && part < t.part) || (name == t.name && part == t.part && optional < t.optional) ;
   }
   bool operator==(const token_t &t) const
   {
-    return name == t.name && part == t.part;
+    return name == t.name && part == t.part && optional == t.optional;
   }
 };
 
@@ -285,6 +286,12 @@ struct pattern_element_t {
   }
 
   bool compatible(const lex_seg_t &tok) const;
+
+  bool optional() const
+  {
+    return ((left.name.valid() && left.optional) ||
+            (right.name.valid() && right.optional));
+  }
 
 };
 

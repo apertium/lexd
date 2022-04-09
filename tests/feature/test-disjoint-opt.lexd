@@ -1,0 +1,10 @@
+PATTERNS
+A?(1) B A?(1)
+
+LEXICON A
+a
+aa
+
+LEXICON B
+b
+bb
