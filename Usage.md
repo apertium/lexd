@@ -244,6 +244,16 @@ Negation? Adjective
 # Adjective
 ```
 
+Placing the `?` quantifier between a lexicon name and the segment number will that lexicon as a whole optional in that pattern:
+
+```
+PATTERNS
+OptionalCircumfix?(1) Stem OptionalCircumfix?(2)
+# equivalent to:
+# OptionalCircumfix(1) Stem OptionalCircumfix(2)
+# Stem
+```
+
 The quantifiers `*` (repeat 0 or more times) and `+` (repeat 1 or more times)
 function similarly.
 
