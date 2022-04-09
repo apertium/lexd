@@ -11,7 +11,7 @@ void endProgram(char *name)
 {
   if(name != NULL)
   {
-    cout << basename(name) << ": compile lexd files to transducers" << endl;
+    cout << basename(name) << " v" << VERSION << ": compile lexd files to transducers" << endl;
     cout << "USAGE: " << basename(name) << " [-abcfmx] [rule_file [output_file]]" << endl;
     cout << "   -a, --align:      align labels (prefer a:0 b:b to a:b b:0)" << endl;
     cout << "   -b, --bin:        output as Lttoolbox binary file (default is AT&T format)" << endl;
@@ -20,6 +20,7 @@ void endProgram(char *name)
     cout << "   -m, --minimize:   do hyperminimization (sets -f)" << endl;
     cout << "   -t, --tags:       compile tags and filters with flag diacritics (sets -f)" << endl;
 	cout << "   -U, --no-combine: represent multi-codepoint glyphs as multiple transitions" << endl;
+    cout << "   -V, --version:    print version string" << endl;
     cout << "   -x, --statistics: print lexicon and pattern sizes to stderr" << endl;
   }
   exit(EXIT_FAILURE);
@@ -54,13 +55,14 @@ int main(int argc, char *argv[])
       {"single",    no_argument, 0, 's'},
       {"tags",      no_argument, 0, 't'},
 	  {"no-combine",no_argument, 0, 'U'},
+      {"version",   no_argument, 0, 'V'},
       {"statistics",no_argument, 0, 'x'},
       {0, 0, 0, 0}
     };
 
-    int cnt=getopt_long(argc, argv, "abcfhmstUx", long_options, &option_index);
+    int cnt=getopt_long(argc, argv, "abcfhmstUVx", long_options, &option_index);
 #else
-    int cnt=getopt(argc, argv, "abcfhmstUx");
+    int cnt=getopt(argc, argv, "abcfhmstUVx");
 #endif
     if (cnt==-1)
       break;
@@ -101,6 +103,11 @@ int main(int argc, char *argv[])
 	  case 'U':
 		comp.setShouldCombine(false);
 		break;
+
+      case 'V':
+        cout << "lexd " << VERSION << endl;
+        return 0;
+        break;
 
       case 'x':
         stats = true;
