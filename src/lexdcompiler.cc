@@ -916,10 +916,10 @@ LexdCompiler::determineFreedom(pattern_t& pat)
   {
     const pattern_element_t& t1 = pat[i];
     if (is_optional.find(t1.left.name) != is_optional.end() && is_optional[t1.left.name] != t1.optional()) {
-      die("Lexicon %S cannot be both optional and non-optional in a single pattern.", name(t1.left.name));
+      die("Lexicon %S cannot be both optional and non-optional in a single pattern.", err(name(t1.left.name)));
     }
     if (is_optional.find(t1.right.name) != is_optional.end() && is_optional[t1.right.name] != t1.optional()) {
-      die("Lexicon %S cannot be both optional and non-optional in a single pattern.", name(t1.right.name));
+      die("Lexicon %S cannot be both optional and non-optional in a single pattern.", err(name(t1.right.name)));
     }
     if (t1.left.name.valid()) {
       is_optional[t1.left.name] = t1.optional();
