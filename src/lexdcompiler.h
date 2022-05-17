@@ -312,12 +312,12 @@ enum FlagDiacriticType
 class LexdCompiler
 {
 private:
-  bool shouldAlign;
-  bool shouldCompress;
-  bool shouldCombine;
-  bool tagsAsFlags;
-  bool shouldHypermin;
-  bool tagsAsMinFlags;
+  bool shouldAlign = false;
+  bool shouldCompress = false;
+  bool shouldCombine = true;
+  bool tagsAsFlags = false;
+  bool shouldHypermin = false;
+  bool tagsAsMinFlags = false;
 
   map<UnicodeString, string_ref> name_to_id;
   vector<UnicodeString> id_to_name;
@@ -334,18 +334,18 @@ private:
   map<pattern_element_t, pair<int, int>> transducerLocs;
   map<string_ref, bool> lexiconFreedom;
 
-  UFILE* input;
-  bool inLex;
-  bool inPat;
+  UFILE* input = nullptr;
+  bool inLex = false;
+  bool inPat = false;
   vector<entry_t> currentLexicon;
   tags_t currentLexicon_tags;
   string_ref currentLexiconId;
   unsigned int currentLexiconPartCount;
   string_ref currentPatternId;
-  line_number_t lineNumber;
-  bool doneReading;
-  unsigned int anonymousCount;
-  unsigned int transitionCount;
+  line_number_t lineNumber = 0;
+  bool doneReading = false;
+  unsigned int anonymousCount = 0;
+  unsigned int transitionCount = 0;
 
   Transducer* hyperminTrans;
 
