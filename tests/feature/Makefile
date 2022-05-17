@@ -28,6 +28,7 @@ tests = \
   pattag-coherent \
   pattag-details \
   pattern-independence \
+  regex \
   revsieve \
   sieve \
   sieveopt \

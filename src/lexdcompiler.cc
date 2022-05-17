@@ -251,6 +251,212 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
   return tag_filter_t();
 }
 
+void
+LexdCompiler::readSymbol(char_iter& iter, UnicodeString& line, lex_token_t& tok)
+{
+  if (*iter == "\\") {
+    if (shouldCombine) {
+      tok.symbols.push_back(alphabet_lookup(*++iter));
+    } else {
+      ++iter;
+      for (int c = 0; c < (*iter).length(); c++) {
+        tok.symbols.push_back(alphabet_lookup((*iter)[c]));
+      }
+    }
+  } else if (*iter == "{" || *iter == "<") {
+    UChar end = (*iter == "{") ? '}' : '>';
+    int i = iter.span().first;
+    for (; iter != iter.end() && *iter != end; ++iter) ;
+
+    if (*iter == end) {
+      tok.symbols.push_back(alphabet_lookup(line.tempSubStringBetween(i, iter.span().second)));
+    } else {
+      die("Multichar symbol didn't end; searching for %S", err(end));
+    }
+  } else if (shouldCombine) {
+    tok.symbols.push_back(alphabet_lookup(*iter));
+  } else {
+    for (int c = 0; c < (*iter).length(); c++) {
+      tok.symbols.push_back(alphabet_lookup((*iter)[c]));
+    }
+  }
+}
+
+int
+LexdCompiler::processRegexTokenSeq(char_iter& iter, UnicodeString& line, Transducer* trans, int start_state)
+{
+  bool inleft = true;
+  vector<vector<lex_token_t>> left, right;
+  for (; iter != iter.end(); ++iter) {
+    if (*iter == "(" || *iter == ")" || *iter == "|" || *iter == "/") break;
+    else if (*iter == "?" || *iter == "*" || *iter == "+")
+      die("Quantifier %S may only be applied to parenthesized groups", err(*iter));
+    else if (*iter == "]") die("Regex contains mismatched ]");
+    else if (*iter == ":" && inleft) inleft = false;
+    else if (*iter == ":") die("Regex contains multiple colons");
+    else if (*iter == "[") {
+      ++iter;
+      vector<lex_token_t> sym;
+      for (; iter != iter.end(); ++iter) {
+        if (*iter == "]") break;
+        else if (*iter == "-" && !sym.empty()) {
+          ++iter;
+          if (*iter == "]" || iter == iter.end()) {
+            --iter;
+            lex_token_t temp;
+            readSymbol(iter, line, temp);
+            sym.push_back(temp);
+          } else {
+            lex_token_t start = sym.back();
+            lex_token_t end;
+            readSymbol(iter, line, end);
+            // This will fail on diacritics even with -U
+            // on the principle that command-line args should not
+            // change the validity of the code -DGS 2022-05-17
+            if (start.symbols.size() != 1 || end.symbols.size() != 1 ||
+                (int)start.symbols[0] <= 0 || (int)end.symbols[0] <= 0)
+              die("Cannot process symbol range between multichar symbols");
+            int i_start = (int)start.symbols[0];
+            int i_end = (int)end.symbols[0];
+            if (i_start > i_end)
+              die("First character in symbol range does not preceed last");
+            for (int i = 1 + i_start; i <= i_end; i++) {
+              lex_token_t mid;
+              mid.symbols.push_back((trans_sym_t)i);
+              sym.push_back(mid);
+            }
+          }
+        } else {
+          lex_token_t temp;
+          readSymbol(iter, line, temp);
+          sym.push_back(temp);
+        }
+      }
+      (inleft ? left : right).push_back(sym);
+    } else {
+      vector<lex_token_t> v_temp;
+      lex_token_t t_temp;
+      readSymbol(iter, line, t_temp);
+      v_temp.push_back(t_temp);
+      (inleft ? left : right).push_back(v_temp);
+    }
+  }
+  int state = start_state;
+  vector<lex_token_t> empty_vec;
+  lex_token_t empty_tok;
+  empty_tok.symbols.push_back(trans_sym_t());
+  empty_vec.push_back(empty_tok);
+  for (unsigned int i = 0; i < left.size() || i < right.size(); i++) {
+    vector<lex_token_t>& lv = (i < left.size() && !left[i].empty() ?
+                               left[i] : empty_vec);
+    vector<lex_token_t>& rv = (i < right.size() && !right[i].empty() ?
+                               right[i] : empty_vec);
+    bool first = true;
+    int dest_state = 0;
+    if (inleft) {
+      for (auto& s : lv) {
+        if (first) {
+          dest_state = state;
+          for (auto& it : s.symbols)
+            dest_state = trans->insertNewSingleTransduction(alphabet((int)it, (int)it), dest_state);
+          if (dest_state == state)
+            dest_state = trans->insertNewSingleTransduction(0, dest_state);
+          first = false;
+        } else if (s.symbols.empty()) {
+          trans->linkStates(state, dest_state, 0);
+        } else {
+          int cur_state = state;
+          for (unsigned int k = 0; k < s.symbols.size(); k++) {
+            if (k+1 == s.symbols.size())
+              trans->linkStates(cur_state, dest_state, alphabet((int)s.symbols[k], (int)s.symbols[k]));
+            else
+              cur_state = trans->insertNewSingleTransduction(alphabet((int)s.symbols[k], (int)s.symbols[k]), cur_state);
+          }
+        }
+      }
+    } else {
+      for (auto& l : lv) {
+        for (auto& r : rv) {
+          vector<int> paired;
+          for (unsigned int j = 0; j < l.symbols.size() || j < r.symbols.size(); j++) {
+            trans_sym_t ls = (j < l.symbols.size() ? l.symbols[j] : trans_sym_t());
+            trans_sym_t rs = (j < r.symbols.size() ? r.symbols[j] : trans_sym_t());
+            paired.push_back(alphabet((int)ls, (int)rs));
+          }
+          if (first) {
+            dest_state = state;
+            for (auto& it : paired) {
+              dest_state = trans->insertNewSingleTransduction(it, dest_state);
+            }
+            first = false;
+          } else {
+            int cur_state = state;
+            for (unsigned int k = 0; k < paired.size(); k++) {
+              if (k+1 == paired.size())
+                trans->linkStates(cur_state, dest_state, paired[k]);
+              else
+                cur_state = trans->insertNewSingleTransduction(paired[k], cur_state);
+            }
+          }
+        }
+      }
+    }
+    state = dest_state;
+  }
+  return state;
+}
+
+int
+LexdCompiler::processRegexGroup(char_iter& iter, UnicodeString& line, Transducer* trans, int start_state, unsigned int depth)
+{
+  ++iter; // initial slash or paren
+  int state = start_state;
+  vector<int> option_ends;
+  for (; iter != iter.end(); ++iter) {
+    if (*iter == "(") {
+      state = trans->insertNewSingleTransduction(0, state);
+      state = processRegexGroup(iter, line, trans, state, depth+1);
+      --iter;
+      // this function ends on character after close paren or quantifier
+      // so step back so loop increment doesn't skip a character
+    }
+    else if (*iter == ")" || *iter == "/") break;
+    else if (*iter == "|") {
+      if (state == start_state)
+        state = trans->insertNewSingleTransduction(0, state);
+      option_ends.push_back(state);
+      state = start_state;
+    }
+    else {
+      state = processRegexTokenSeq(iter, line, trans, state);
+      --iter;
+    }
+  }
+  if (state == start_state)
+    state = trans->insertNewSingleTransduction(0, state);
+  for (auto& it : option_ends)
+    trans->linkStates(it, state, 0);
+  if ((depth > 0 && *iter == "/") || (depth == 0 && *iter == ")"))
+    die("Mismatched parentheses in regex");
+  if (iter == iter.end())
+    die("Unterminated regex");
+  ++iter;
+  if (depth > 0) {
+    if (*iter == "?") {
+      trans->linkStates(start_state, state, 0);
+      ++iter;
+    } else if (*iter == "*") {
+      trans->linkStates(start_state, state, 0);
+      trans->linkStates(state, start_state, 0);
+      ++iter;
+    } else if (*iter == "+") {
+      trans->linkStates(state, start_state, 0);
+      ++iter;
+    }
+  }
+  return state;
+}
+
 lex_seg_t
 LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count)
 {
@@ -272,9 +478,11 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
   }
   if((*iter).startsWith("/") && seg.left.symbols.size() == 0)
   {
-    die("Lexicon entries beginning with unescaped / are reserved for future use. Please use \\/");
+    seg.regex = new Transducer();
+    int state = processRegexGroup(iter, line, seg.regex, 0, 0);
+    seg.regex->setFinal(state);
   }
-  if(iter == iter.end() && seg.left.symbols.size() == 0)
+  if(iter == iter.end() && seg.regex == nullptr && seg.left.symbols.size() == 0)
     die("Expected %d parts, found %d", currentLexiconPartCount, part_count);
   for(; iter != iter.end(); ++iter)
   {
@@ -296,50 +504,16 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
       else
         die("Lexicon entry contains multiple colons");
     }
-    else if(*iter == "\\")
-    {
-	  if(shouldCombine)
-	  {
-		(inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup(*++iter));
-	  }
-	  else
-	  {
-		++iter;
-		for(int c = 0; c < (*iter).length(); c++)
-		{
-		  (inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup((*iter)[c]));
-		}
-	  }
-    }
-    else if(*iter == "{" || *iter == "<")
-    {
-      UChar end = (*iter == "{") ? '}' : '>';
-      int i = iter.span().first;
-      for(; iter != iter.end() && *iter != end; ++iter) ;
-
-      if(*iter == end)
-      {
-        trans_sym_t sym = alphabet_lookup(line.tempSubStringBetween(i, iter.span().second));
-        (inleft ? seg.left : seg.right).symbols.push_back(sym);
-      }
-      else
-      {
-        die("Multichar entry didn't end; searching for %S", err(end));
-      }
-    }
-	else if(!shouldCombine)
-	{
-	  for(int c = 0; c < (*iter).length(); c++)
-	  {
-		(inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup((*iter)[c]));
-	  }
-	}
-    else (inleft ? seg.left : seg.right).symbols.push_back(alphabet_lookup(*iter));
+    else readSymbol(iter, line, (inleft ? seg.left : seg.right));
   }
   if(inleft)
   {
     seg.right = seg.left;
   }
+
+  if (seg.regex != nullptr &&
+      !(seg.left.symbols.empty() && seg.right.symbols.empty()))
+    die("Lexicon entry contains both regex and text");
 
   seg.tags = currentLexicon_tags;
 
@@ -1559,6 +1733,9 @@ LexdCompiler::insertEntry(Transducer* trans, const lex_seg_t &seg)
       state = trans->insertSingleTransduction((int)alphabet_lookup(flag, flag), state);
     }
   }
+  if (seg.regex != nullptr) {
+    state = trans->insertTransducer(state, *seg.regex);
+  }
   if(!shouldAlign)
   {
     for(unsigned int i = 0; i < seg.left.symbols.size() || i < seg.right.symbols.size(); i++)
@@ -1702,7 +1879,15 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
       continue;
     }
     Transducer* t = free ? trans[0] : new Transducer();
-    insertEntry(t, {.left=le.left, .right=re.right, .tags=tags});
+    if (le.regex != nullptr || re.regex != nullptr) {
+      if (tok.left.name.empty())
+        die("Cannot use %S one-sided - it contains a regex", err(name(tok.right.name)));
+      if (tok.right.name.empty())
+        die("Cannot use %S one-sided - it contains a regex", err(name(tok.left.name)));
+      if (tok.left.name != tok.right.name)
+        die("Cannot collate %S with %S - %S contains a regex", err(name(tok.left.name)), err(name(tok.right.name)), err(name((le.regex != nullptr ? tok.left.name : tok.right.name))));
+    }
+    insertEntry(t, {.left=le.left, .right=re.right, .regex=le.regex, .tags=tags});
     did_anything = true;
     if(!free)
     {
@@ -1822,6 +2007,15 @@ LexdCompiler::getLexiconTransducerWithFlags(pattern_element_t& tok, bool free)
     }
     did_anything = true;
     lex_seg_t seg;
+    if (le.regex != nullptr || re.regex != nullptr) {
+      if (tok.left.name.empty())
+        die("Cannot use %S one-sided - it contains a regex", err(name(tok.right.name)));
+      if (tok.right.name.empty())
+        die("Cannot use %S one-sided - it contains a regex", err(name(tok.left.name)));
+      if (tok.left.name != tok.right.name)
+        die("Cannot collate %S with %S - %S contains a regex", err(name(tok.left.name)), err(name(tok.right.name)), err(name((le.regex != nullptr ? tok.left.name : tok.right.name))));
+      seg.regex = le.regex;
+    }
     if(!free && tok.left.name.valid())
     {
       trans_sym_t flag = getFlag(Unification, tok.left.name, i);

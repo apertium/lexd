@@ -420,3 +420,41 @@ dominus<nom>:domin>us
 dominus<acc>:domin>um
 ```
 
+## Regular Expressions
+
+If a lexicon entry begins with a forward slash, it is interpreted as a regular expression.
+
+```
+PATTERNS
+SomeLexicon
+
+LEXICON SomeLexicon
+/x(y|zz)?[n-p]/
+```
+
+produces the forms
+
+```
+xn
+xo
+xp
+xyn
+xyo
+xyp
+xzzn
+xzzo
+xzzp
+```
+
+### Currently Supported Syntax
+
+- Grouping with `()`
+- Quantification with `?`, `*`, and `+`
+  - Currently, quantifiers may only be applied to fully parenthesized groups, so `x+` is an error and must be written as `(x)+`.
+- Alternation with `|`
+- Character classes with `[]`
+- Character ranges such as `[a-z]`
+- Multichar symbols, following the same rules are normal lexicon entries
+- Two-sided strings using `:`
+  - `a:b` is the same as in a normal entry
+  - `[ab]:c` is equivalent to `(a:c)|(b:c)`

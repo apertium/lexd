@@ -252,6 +252,7 @@ struct lex_token_t {
 
 struct lex_seg_t {
   lex_token_t left, right;
+  Transducer* regex = nullptr;
   tags_t tags;
   bool operator == (const lex_seg_t &t) const
   {
@@ -361,6 +362,9 @@ private:
   RepeatMode readModifier(char_iter& iter);
   tag_filter_t readTagFilter(char_iter& iter, UnicodeString& line);
   tags_t readTags(char_iter& iter, UnicodeString& line);
+  void readSymbol(char_iter& iter, UnicodeString& line, lex_token_t& tok);
+  int processRegexTokenSeq(char_iter& iter, UnicodeString& line, Transducer* trans, int start_state);
+  int processRegexGroup(char_iter& iter, UnicodeString& line, Transducer* trans, int start_state, unsigned int depth);
   lex_seg_t processLexiconSegment(char_iter& iter, UnicodeString& line, unsigned int part_count);
   token_t readToken(char_iter& iter, UnicodeString& line);
   pattern_element_t readPatternElement(char_iter& iter, UnicodeString& line);

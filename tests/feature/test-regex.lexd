@@ -1,0 +1,19 @@
+PATTERNS
+[/a/]
+RE
+COLRE(1) COLRE(2)
+TWOSIDED
+
+LEXICON RE
+/<b>/
+/c[d-f]g/
+/h(i)?/
+/j|k/
+/(l(m)?)?/
+
+LEXICON COLRE(2)
+/n[op]/ q
+r /[s-u]v/
+
+LEXICON TWOSIDED
+/w:x[yz]/
