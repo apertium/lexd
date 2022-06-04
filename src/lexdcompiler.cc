@@ -1898,7 +1898,7 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
   if(tok.optional()) {
     Transducer* t = free ? trans[0] : new Transducer();
     tags_t empty_tags;
-    insertEntry(t, {.left=empty.left, .right=empty.right, .tags=empty_tags});
+    insertEntry(t, {.left=empty.left, .right=empty.right, .regex=nullptr, .tags=empty_tags});
     did_anything = true;
     if (!free) {
       applyMode(t, tok.mode);
