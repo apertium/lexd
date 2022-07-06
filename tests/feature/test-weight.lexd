@@ -1,0 +1,9 @@
+PATTERNS
+[a:a::1.0]
+[b::2.0]
+lex
+
+LEXICON lex
+c:c::3.0
+d::4.0
+e::inf

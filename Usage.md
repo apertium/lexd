@@ -458,3 +458,27 @@ xzzp
 - Two-sided strings using `:`
   - `a:b` is the same as in a normal entry
   - `[ab]:c` is equivalent to `(a:c)|(b:c)`
+
+## Weights
+
+Weights can be added to lexicon entries with a double colon:
+
+```
+PATTERNS
+[x::3.0]
+
+LEXICON blah
+y:y::2.0
+z::1.0
+```
+
+Epsilon weights are also possible:
+
+```
+PATTERNS
+AdjStem Substantive [::1.0] NounCases
+NounStem NounCases
+# noun reading more likely
+```
+
+Weights are currently not supported inside regular expressions, but such support is planned.
