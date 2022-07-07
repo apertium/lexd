@@ -36,14 +36,9 @@ tests = \
   xor-filter \
   xor-multi \
 
-att_tests = epsilon-weight weight
-
 sources = $(foreach test,$(tests),test-$(test).lexd)
-att_sources = $(foreach test,$(att_tests),test-$(test).lexd)
 
-check-strings: $(foreach src,$(sources),$(O)/$(src).txt.strings.check)
-check-att: $(foreach src,$(att_sources),$(O)/$(src).txt.check)
-check: check-strings check-att
+check: $(foreach src,$(sources),$(O)/$(src).txt.strings.check)
 
 O=.
 
@@ -57,11 +52,6 @@ $(O)/%.strings.diff: $(O)/%.strings %.strings.gold
 	diff -U0 $^ > $@; [ $$? != 2 ]
 $(O)/%.strings.check: $(O)/%.strings.diff
 	[ -s "$<" ] && cat "$<" && exit 1; touch $@
-$(O)/%.lexd.txt.diff: $(O)/%.lexd.txt %.lexd.txt.$(O).gold
-	diff -U0 $^ > $@; [ $$? != 2 ]
-$(O)/%.lexd.txt.check: $(O)/%.lexd.txt.diff
-	[ -s "$<" ] && cat "$<" && exit 1; touch $@
 clean:
 	rm $(foreach src,$(sources),$(O)/$(src).txt.strings.check)
-	rm $(foreach src,$(att_sources),$(O)/$(src).txt.check)
 	rmdir $(O)

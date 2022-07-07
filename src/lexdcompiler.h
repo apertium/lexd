@@ -253,7 +253,6 @@ struct lex_token_t {
 struct lex_seg_t {
   lex_token_t left, right;
   Transducer* regex = nullptr;
-  double weight = 0.000;
   tags_t tags;
   bool operator == (const lex_seg_t &t) const
   {

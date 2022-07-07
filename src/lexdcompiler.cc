@@ -2,7 +2,6 @@
 #include <unicode/unistr.h>
 #include <memory>
 #include <lttoolbox/string_utils.h>
-#include <cmath>
 
 using namespace icu;
 using namespace std;
@@ -500,49 +499,10 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
     }
     else if(*iter == ":")
     {
-      ++iter;
-      if (inleft && *iter != ":") {
+      if(inleft)
         inleft = false;
-        --iter;
-        continue;
-      }
-      if (*iter == ":") {
-        ++iter;
-        auto begin = iter.span();
-        if (*iter == "i" || *iter == "I") {
-          bool got_inf = false;
-          iter++;
-          if (*iter == "n" || *iter == "N") {
-            iter++;
-            if (*iter == "f" || *iter == "F") {
-              iter++;
-              if (*iter == " " || *iter == "[" || *iter == "]" || iter == iter.end()) {
-                got_inf = true;
-              }
-            }
-          }
-          if (got_inf) {
-            seg.weight = HUGE_VAL;
-          } else {
-            while (iter.span().first != begin.first) iter--;
-            die("Syntax error - non-numeric weight specifier: %S", err(*iter));
-          }
-        } else {
-          for (; iter != iter.end() && (*iter).length() > 0 &&
-                 !(*iter == " " || *iter == "[" || *iter == "]");
-               iter++) {
-            if ((*iter).length() != 1 ||
-                !(u_isdigit((*iter).charAt(0)) || *iter == ".")) {
-              die("Syntax error - non-numeric weight specifier: %S", err(*iter));
-            }
-          }
-          seg.weight = StringUtils::stod(to_ustring(line.tempSubStringBetween(begin.first, iter.span().first)));
-        }
-        if (*iter != "[")
-          break;
-      } else {
+      else
         die("Lexicon entry contains multiple colons");
-      }
     }
     else readSymbol(iter, line, (inleft ? seg.left : seg.right));
   }
@@ -1869,7 +1829,7 @@ LexdCompiler::insertEntry(Transducer* trans, const lex_seg_t &seg)
       state = trans->insertSingleTransduction((int)symbol, state);
     }
   }
-  trans->setFinal(state, seg.weight);
+  trans->setFinal(state);
 }
 
 void
@@ -1927,11 +1887,7 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
       if (tok.left.name != tok.right.name)
         die("Cannot collate %S with %S - %S contains a regex", err(name(tok.left.name)), err(name(tok.right.name)), err(name((le.regex != nullptr ? tok.left.name : tok.right.name))));
     }
-    double w = le.weight;
-    if (tok.left.name != tok.right.name) {
-      w += re.weight;
-    }
-    insertEntry(t, {.left=le.left, .right=re.right, .regex=le.regex, .weight=w, .tags=tags});
+    insertEntry(t, {.left=le.left, .right=re.right, .regex=le.regex, .tags=tags});
     did_anything = true;
     if(!free)
     {
@@ -2059,10 +2015,6 @@ LexdCompiler::getLexiconTransducerWithFlags(pattern_element_t& tok, bool free)
       if (tok.left.name != tok.right.name)
         die("Cannot collate %S with %S - %S contains a regex", err(name(tok.left.name)), err(name(tok.right.name)), err(name((le.regex != nullptr ? tok.left.name : tok.right.name))));
       seg.regex = le.regex;
-    }
-    seg.weight = le.weight;
-    if (tok.right.name != tok.left.name) {
-      seg.weight += re.weight;
     }
     if(!free && tok.left.name.valid())
     {

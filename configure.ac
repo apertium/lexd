@@ -1,6 +1,6 @@
 AC_PREREQ(2.61)
 
-AC_INIT([lexd], [1.3.1], [awesomeevildudes@gmail.com])
+AC_INIT([lexd], [1.3.0], [awesomeevildudes@gmail.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -15,7 +15,7 @@ AC_ARG_ENABLE(debug,
               [  --enable-debug  Enable "-g" compiler options],
               [CXXFLAGS="-g $CXXFLAGS";CFLAGS="-g $CFLAGS"])
 
-PKG_CHECK_MODULES([LTTOOLBOX], [lttoolbox >= 3.6.10])
+PKG_CHECK_MODULES([LTTOOLBOX], [lttoolbox >= 3.6.0])
 PKG_CHECK_MODULES([ICU_UC], [icu-uc])
 PKG_CHECK_MODULES([ICU_IO], [icu-io])
 
