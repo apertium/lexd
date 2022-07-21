@@ -1150,7 +1150,32 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
   }
   else if(patternTransducers[tok] == NULL)
   {
-    die("Cannot compile self-recursive or empty pattern '%S'", err(name(tok.left.name)));
+    UnicodeString tags;
+    auto& pos = tok.tag_filter.pos();
+    auto& neg = tok.tag_filter.neg();
+    if (!pos.empty() || !neg.empty()) {
+      tags += '[';
+      for (auto& it : pos) {
+        if (tags.length() > 1) tags += ',';
+        tags += name(it);
+      }
+      for (auto& it : neg) {
+        if (tags.length() > 1) tags += ',';
+        tags += '-';
+        tags += name(it);
+      }
+      tags += ']';
+    }
+    switch (tok.mode) {
+    case Question:
+      tags += '?'; break;
+    case Plus:
+      tags += '+'; break;
+    case Star:
+      tags += '*'; break;
+    default: break;
+    }
+    die("Cannot compile self-recursive or empty pattern %S%S", err(name(tok.left.name)), err(tags));
   }
   return patternTransducers[tok];
 }
