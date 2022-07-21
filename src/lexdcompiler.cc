@@ -102,13 +102,10 @@ LexdCompiler::LexdCompiler()
 LexdCompiler::~LexdCompiler()
 {}
 
-const UChar*
-err(const UnicodeString& s)
-{
-  // u_*printf only accept const UChar*
-  // so here's a wrapper so we don't have to write all this out every time
-  return to_ustring(s).c_str();
-}
+// u_*printf only accept const UChar*
+// so here's a wrapper so we don't have to write all this out every time
+// and make it a macro so we don't have issues with it deallocating
+#define err(s) (to_ustring(s).c_str())
 
 void
 LexdCompiler::die(const char* msg, ...)
