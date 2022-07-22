@@ -62,6 +62,37 @@ const UnicodeString &LexdCompiler::name(string_ref r) const
   return id_to_name[(unsigned int)r];
 }
 
+UnicodeString LexdCompiler::printPattern(const pattern_element_t& pat)
+{
+  UnicodeString ret = name(pat.left.name);
+  auto& pos = pat.tag_filter.pos();
+  auto& neg = pat.tag_filter.neg();
+  if (!pos.empty() || !neg.empty()) {
+    ret += '[';
+    int ln = ret.length();
+    for (auto& it : pos) {
+      if (ret.length() > ln) ret += ',';
+      ret += name(it);
+    }
+    for (auto& it : neg) {
+      if (ret.length() > ln) ret += ',';
+      ret += '-';
+      ret += name(it);
+    }
+    ret += ']';
+  }
+  switch (pat.mode) {
+  case Question:
+    ret += '?'; break;
+  case Plus:
+    ret += '+'; break;
+  case Star:
+    ret += '*'; break;
+  default: break;
+  }
+  return ret;
+}
+
 trans_sym_t LexdCompiler::alphabet_lookup(const UnicodeString &symbol)
 {
   if (!symbol.hasMoreChar32Than(0, symbol.length(), 1)) {
@@ -1061,7 +1092,7 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
   else
   {
     Transducer *p = buildPattern(tok);
-    if(p)
+    if(!p->hasNoFinals())
     {
       int new_state = t->insertTransducer(state, *p);
       if(tok.mode & Optional)
@@ -1070,7 +1101,6 @@ LexdCompiler::buildPattern(int state, Transducer* t, const pattern_t& pat, const
         t->linkStates(new_state, state, 0);
       buildPattern(new_state, t, pat, is_free, pos+1);
     }
-    return;
   }
 }
 
@@ -1118,6 +1148,7 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
     die("Cannot build collated pattern %S", err(name(tok.left.name)));
   if(patternTransducers.find(tok) == patternTransducers.end())
   {
+    if (verbose) cerr << "Compiling " << to_ustring(printPattern(tok)) << endl;
     Transducer* t = new Transducer();
     patternTransducers[tok] = NULL;
     map<string_ref, unsigned int> tempMatch;
@@ -1144,38 +1175,21 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
     tempMatch.swap(matchedParts);
     if(!t->hasNoFinals())
     {
+      if (verbose)
+        cerr << "Minimizing " << to_ustring(printPattern(tok)) << endl;
       t->minimize();
-      patternTransducers[tok] = t;
     }
+    else if (verbose) {
+      cerr << "Warning: " << to_ustring(printPattern(tok));
+      cerr << " is empty." << endl;
+    }
+    patternTransducers[tok] = t;
+    if (verbose)
+      cerr << "Done with " << to_ustring(printPattern(tok)) << endl;
   }
   else if(patternTransducers[tok] == NULL)
   {
-    UnicodeString tags;
-    auto& pos = tok.tag_filter.pos();
-    auto& neg = tok.tag_filter.neg();
-    if (!pos.empty() || !neg.empty()) {
-      tags += '[';
-      for (auto& it : pos) {
-        if (tags.length() > 1) tags += ',';
-        tags += name(it);
-      }
-      for (auto& it : neg) {
-        if (tags.length() > 1) tags += ',';
-        tags += '-';
-        tags += name(it);
-      }
-      tags += ']';
-    }
-    switch (tok.mode) {
-    case Question:
-      tags += '?'; break;
-    case Plus:
-      tags += '+'; break;
-    case Star:
-      tags += '*'; break;
-    default: break;
-    }
-    die("Cannot compile self-recursive or empty pattern %S%S", err(name(tok.left.name)), err(tags));
+    die("Cannot compile self-recursive %S", err(printPattern(tok)));
   }
   return patternTransducers[tok];
 }
@@ -1234,6 +1248,7 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
 {
   if(patternTransducers.find(tok) == patternTransducers.end())
   {
+    if (verbose) cerr << "Compiling " << to_ustring(printPattern(tok)) << endl;
     Transducer* trans = (shouldHypermin ? hyperminTrans : new Transducer());
     patternTransducers[tok] = NULL;
     unsigned int transition_index = 0;
@@ -1432,8 +1447,11 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
       }
       else
       {
-        if(!trans->hasNoFinals())
+        if(!trans->hasNoFinals()) {
+          if (verbose)
+            cerr << "Minimizing " << to_ustring(printPattern(tok)) << endl;
           trans->minimize();
+        }
       }
     }
     else
@@ -1445,6 +1463,7 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
         cerr << "FIXME" << endl;
       }
     }
+    if (verbose) cerr << "Done with " << to_ustring(printPattern(tok)) << endl;
     patternTransducers[tok] = trans;
   }
   else if(patternTransducers[tok] == NULL)

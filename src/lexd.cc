@@ -12,13 +12,14 @@ void endProgram(char *name)
   if(name != NULL)
   {
     cout << basename(name) << " v" << VERSION << ": compile lexd files to transducers" << endl;
-    cout << "USAGE: " << basename(name) << " [-abcfmx] [rule_file [output_file]]" << endl;
+    cout << "USAGE: " << basename(name) << " [-abcfmtvxUV] [rule_file [output_file]]" << endl;
     cout << "   -a, --align:      align labels (prefer a:0 b:b to a:b b:0)" << endl;
     cout << "   -b, --bin:        output as Lttoolbox binary file (default is AT&T format)" << endl;
     cout << "   -c, --compress:   condense labels (prefer a:b to 0:b a:0 - sets --align)" << endl;
     cout << "   -f, --flags:      compile using flag diacritics" << endl;
     cout << "   -m, --minimize:   do hyperminimization (sets -f)" << endl;
     cout << "   -t, --tags:       compile tags and filters with flag diacritics (sets -f)" << endl;
+    cout << "   -v, --verbose:    compile verbosely" << endl;
 	cout << "   -U, --no-combine: represent multi-codepoint glyphs as multiple transitions" << endl;
     cout << "   -V, --version:    print version string" << endl;
     cout << "   -x, --statistics: print lexicon and pattern sizes to stderr" << endl;
@@ -54,15 +55,16 @@ int main(int argc, char *argv[])
       {"minimize",  no_argument, 0, 'm'},
       {"single",    no_argument, 0, 's'},
       {"tags",      no_argument, 0, 't'},
+      {"verbose",   no_argument, 0, 'v'},
 	  {"no-combine",no_argument, 0, 'U'},
       {"version",   no_argument, 0, 'V'},
       {"statistics",no_argument, 0, 'x'},
       {0, 0, 0, 0}
     };
 
-    int cnt=getopt_long(argc, argv, "abcfhmstUVx", long_options, &option_index);
+    int cnt=getopt_long(argc, argv, "abcfhmstvUVx", long_options, &option_index);
 #else
-    int cnt=getopt(argc, argv, "abcfhmstUVx");
+    int cnt=getopt(argc, argv, "abcfhmstvUVx");
 #endif
     if (cnt==-1)
       break;
@@ -98,6 +100,10 @@ int main(int argc, char *argv[])
       case 't':
         flags = true;
         comp.setTagsAsFlags(true);
+        break;
+
+      case 'v':
+        comp.setVerbose(true);
         break;
 
 	  case 'U':

@@ -319,6 +319,7 @@ private:
   bool tagsAsFlags = false;
   bool shouldHypermin = false;
   bool tagsAsMinFlags = false;
+  bool verbose = false;
 
   map<UnicodeString, string_ref> name_to_id;
   vector<UnicodeString> id_to_name;
@@ -356,6 +357,7 @@ private:
   vector<pattern_element_t> right_sieve_tok;
 
   void die(const char* msg, ...);
+  UnicodeString printPattern(const pattern_element_t& pat);
   void finishLexicon();
   string_ref internName(const UnicodeString& name);
   string_ref checkName(UnicodeString& name);
@@ -416,6 +418,10 @@ public:
   void setShouldHypermin(bool val)
   {
     shouldHypermin = val;
+  }
+  void setVerbose(bool val)
+  {
+    verbose = val;
   }
   Transducer* buildTransducer(bool usingFlags);
   Transducer* buildTransducerSingleLexicon();

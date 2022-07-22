@@ -10,6 +10,7 @@ tests = \
   anonpat-modifier \
   anonpat-nospaces \
   anonpat-ops \
+  conflicting-tags \
   disjoint-opt \
   empty \
   empty-patterns \

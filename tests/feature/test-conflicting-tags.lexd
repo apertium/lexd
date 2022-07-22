@@ -1,0 +1,28 @@
+PATTERNS
+Verbs-IV
+
+PATTERN VerbStemBase
+V-IV [<v><iv>:>[nonpunct]] V-Aspect-Hab
+V-IV [<v><iv>:>[punct]] V-Aspect-Punct   # error reported here
+
+PATTERN VerbStem
+VerbStemBase[^[A1,A2]]
+
+PATTERN Verbs-IV
+:V-Agent VerbStem[-nonpunct] V-Agent:
+:V-Agent VerbStem[stat] V-Agent:
+
+LEXICON V-IV
+stem
+
+LEXICON V-Aspect-Hab
+<hab>:{a}haʔ[A1]
+<hab>:{a}s[A2]
+
+LEXICON V-Aspect-Punct
+<punct>:{a}{ʔ}[A1]
+<punct>:{a}{ʔ}[A2]
+
+LEXICON V-Agent
+<a1sg>:{G}{e}
+<a1duexcl>:{y}ag{n}{I}
