@@ -420,6 +420,20 @@ dominus<nom>:domin>us
 dominus<acc>:domin>um
 ```
 
+The exclusive or filter in this example will produce pairs of stems and case
+endings such that between them, one has a declension tag and one (possibly the
+same one) has a gender tag, and neither has any other declension or gender tag.
+Thus, if we were to add a third declension such as
+
+```
+arbor:arbor[Decl3,F]
+```
+
+but we then forgot to add `Decl3` to the filter in the pattern, then from the
+perspective of the filter, it wouldn't have a declension tag, so it would get
+paired with every case ending that does have a declension tag (which in this
+example is all of them).
+
 ## Regular Expressions
 
 If a lexicon entry begins with a forward slash, it is interpreted as a regular expression.
