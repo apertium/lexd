@@ -235,7 +235,7 @@ AuxRoot Tense PersonNumber
 ## Pattern Operators
 
 Some simple operators are supported to help write patterns concisely:
-- the option quantifier `?` can be applied after to a single token
+- the option quantifier `?` can be applied to a single token
 ```
 PATTERNS
 Negation? Adjective
@@ -244,7 +244,8 @@ Negation? Adjective
 # Adjective
 ```
 
-Placing the `?` quantifier between a lexicon name and the segment number will that lexicon as a whole optional in that pattern:
+Placing the `?` quantifier between a lexicon name and the segment number will
+make that lexicon as a whole optional in that pattern:
 
 ```
 PATTERNS
@@ -254,8 +255,24 @@ OptionalCircumfix?(1) Stem OptionalCircumfix?(2)
 # Stem
 ```
 
+Note that in this case the column specification after the `?` is required.
+
+```
+PATTERNS
+:Prefix?(1) Stem Prefix?(1):
+# equivalent to
+# :Prefix(1) Stem Prefix(1): => :Prefix Stem Prefix:
+# Stem
+:Prefix? Stem Prefix:?
+# equivalent to
+# :Prefix Stem Prefix:
+# :Prefix Stem
+# Stem Prefix:
+# Stem
+
 The quantifiers `*` (repeat 0 or more times) and `+` (repeat 1 or more times)
-function similarly.
+function similarly, though they only support modification of a single token
+and not distributed modification of a lexicon across an entire line.
 
 - the alternation operator `|` between two tokens causes one pattern
   for each alternate
