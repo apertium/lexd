@@ -269,6 +269,7 @@ PATTERNS
 # :Prefix Stem
 # Stem Prefix:
 # Stem
+```
 
 The quantifiers `*` (repeat 0 or more times) and `+` (repeat 1 or more times)
 function similarly, though they only support modification of a single token
