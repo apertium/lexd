@@ -93,13 +93,41 @@ UnicodeString LexdCompiler::printPattern(const pattern_element_t& pat)
   return ret;
 }
 
+UnicodeString LexdCompiler::printFilter(const tag_filter_t& filter)
+{
+  UnicodeString ret;
+  ret += '[';
+  for (auto& it : filter.pos()) {
+    if (ret.length() > 1) ret += ',';
+    ret += name(it);
+  }
+  for (auto& it : filter.neg()) {
+    if (ret.length() > 1) ret += ',';
+    ret += '-';
+    ret += name(it);
+  }
+  for (auto& op : filter.ops()) {
+    if (ret.length() > 1) ret += ',';
+    ret += op->sigil;
+    ret += '[';
+    int ln = ret.length();
+    for (auto& it : *op) {
+      if (ret.length() > ln) ret += ',';
+      ret += name(it);
+    }
+    ret += ']';
+  }
+  ret += ']';
+  return ret;
+}
+
 trans_sym_t LexdCompiler::alphabet_lookup(const UnicodeString &symbol)
 {
   if (!symbol.hasMoreChar32Than(0, symbol.length(), 1)) {
     return trans_sym_t((int)symbol.char32At(0));
   } else {
     UString temp;
-    temp.append(symbol.getBuffer(), symbol.length());
+    temp.append(symbol.getBuffer(), (unsigned int)symbol.length());
     alphabet.includeSymbol(temp);
     return trans_sym_t(alphabet(temp));
   }
@@ -1158,13 +1186,27 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
       for(unsigned int i = 0; i < pat_untagged.second.size(); i++)
       {
         auto pat = pat_untagged;
-        for(auto &pair: pat.second)
-        {
-          if(!pair.tag_filter.combine(tok.tag_filter.neg()))
-            die("Incompatible tag filters.");
+        bool taggable = true;
+        for (unsigned int j = 0; j < pat.second.size(); j++) {
+          auto& pair = pat.second[j];
+          if(!pair.tag_filter.combine(tok.tag_filter.neg())) {
+            taggable = false;
+            if (verbose) {
+              cerr << "Warning: The tags of " << to_ustring(printPattern(tok));
+              cerr << " conflict with " << to_ustring(printPattern(pat_untagged.second[j]));
+              cerr << " on line " << pat.first << "." << endl;
+            }
+          }
         }
-        if(!pat.second[i].tag_filter.combine(tok.tag_filter.pos()))
-          die("Incompatible tag filters.");
+        if(!pat.second[i].tag_filter.combine(tok.tag_filter.pos())) {
+          taggable = false;
+          if (verbose) {
+            cerr << "Warning: The tags of " << to_ustring(printPattern(tok));
+            cerr << " conflict with " << to_ustring(printPattern(pat_untagged.second[i]));
+            cerr << " on line " << pat.first << "." << endl;
+          }
+        }
+        if (!taggable) continue;
 
         matchedParts.clear();
         lineNumber = pat.first;
@@ -1301,10 +1343,14 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
             if(i == idx)
             {
               if(!cur.tag_filter.combine(tok.tag_filter.pos()))
-                die("Incompatible tag filters.");
+                die("Incompatible tag filters: Cannot combine %S with %S.",
+                    err(printFilter(cur.tag_filter)),
+                    err(printFilter(tok.tag_filter.pos())));
             }
             if(!cur.tag_filter.combine(tok.tag_filter.neg()))
-              die("Incompatible tag filters.");
+              die("Incompatible tag filters: Cannot combine %S with %S.",
+                  err(printFilter(cur.tag_filter)),
+                  err(printFilter(tok.tag_filter.neg())));
           }
 
           Transducer* t;

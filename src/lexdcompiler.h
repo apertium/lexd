@@ -131,6 +131,7 @@ class op_tag_filter_t : public set<string_ref>
   public:
   op_tag_filter_t(const set<string_ref> &s) : set(s) { }
   virtual std::vector<tag_filter_t> distribute(const tag_filter_t &tags) const = 0;
+  UChar sigil = '?';
 };
 struct tag_filter_t {
   tag_filter_t() = default;
@@ -194,6 +195,7 @@ class or_tag_filter_t : public op_tag_filter_t
     }
     return res;
   }
+  UChar sigil = '|';
 };
 class xor_tag_filter_t : public op_tag_filter_t
 {
@@ -215,6 +217,7 @@ class xor_tag_filter_t : public op_tag_filter_t
     }
     return res;
   }
+  UChar sigil = '^';
 };
 
 
@@ -358,6 +361,7 @@ private:
 
   void die(const char* msg, ...);
   UnicodeString printPattern(const pattern_element_t& pat);
+  UnicodeString printFilter(const tag_filter_t& filter);
   void finishLexicon();
   string_ref internName(const UnicodeString& name);
   string_ref checkName(UnicodeString& name);
