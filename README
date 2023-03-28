@@ -38,11 +38,11 @@ make check
 
 When dealing with prefixes, the overgenerate-and-constrain approach initially builds a transducer like this:
 
-![transducer that overgenerates](https://github.com/apertium/lexd/raw/master/imgs/lexc.png)
+![transducer that overgenerates](https://github.com/apertium/lexd/raw/main/imgs/lexc.png)
 
 Then composes that with a twolc rule to turn it into somehting like this:
 
-![correct transducer](https://github.com/apertium/lexd/raw/master/imgs/twoc.png)
+![correct transducer](https://github.com/apertium/lexd/raw/main/imgs/twoc.png)
 
 But compiling the rule needed to do that can take hundreds of times longer than compiling the lexicon.
 
