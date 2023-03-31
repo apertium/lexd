@@ -1,6 +1,7 @@
 #include "lexdcompiler.h"
 #include <unicode/unistr.h>
 #include <memory>
+#include <chrono>
 #include <lttoolbox/string_utils.h>
 
 using namespace icu;
@@ -907,6 +908,10 @@ LexdCompiler::processNextLine()
     UnicodeString name = line.tempSubString(8);
     finishLexicon();
     currentPatternId = checkName(name);
+    if (lexicons.find(currentPatternId) != lexicons.end()) {
+      die("The name '%S' cannot be used for both LEXICONs and PATTERNs.",
+          err(name));
+    }
     inPat = true;
   }
   else if(line.length() > 7 && line.startsWith("LEXICON "))
@@ -953,6 +958,10 @@ LexdCompiler::processNextLine()
       if(lexicons[currentLexiconId][0].size() != currentLexiconPartCount) {
         die("Multiple incompatible definitions for lexicon '%S'.", err(name));
       }
+    }
+    if (patterns.find(currentLexiconId) != patterns.end()) {
+      die("The name '%S' cannot be used for both LEXICONs and PATTERNs.",
+          err(name));
     }
     inLex = true;
     inPat = false;
@@ -1177,6 +1186,7 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
   if(patternTransducers.find(tok) == patternTransducers.end())
   {
     if (verbose) cerr << "Compiling " << to_ustring(printPattern(tok)) << endl;
+    auto start_time = chrono::steady_clock::now();
     Transducer* t = new Transducer();
     patternTransducers[tok] = NULL;
     map<string_ref, unsigned int> tempMatch;
@@ -1226,8 +1236,12 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
       cerr << " is empty." << endl;
     }
     patternTransducers[tok] = t;
-    if (verbose)
-      cerr << "Done with " << to_ustring(printPattern(tok)) << endl;
+    if (verbose) {
+      auto end_time = chrono::steady_clock::now();
+      chrono::duration<double> diff = end_time - start_time;
+      cerr << "Done compiling " << to_ustring(printPattern(tok));
+      cerr << " in " << diff.count() << " seconds." << endl;
+    }
   }
   else if(patternTransducers[tok] == NULL)
   {
@@ -1291,6 +1305,7 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
   if(patternTransducers.find(tok) == patternTransducers.end())
   {
     if (verbose) cerr << "Compiling " << to_ustring(printPattern(tok)) << endl;
+    auto start_time = chrono::steady_clock::now();
     Transducer* trans = (shouldHypermin ? hyperminTrans : new Transducer());
     patternTransducers[tok] = NULL;
     unsigned int transition_index = 0;
@@ -1340,17 +1355,20 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
           }
           else
           {
-            if(i == idx)
-            {
-              if(!cur.tag_filter.combine(tok.tag_filter.pos()))
-                die("Incompatible tag filters: Cannot combine %S with %S.",
-                    err(printFilter(cur.tag_filter)),
-                    err(printFilter(tok.tag_filter.pos())));
+            if (i == idx && !cur.tag_filter.combine(tok.tag_filter.pos())) {
+              if (verbose) {
+                cerr << "Warning: The tags of " << to_ustring(printPattern(tok));
+                cerr << " conflict with " << to_ustring(printPattern(pat.second[i]));
+                cerr << " on line " << pat.first << "." << endl;
+              }
             }
-            if(!cur.tag_filter.combine(tok.tag_filter.neg()))
-              die("Incompatible tag filters: Cannot combine %S with %S.",
-                  err(printFilter(cur.tag_filter)),
-                  err(printFilter(tok.tag_filter.neg())));
+            if (!cur.tag_filter.combine(tok.tag_filter.neg())) {
+              if (verbose) {
+                cerr << "Warning: The tags of " << to_ustring(printPattern(tok));
+                cerr << " conflict with " << to_ustring(printPattern(pat.second[i]));
+                cerr << " on line " << pat.first << "." << endl;
+              }
+            }
           }
 
           Transducer* t;
@@ -1509,7 +1527,12 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
         cerr << "FIXME" << endl;
       }
     }
-    if (verbose) cerr << "Done with " << to_ustring(printPattern(tok)) << endl;
+    if (verbose) {
+      auto end_time = chrono::steady_clock::now();
+      chrono::duration<double> diff = end_time - start_time;
+      cerr << "Done compiling " << to_ustring(printPattern(tok));
+      cerr << " in " << diff.count() << " seconds." << endl;
+    }
     patternTransducers[tok] = trans;
   }
   else if(patternTransducers[tok] == NULL)

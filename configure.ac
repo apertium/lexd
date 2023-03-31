@@ -1,6 +1,6 @@
 AC_PREREQ(2.61)
 
-AC_INIT([lexd], [1.3.2], [awesomeevildudes@gmail.com])
+AC_INIT([lexd], [1.3.3], [awesomeevildudes@gmail.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
 
