@@ -218,14 +218,14 @@ LexdCompiler::internName(const UnicodeString& name)
 string_ref
 LexdCompiler::checkName(UnicodeString& name)
 {
-  const static UnicodeString forbidden = " :?|()<>[]*+";
+  const static UString forbidden = u" :?|()<>[]*+";
   name.trim();
   int l = name.length();
   if(l == 0) die("Unnamed pattern or lexicon.");
 
-  for(const auto &c: char_iter(forbidden)) {
+  for(const auto &c: forbidden) {
     if(name.indexOf(c) != -1) {
-      die("Lexicon/pattern names cannot contain character '%C'", c[0]);
+      die("Lexicon/pattern names cannot contain character '%C'", c);
     }
   }
   return internName(name);
@@ -250,7 +250,7 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
   bool tag_nonempty = false;
   bool negative = false;
   vector<shared_ptr<op_tag_filter_t>> ops;
-  for(; iter != iter.end() && (*iter).length() > 0; ++iter)
+  for(; !iter.at_end() && (*iter).length() > 0; ++iter)
   {
     if(*iter == "]" || *iter == "," || *iter == " ")
     {
@@ -323,7 +323,7 @@ LexdCompiler::readSymbol(char_iter& iter, UnicodeString& line, lex_token_t& tok)
   } else if (*iter == "{" || *iter == "<") {
     UChar end = (*iter == "{") ? '}' : '>';
     int i = iter.span().first;
-    for (; iter != iter.end() && *iter != end; ++iter) ;
+    for (; !iter.at_end() && *iter != end; ++iter) ;
 
     if (*iter == end) {
       tok.symbols.push_back(alphabet_lookup(line.tempSubStringBetween(i, iter.span().second)));
@@ -344,7 +344,7 @@ LexdCompiler::processRegexTokenSeq(char_iter& iter, UnicodeString& line, Transdu
 {
   bool inleft = true;
   vector<vector<lex_token_t>> left, right;
-  for (; iter != iter.end(); ++iter) {
+  for (; !iter.at_end(); ++iter) {
     if (*iter == "(" || *iter == ")" || *iter == "|" || *iter == "/") break;
     else if (*iter == "?" || *iter == "*" || *iter == "+")
       die("Quantifier %S may only be applied to parenthesized groups", err(*iter));
@@ -354,11 +354,11 @@ LexdCompiler::processRegexTokenSeq(char_iter& iter, UnicodeString& line, Transdu
     else if (*iter == "[") {
       ++iter;
       vector<lex_token_t> sym;
-      for (; iter != iter.end(); ++iter) {
+      for (; !iter.at_end(); ++iter) {
         if (*iter == "]") break;
         else if (*iter == "-" && !sym.empty()) {
           ++iter;
-          if (*iter == "]" || iter == iter.end()) {
+          if (*iter == "]" || iter.at_end()) {
             --iter;
             lex_token_t temp;
             readSymbol(iter, line, temp);
@@ -469,7 +469,7 @@ LexdCompiler::processRegexGroup(char_iter& iter, UnicodeString& line, Transducer
   ++iter; // initial slash or paren
   int state = start_state;
   vector<int> option_ends;
-  for (; iter != iter.end(); ++iter) {
+  for (; !iter.at_end(); ++iter) {
     if (*iter == "(") {
       state = trans->insertNewSingleTransduction(0, state);
       state = processRegexGroup(iter, line, trans, state, depth+1);
@@ -495,7 +495,7 @@ LexdCompiler::processRegexGroup(char_iter& iter, UnicodeString& line, Transducer
     trans->linkStates(it, state, 0);
   if ((depth > 0 && *iter == "/") || (depth == 0 && *iter == ")"))
     die("Mismatched parentheses in regex");
-  if (iter == iter.end())
+  if (iter.at_end())
     die("Unterminated regex");
   ++iter;
   if (depth > 0) {
@@ -539,9 +539,9 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
     int state = processRegexGroup(iter, line, seg.regex, 0, 0);
     seg.regex->setFinal(state);
   }
-  if(iter == iter.end() && seg.regex == nullptr && seg.left.symbols.size() == 0)
+  if(iter.at_end() && seg.regex == nullptr && seg.left.symbols.size() == 0)
     die("Expected %d parts, found %d", currentLexiconPartCount, part_count);
-  for(; iter != iter.end(); ++iter)
+  for(; !iter.at_end(); ++iter)
   {
     if((*iter).startsWith(" ") || *iter == ']')
       break;
@@ -592,9 +592,9 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
 
   const UnicodeString boundary = " :()[]+*?|<>";
 
-  for(; iter != iter.end() && boundary.indexOf(*iter) == -1; ++iter);
+  for(; !iter.at_end() && boundary.indexOf(*iter) == -1; ++iter);
   UnicodeString name;
-  line.extract(begin_charspan.first, (iter == iter.end() ? line.length() : iter.span().first) - begin_charspan.first, name);
+  line.extract(begin_charspan.first, (iter.at_end() ? line.length() : iter.span().first) - begin_charspan.first, name);
 
   if(name.length() == 0)
     die("Symbol '%S' without lexicon name at u16 %d-%d", err(*iter), iter.span().first, iter.span().second-1);
@@ -614,7 +614,7 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
   {
     iter++;
     begin_charspan = iter.span();
-    for(; iter != iter.end() && (*iter).length() > 0 && *iter != ")"; iter++)
+    for(; !iter.at_end() && (*iter).length() > 0 && *iter != ")"; iter++)
     {
       if((*iter).length() != 1 || !u_isdigit((*iter).charAt(0)))
         die("Syntax error - non-numeric index in parentheses: %S", err(*iter));
@@ -682,7 +682,7 @@ LexdCompiler::readPatternElement(char_iter& iter, UnicodeString& line)
     if(*iter == ":")
     {
       iter++;
-      if(iter != iter.end() && (*iter).length() > 0)
+      if(!iter.at_end() && (*iter).length() > 0)
       {
         if(boundary.indexOf(*iter) == -1)
         {
@@ -719,7 +719,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
   const UnicodeString modifier = "+*?";
   const UnicodeString decrement_after_token = token_boundary + "([]";
 
-  for(; iter != iter.end() && *iter != ')' && (*iter).length() > 0; ++iter)
+  for(; !iter.at_end() && *iter != ')' && (*iter).length() > 0; ++iter)
   {
     if(*iter == " ") ;
     else if(*iter == "|")
@@ -798,7 +798,7 @@ LexdCompiler::processPattern(char_iter& iter, UnicodeString& line)
       processPattern(iter, line);
       if(*iter == " ")
         *iter++;
-      if(iter == iter.end() || *iter != ")")
+      if(iter.at_end() || *iter != ")")
         die("Missing closing ) for anonymous pattern");
       ++iter;
       tag_filter_t filter;
@@ -985,7 +985,7 @@ LexdCompiler::processNextLine()
   {
     char_iter iter = char_iter(line);
     processPattern(iter, line);
-    if(iter != iter.end() && (*iter).length() > 0)
+    if(!iter.at_end() && (*iter).length() > 0)
       die("Unexpected %S", err(*iter));
   }
   else if(inLex)
@@ -997,7 +997,7 @@ LexdCompiler::processNextLine()
       entry.push_back(processLexiconSegment(iter, line, i));
     }
     if(*iter == ' ') ++iter;
-    if(iter != iter.end())
+    if(!iter.at_end())
       die("Lexicon entry has '%S' (found at u16 %d), more than %d components", err(*iter), iter.span().first, currentLexiconPartCount);
     currentLexicon.push_back(entry);
   }

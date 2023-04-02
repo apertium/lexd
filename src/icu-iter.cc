@@ -22,15 +22,7 @@ charspan_iter::charspan_iter(const UnicodeString &s)
 charspan_iter::charspan_iter(const charspan_iter &other)
   : _status(other._status), s(other.s), _span(other._span)
 {
-  it = BreakIterator::createCharacterInstance(Locale::getDefault(), _status);
-  if(U_FAILURE(_status))
-  {
-    cerr << "Failed to create character iterator with code " << _status << endl;
-    exit(1);
-  }
-  it->setText(*s);
-  if(it->first() != _span.first)
-    while(it->next() != _span.first) ;
+  it = other.it->clone();
 }
 
 charspan_iter::~charspan_iter()
@@ -55,8 +47,7 @@ const pair<int, int> &charspan_iter::operator*() const
 
 charspan_iter charspan_iter::operator++(int)
 {
-  if(*this == end())
-    return *this;
+  if (at_end()) return *this;
   auto other = charspan_iter(*this);
   other._span = make_pair(other._span.second, other.it->next());
   if(other._span.first == other._span.second)
@@ -66,7 +57,7 @@ charspan_iter charspan_iter::operator++(int)
 
 charspan_iter &charspan_iter::operator++()
 {
-  if(*this != end())
+  if (!at_end())
   {
     _span = make_pair(_span.second, it->next());
     if(_span.first == _span.second)
@@ -130,6 +121,11 @@ charspan_iter charspan_iter::end()
   return cs_it;
 }
 
+bool charspan_iter::at_end() const
+{
+  return _span.second == BreakIterator::DONE;
+}
+
 
 char_iter::char_iter(const UnicodeString &s) : it(s)
 {
@@ -171,6 +167,10 @@ char_iter char_iter::end()
 {
   return char_iter(it.end());
 }
+bool char_iter::at_end()
+{
+  return it.at_end();
+}
 const UnicodeString &char_iter::string() const
 {
   return it.string();
@@ -191,6 +191,6 @@ pair<int, int> char_iter::span() const
 UString to_ustring(const UnicodeString &str)
 {
   UString temp;
-  temp.append(str.getBuffer(), str.length());
+  temp.append(str.getBuffer(), (unsigned int)str.length());
   return temp;
 }

@@ -35,6 +35,9 @@ class charspan_iter
     bool operator==(const charspan_iter &other) const;
     charspan_iter begin();
     charspan_iter end();
+    // checks (*this == end()), but without explicitly constructing
+    // end(), so it's much faster
+    bool at_end() const;
 };
 charspan_iter rev_charspan_iter(const icu::UnicodeString &s);
 
@@ -54,6 +57,7 @@ class char_iter
     char_iter operator--(int);
     char_iter begin();
     char_iter end();
+    bool at_end();
     const icu::UnicodeString &string() const;
     inline icu::UnicodeString operator*() const { return string().tempSubStringBetween(it.span().first, it.span().second); }
     bool operator!=(const char_iter &other) const;
