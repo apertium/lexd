@@ -11,6 +11,7 @@ tests = \
   anonpat-nospaces \
   anonpat-ops \
   conflicting-tags \
+  diacritic \
   disjoint-opt \
   empty \
   empty-patterns \

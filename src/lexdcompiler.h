@@ -368,6 +368,7 @@ private:
   RepeatMode readModifier(char_iter& iter);
   tag_filter_t readTagFilter(char_iter& iter, UnicodeString& line);
   tags_t readTags(char_iter& iter, UnicodeString& line);
+  void appendSymbol(const UnicodeString& s, lex_token_t& tok);
   void readSymbol(char_iter& iter, UnicodeString& line, lex_token_t& tok);
   int processRegexTokenSeq(char_iter& iter, UnicodeString& line, Transducer* trans, int start_state);
   int processRegexGroup(char_iter& iter, UnicodeString& line, Transducer* trans, int start_state, unsigned int depth);

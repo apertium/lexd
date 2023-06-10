@@ -309,17 +309,28 @@ LexdCompiler::readTagFilter(char_iter& iter, UnicodeString& line)
 }
 
 void
+LexdCompiler::appendSymbol(const UnicodeString& s, lex_token_t& tok)
+{
+  if (shouldCombine) {
+    tok.symbols.push_back(alphabet_lookup(s));
+  } else {
+    for (int c = 0; c < s.length(); c++) {
+      tok.symbols.push_back(alphabet_lookup(s[c]));
+    }
+  }
+}
+
+void
 LexdCompiler::readSymbol(char_iter& iter, UnicodeString& line, lex_token_t& tok)
 {
-  if (*iter == "\\") {
-    if (shouldCombine) {
-      tok.symbols.push_back(alphabet_lookup(*++iter));
+  if ((*iter).startsWith("\\")) {
+    if ((*iter).length() == 1) {
+      appendSymbol(*++iter, tok);
     } else {
-      ++iter;
-      for (int c = 0; c < (*iter).length(); c++) {
-        tok.symbols.push_back(alphabet_lookup((*iter)[c]));
-      }
+      appendSymbol((*iter).tempSubString(1), tok);
     }
+  } else if ((*iter).startsWith(":")) {
+    appendSymbol((*iter).tempSubString(1), tok);
   } else if (*iter == "{" || *iter == "<") {
     UChar end = (*iter == "{") ? '}' : '>';
     int i = iter.span().first;
@@ -330,12 +341,8 @@ LexdCompiler::readSymbol(char_iter& iter, UnicodeString& line, lex_token_t& tok)
     } else {
       die("Multichar symbol didn't end; searching for %S", err(end));
     }
-  } else if (shouldCombine) {
-    tok.symbols.push_back(alphabet_lookup(*iter));
   } else {
-    for (int c = 0; c < (*iter).length(); c++) {
-      tok.symbols.push_back(alphabet_lookup((*iter)[c]));
-    }
+    appendSymbol(*iter, tok);
   }
 }
 
@@ -554,12 +561,13 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
       --iter;
       tags_applied = true;
     }
-    else if(*iter == ":")
+    else if((*iter).startsWith(":"))
     {
       if(inleft)
         inleft = false;
       else
         die("Lexicon entry contains multiple colons");
+      if ((*iter).length() > 1) readSymbol(iter, line, seg.right);
     }
     else readSymbol(iter, line, (inleft ? seg.left : seg.right));
   }
