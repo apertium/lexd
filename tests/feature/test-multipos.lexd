@@ -1,0 +1,19 @@
+PATTERNS
+Subject ObjectPrefix VStemBase[tv,cl3]
+Subject VStemBase[iv,cl3]
+
+LEXICON Subject
+<s_sg1>:ni>
+
+LEXICON ObjectPrefix
+<o_sg1>:nech>
+
+PATTERN VStemBase
+VerbRootIV [<v><iv>:[iv]]
+VerbRootTV [<v><tv>:[tv]]
+
+LEXICON VerbRootIV
+blah[cl3]
+
+LEXICON VerbRootTV
+ihtoa:{i}htoa[cl3]
