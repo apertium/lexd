@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
+#include <i18n.h>
 using namespace std;
 using namespace icu;
 
@@ -11,8 +12,7 @@ charspan_iter::charspan_iter(const UnicodeString &s)
   it = BreakIterator::createCharacterInstance(Locale::getDefault(), _status);
   if(U_FAILURE(_status))
   {
-    cerr << "Failed to create character iterator with code " << _status << endl;
-    exit(1);
+    I18n(LEXD_I18N_DATA, "lexd").error("LEXD1000", {"code"}, {_status}, true);
   }
   it->setText(s);
   _span.first = it->first();

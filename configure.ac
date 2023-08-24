@@ -18,6 +18,7 @@ AC_ARG_ENABLE(debug,
 PKG_CHECK_MODULES([LTTOOLBOX], [lttoolbox >= 3.7.1])
 PKG_CHECK_MODULES([ICU_UC], [icu-uc])
 PKG_CHECK_MODULES([ICU_IO], [icu-io])
+PKG_CHECK_MODULES(I18N, [i18n], CPPFLAGS="$CPPFLAGS $I18N_CFLAGS"; LIBS="$LIBS $I18N_LIBS")
 
 AC_CHECK_FUNCS([getopt_long])
 
@@ -39,5 +40,6 @@ AC_CONFIG_FILES([
                  lexd.pc
                  Makefile
                  src/Makefile
+                 locales/Makefile
                  ])
 AC_OUTPUT

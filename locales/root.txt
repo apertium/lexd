@@ -1,0 +1,92 @@
+root{
+    lexd_desc{"{program} v{version}: compile lexd files to transducers\n"
+              "USAGE: {program} [-abcfmtvxUV] [rule_file [output_file]]\n"
+              "   -a, --align:      align labels (prefer a:0 b:b to a:b b:0)\n"
+              "   -b, --bin:        output as Lttoolbox binary file (default is AT&T format)\n"
+              "   -c, --compress:   condense labels (prefer a:b to 0:b a:0 - sets --align)\n"
+              "   -f, --flags:      compile using flag diacritics\n"
+              "   -m, --minimize:   do hyperminimization (sets -f)\n"
+              "   -t, --tags:       compile tags and filters with flag diacritics (sets -f)\n"
+              "   -v, --verbose:    compile verbosely\n"
+              "   -U, --no-combine: represent multi-codepoint glyphs as multiple transitions\n"
+              "   -V, --version:    print version string\n"
+              "   -x, --statistics: print lexicon and pattern sizes to stderr\n"}
+    on_line{"On line {line}: }
+    bad_tag{"Bad tag \"-{tag}\""}
+
+    LEXD1000{"ERROR LEXD1000: Failed to create character iterator with code {code}"}
+    LEXD1001{"ERROR LEXD1001: Unable to access \"{file}\"."}
+    LEXD1002{"WARNING LEXD1002: Output is empty transducer."}
+    LEXD1003{"ERROR LEXD1003: Lexicon {lexicon} is empty."}
+    LEXD1004{"ERROR LEXD1004: Unnamed pattern or lexicon."}
+    LEXD1005{"ERROR LEXD1005: Lexicon/pattern names cannot contain character \"{char}\""}
+    LEXD1006{"ERROR LEXD1006: Cannot declare negative tag in lexicon"}
+    LEXD1007{"ERROR LEXD1007: Empty tag at char {char}"}
+    LEXD1008{"ERROR LEXD1008: Illegal tag filter."}
+    LEXD1009{"ERROR LEXD1009: Illegal negated operation."}
+    LEXD1010{"ERROR LEXD1010: Expected list of operands."}
+    LEXD1011{"ERROR LEXD1011: End of line in tag list, expected \"]\""}
+    LEXD1012{"ERROR LEXD1012: Multichar symbol didn't end; searching for {end}"}
+    LEXD1013{"ERROR LEXD1013: Quantifier {quantifier} may only be applied to parenthesized groups"}
+    LEXD1014{"ERROR LEXD1014: Regex contains mismatched ]"}
+    LEXD1015{"ERROR LEXD1015: Regex contains multiple colons"}
+    LEXD1016{"ERROR LEXD1016: Cannot process symbol range between multichar symbols"}
+    LEXD1017{"ERROR LEXD1017: First character in symbol range does not preceed last"}
+    LEXD1018{"ERROR LEXD1018: Mismatched parentheses in regex"}
+    LEXD1019{"ERROR LEXD1019: Unterminated regex"}
+    LEXD1020{"ERROR LEXD1020: Expected {num1} parts, found {num2}"}
+    LEXD1021{"ERROR LEXD1021: Already provided tag list for this side."}
+    LEXD1022{"ERROR LEXD1022: Lexicon entry contains multiple colons"}
+    LEXD1023{"ERROR LEXD1023: Lexicon entry contains both regex and text"}
+    LEXD1024{"ERROR LEXD1024: Negative tag has no default to unset."}
+    LEXD1025{"ERROR LEXD1025: Symbol \"{symbol}\" without lexicon name at u16 {begin}-{end}"}
+    LEXD1026{"ERROR LEXD1026: Syntax error - non-numeric index in parentheses: {index}"}
+    LEXD1027{"ERROR LEXD1027: Syntax error - unmatched parenthesis"}
+    LEXD1028{"ERROR LEXD1028: Syntax error - missing index in parenthesis"}
+    LEXD1029{"ERROR LEXD1029: Syntax error - double colon"}
+    LEXD1030{"ERROR LEXD1030: Colon without lexicon or pattern name"}
+    LEXD1031{"ERROR LEXD1031: Unexpected symbol \"{symbol}\" at column {col}"}
+    LEXD1032{"ERROR LEXD1032: Syntax error - initial |"}
+    LEXD1033{"ERROR LEXD1033: Syntax error - multiple consecutive |"}
+    LEXD1034{"ERROR LEXD1034: Syntax error - sieve and alternation operators without intervening token"}
+    LEXD1035{"ERROR LEXD1035: Syntax error - cannot sieve backwards after forwards."}
+    LEXD1036{"ERROR LEXD1036: Backward sieve without token?"}
+    LEXD1037{"ERROR LEXD1037: Syntax error - multiple consecutive sieve operators"}
+    LEXD1038{"ERROR LEXD1038: Syntax error - alternation and sieve operators without intervening token"}
+    LEXD1039{"ERROR LEXD1039: Forward sieve without token?"}
+    LEXD1040{"ERROR LEXD1040: Missing closing ] for anonymous lexicon"}
+    LEXD1041{"ERROR LEXD1041: Missing closing ) for anonymous pattern"}
+    LEXD1042{"ERROR LEXD1042: Syntax error - unexpected modifier at u16 {start}-{end}"}
+    LEXD1043{"ERROR LEXD1043: Syntax error - trailing |"}
+    LEXD1044{"ERROR LEXD1044: Syntax error - trailing sieve (< or >)"}
+    LEXD1045{"ERROR LEXD1045: Trailing backslash"}
+    LEXD1046{"ERROR LEXD1046: The name \"{name}\" cannot be used for both LEXICONs and PATTERNs."}
+    LEXD1047{"ERROR LEXD1047: Expected start of default right tags \"[\" after \":\"."}
+    LEXD1048{"ERROR LEXD1048: Unexpected character \"{char}\" after default tags."}
+    LEXD1049{"ERROR LEXD1049: Unnamed lexicon"}
+    LEXD1050{"ERROR LEXD1050: The name \"{name}\" cannot be used for both LEXICONs and PATTERNs."}
+    LEXD1051{"ERROR LEXD1051: Multiple incompatible definitions for lexicon \"{lexicon}\"."}
+    LEXD1052{"ERROR LEXD1052: Expected \"ALIAS lexicon alt_name\""}
+    LEXD1053{"ERROR LEXD1053: Attempt to alias undefined lexicon \"{lexicon}\"."}
+    LEXD1054{"ERROR LEXD1054: Unexpected {symbol}"}
+    LEXD1055{"ERROR LEXD1055: Lexicon entry has \"{symbol}\" (found at u16 {num1}), more than {num2} components"}
+    LEXD1056{"ERROR LEXD1056: Expected \"PATTERNS\" or \"LEXICON\""}
+    LEXD1057{"ERROR LEXD1057: Cannot select part of pattern {pattern}"}
+    LEXD1058{"ERROR LEXD1058: Cannot collate pattern {pattern1} with {pattern2}"}
+    LEXD1059{"ERROR LEXD1059: Cannot select side of pattern {pattern}"}
+    LEXD1060{"ERROR LEXD1060: Cannot collate lexicon {lexicon} with pattern {pattern}"}
+    LEXD1061{"ERROR LEXD1061: Cannot collate pattern {pattern} with lexicon {lexicon}"}
+    LEXD1062{"ERROR LEXD1062: Lexicon or pattern \"{lex_pat}\" is not defined."}
+    LEXD1063{"ERROR LEXD1063: Cannot collate {left} with {right} - both appear in free variation earlier in the pattern."}
+    LEXD1064{"ERROR LEXD1064: Lexicon {lexicon} cannot be both optional and non-optional in a single pattern."}
+    LEXD1065{"ERROR LEXD1065: Cannot build collated pattern {pattern}"}
+    LEXD1066{"ERROR LEXD1066: Cannot compile self-recursive pattern \"{pattern}\""}
+    LEXD1067{"ERROR LEXD1067: {lexicon}({part}) - part is out of range"}
+    LEXD1068{"ERROR LEXD1068: Cannot collate {left} with {right} - differing numbers of entries"}
+    LEXD1069{"ERROR LEXD1069: Cannot use {lexicon} one-sided - it contains a regex"}
+    LEXD1070{"ERROR LEXD1070: Cannot collate {left} with {right} - {something} contains a regex"}
+    LEXD1071{"WARNING LEXD1071: One-sided tags are deprecated and will soon be removed (line {line})"}
+    LEXD1072{"WARNING LEXD1072: The tags of {pattern1} conflict with {pattern2} on line {line}."}
+    LEXD1073{"WARNING LEXD1073: {pattern} is empty."}
+    LEXD1074{"WARNING LEXD1074: No non-empty patterns found."}
+}
