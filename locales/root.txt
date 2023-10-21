@@ -14,79 +14,79 @@ root{
     on_line{"On line {line}: }
     bad_tag{"Bad tag \"-{tag}\""}
 
-    LEXD1000{"ERROR LEXD1000: Failed to create character iterator with code {code}"}
-    LEXD1001{"ERROR LEXD1001: Unable to access \"{file}\"."}
-    LEXD1002{"WARNING LEXD1002: Output is empty transducer."}
-    LEXD1003{"ERROR LEXD1003: Lexicon {lexicon} is empty."}
-    LEXD1004{"ERROR LEXD1004: Unnamed pattern or lexicon."}
-    LEXD1005{"ERROR LEXD1005: Lexicon/pattern names cannot contain character \"{char}\""}
-    LEXD1006{"ERROR LEXD1006: Cannot declare negative tag in lexicon"}
-    LEXD1007{"ERROR LEXD1007: Empty tag at char {char}"}
-    LEXD1008{"ERROR LEXD1008: Illegal tag filter."}
-    LEXD1009{"ERROR LEXD1009: Illegal negated operation."}
-    LEXD1010{"ERROR LEXD1010: Expected list of operands."}
-    LEXD1011{"ERROR LEXD1011: End of line in tag list, expected \"]\""}
-    LEXD1012{"ERROR LEXD1012: Multichar symbol didn't end; searching for {end}"}
-    LEXD1013{"ERROR LEXD1013: Quantifier {quantifier} may only be applied to parenthesized groups"}
-    LEXD1014{"ERROR LEXD1014: Regex contains mismatched ]"}
-    LEXD1015{"ERROR LEXD1015: Regex contains multiple colons"}
-    LEXD1016{"ERROR LEXD1016: Cannot process symbol range between multichar symbols"}
-    LEXD1017{"ERROR LEXD1017: First character in symbol range does not preceed last"}
-    LEXD1018{"ERROR LEXD1018: Mismatched parentheses in regex"}
-    LEXD1019{"ERROR LEXD1019: Unterminated regex"}
-    LEXD1020{"ERROR LEXD1020: Expected {num1} parts, found {num2}"}
-    LEXD1021{"ERROR LEXD1021: Already provided tag list for this side."}
-    LEXD1022{"ERROR LEXD1022: Lexicon entry contains multiple colons"}
-    LEXD1023{"ERROR LEXD1023: Lexicon entry contains both regex and text"}
-    LEXD1024{"ERROR LEXD1024: Negative tag has no default to unset."}
-    LEXD1025{"ERROR LEXD1025: Symbol \"{symbol}\" without lexicon name at u16 {begin}-{end}"}
-    LEXD1026{"ERROR LEXD1026: Syntax error - non-numeric index in parentheses: {index}"}
-    LEXD1027{"ERROR LEXD1027: Syntax error - unmatched parenthesis"}
-    LEXD1028{"ERROR LEXD1028: Syntax error - missing index in parenthesis"}
-    LEXD1029{"ERROR LEXD1029: Syntax error - double colon"}
-    LEXD1030{"ERROR LEXD1030: Colon without lexicon or pattern name"}
-    LEXD1031{"ERROR LEXD1031: Unexpected symbol \"{symbol}\" at column {col}"}
-    LEXD1032{"ERROR LEXD1032: Syntax error - initial |"}
-    LEXD1033{"ERROR LEXD1033: Syntax error - multiple consecutive |"}
-    LEXD1034{"ERROR LEXD1034: Syntax error - sieve and alternation operators without intervening token"}
-    LEXD1035{"ERROR LEXD1035: Syntax error - cannot sieve backwards after forwards."}
-    LEXD1036{"ERROR LEXD1036: Backward sieve without token?"}
-    LEXD1037{"ERROR LEXD1037: Syntax error - multiple consecutive sieve operators"}
-    LEXD1038{"ERROR LEXD1038: Syntax error - alternation and sieve operators without intervening token"}
-    LEXD1039{"ERROR LEXD1039: Forward sieve without token?"}
-    LEXD1040{"ERROR LEXD1040: Missing closing ] for anonymous lexicon"}
-    LEXD1041{"ERROR LEXD1041: Missing closing ) for anonymous pattern"}
-    LEXD1042{"ERROR LEXD1042: Syntax error - unexpected modifier at u16 {start}-{end}"}
-    LEXD1043{"ERROR LEXD1043: Syntax error - trailing |"}
-    LEXD1044{"ERROR LEXD1044: Syntax error - trailing sieve (< or >)"}
-    LEXD1045{"ERROR LEXD1045: Trailing backslash"}
-    LEXD1046{"ERROR LEXD1046: The name \"{name}\" cannot be used for both LEXICONs and PATTERNs."}
-    LEXD1047{"ERROR LEXD1047: Expected start of default right tags \"[\" after \":\"."}
-    LEXD1048{"ERROR LEXD1048: Unexpected character \"{char}\" after default tags."}
-    LEXD1049{"ERROR LEXD1049: Unnamed lexicon"}
-    LEXD1050{"ERROR LEXD1050: The name \"{name}\" cannot be used for both LEXICONs and PATTERNs."}
-    LEXD1051{"ERROR LEXD1051: Multiple incompatible definitions for lexicon \"{lexicon}\"."}
-    LEXD1052{"ERROR LEXD1052: Expected \"ALIAS lexicon alt_name\""}
-    LEXD1053{"ERROR LEXD1053: Attempt to alias undefined lexicon \"{lexicon}\"."}
-    LEXD1054{"ERROR LEXD1054: Unexpected {symbol}"}
-    LEXD1055{"ERROR LEXD1055: Lexicon entry has \"{symbol}\" (found at u16 {num1}), more than {num2} components"}
-    LEXD1056{"ERROR LEXD1056: Expected \"PATTERNS\" or \"LEXICON\""}
-    LEXD1057{"ERROR LEXD1057: Cannot select part of pattern {pattern}"}
-    LEXD1058{"ERROR LEXD1058: Cannot collate pattern {pattern1} with {pattern2}"}
-    LEXD1059{"ERROR LEXD1059: Cannot select side of pattern {pattern}"}
-    LEXD1060{"ERROR LEXD1060: Cannot collate lexicon {lexicon} with pattern {pattern}"}
-    LEXD1061{"ERROR LEXD1061: Cannot collate pattern {pattern} with lexicon {lexicon}"}
-    LEXD1062{"ERROR LEXD1062: Lexicon or pattern \"{lex_pat}\" is not defined."}
-    LEXD1063{"ERROR LEXD1063: Cannot collate {left} with {right} - both appear in free variation earlier in the pattern."}
-    LEXD1064{"ERROR LEXD1064: Lexicon {lexicon} cannot be both optional and non-optional in a single pattern."}
-    LEXD1065{"ERROR LEXD1065: Cannot build collated pattern {pattern}"}
-    LEXD1066{"ERROR LEXD1066: Cannot compile self-recursive pattern \"{pattern}\""}
-    LEXD1067{"ERROR LEXD1067: {lexicon}({part}) - part is out of range"}
-    LEXD1068{"ERROR LEXD1068: Cannot collate {left} with {right} - differing numbers of entries"}
-    LEXD1069{"ERROR LEXD1069: Cannot use {lexicon} one-sided - it contains a regex"}
-    LEXD1070{"ERROR LEXD1070: Cannot collate {left} with {right} - {something} contains a regex"}
-    LEXD1071{"WARNING LEXD1071: One-sided tags are deprecated and will soon be removed (line {line})"}
-    LEXD1072{"WARNING LEXD1072: The tags of {pattern1} conflict with {pattern2} on line {line}."}
-    LEXD1073{"WARNING LEXD1073: {pattern} is empty."}
-    LEXD1074{"WARNING LEXD1074: No non-empty patterns found."}
+    AXD80000{"ERROR AXD80000: Failed to create character iterator with code {code}"}
+    AXD80010{"ERROR AXD80010: Unable to access \"{file}\"."}
+    AXD60020{"WARNING AXD60020: Output is empty transducer."}
+    AXD80030{"ERROR AXD80030: Lexicon {lexicon} is empty."}
+    AXD80040{"ERROR AXD80040: Unnamed pattern or lexicon."}
+    AXD80050{"ERROR AXD80050: Lexicon/pattern names cannot contain character \"{char}\""}
+    AXD80060{"ERROR AXD80060: Cannot declare negative tag in lexicon"}
+    AXD80070{"ERROR AXD80070: Empty tag at char {char}"}
+    AXD80080{"ERROR AXD80080: Illegal tag filter."}
+    AXD80090{"ERROR AXD80090: Illegal negated operation."}
+    AXD80100{"ERROR AXD80100: Expected list of operands."}
+    AXD80110{"ERROR AXD80110: End of line in tag list, expected \"]\""}
+    AXD80120{"ERROR AXD80120: Multichar symbol didn't end; searching for {end}"}
+    AXD80130{"ERROR AXD80130: Quantifier {quantifier} may only be applied to parenthesized groups"}
+    AXD80140{"ERROR AXD80140: Regex contains mismatched ]"}
+    AXD80150{"ERROR AXD80150: Regex contains multiple colons"}
+    AXD80160{"ERROR AXD80160: Cannot process symbol range between multichar symbols"}
+    AXD80170{"ERROR AXD80170: First character in symbol range does not preceed last"}
+    AXD80180{"ERROR AXD80180: Mismatched parentheses in regex"}
+    AXD80190{"ERROR AXD80190: Unterminated regex"}
+    AXD80200{"ERROR AXD80200: Expected {num1} parts, found {num2}"}
+    AXD80210{"ERROR AXD80210: Already provided tag list for this side."}
+    AXD80220{"ERROR AXD80220: Lexicon entry contains multiple colons"}
+    AXD80230{"ERROR AXD80230: Lexicon entry contains both regex and text"}
+    AXD80240{"ERROR AXD80240: Negative tag has no default to unset."}
+    AXD80250{"ERROR AXD80250: Symbol \"{symbol}\" without lexicon name at u16 {begin}-{end}"}
+    AXD80260{"ERROR AXD80260: Syntax error - non-numeric index in parentheses: {index}"}
+    AXD80270{"ERROR AXD80270: Syntax error - unmatched parenthesis"}
+    AXD80280{"ERROR AXD80280: Syntax error - missing index in parenthesis"}
+    AXD80290{"ERROR AXD80290: Syntax error - double colon"}
+    AXD80300{"ERROR AXD80300: Colon without lexicon or pattern name"}
+    AXD80310{"ERROR AXD80310: Unexpected symbol \"{symbol}\" at column {col}"}
+    AXD80320{"ERROR AXD80320: Syntax error - initial |"}
+    AXD80330{"ERROR AXD80330: Syntax error - multiple consecutive |"}
+    AXD80340{"ERROR AXD80340: Syntax error - sieve and alternation operators without intervening token"}
+    AXD80350{"ERROR AXD80350: Syntax error - cannot sieve backwards after forwards."}
+    AXD80360{"ERROR AXD80360: Backward sieve without token?"}
+    AXD80370{"ERROR AXD80370: Syntax error - multiple consecutive sieve operators"}
+    AXD80380{"ERROR AXD80380: Syntax error - alternation and sieve operators without intervening token"}
+    AXD80390{"ERROR AXD80390: Forward sieve without token?"}
+    AXD80400{"ERROR AXD80400: Missing closing ] for anonymous lexicon"}
+    AXD80410{"ERROR AXD80410: Missing closing ) for anonymous pattern"}
+    AXD80420{"ERROR AXD80420: Syntax error - unexpected modifier at u16 {start}-{end}"}
+    AXD80430{"ERROR AXD80430: Syntax error - trailing |"}
+    AXD80440{"ERROR AXD80440: Syntax error - trailing sieve (< or >)"}
+    AXD80450{"ERROR AXD80450: Trailing backslash"}
+    AXD80460{"ERROR AXD80460: The name \"{name}\" cannot be used for both LEXICONs and PATTERNs."}
+    AXD80470{"ERROR AXD80470: Expected start of default right tags \"[\" after \":\"."}
+    AXD80480{"ERROR AXD80480: Unexpected character \"{char}\" after default tags."}
+    AXD80490{"ERROR AXD80490: Unnamed lexicon"}
+    AXD80500{"ERROR AXD80500: The name \"{name}\" cannot be used for both LEXICONs and PATTERNs."}
+    AXD80510{"ERROR AXD80510: Multiple incompatible definitions for lexicon \"{lexicon}\"."}
+    AXD80520{"ERROR AXD80520: Expected \"ALIAS lexicon alt_name\""}
+    AXD80530{"ERROR AXD80530: Attempt to alias undefined lexicon \"{lexicon}\"."}
+    AXD80540{"ERROR AXD80540: Unexpected {symbol}"}
+    AXD80550{"ERROR AXD80550: Lexicon entry has \"{symbol}\" (found at u16 {num1}), more than {num2} components"}
+    AXD80560{"ERROR AXD80560: Expected \"PATTERNS\" or \"LEXICON\""}
+    AXD80570{"ERROR AXD80570: Cannot select part of pattern {pattern}"}
+    AXD80580{"ERROR AXD80580: Cannot collate pattern {pattern1} with {pattern2}"}
+    AXD80590{"ERROR AXD80590: Cannot select side of pattern {pattern}"}
+    AXD80600{"ERROR AXD80600: Cannot collate lexicon {lexicon} with pattern {pattern}"}
+    AXD80610{"ERROR AXD80610: Cannot collate pattern {pattern} with lexicon {lexicon}"}
+    AXD80620{"ERROR AXD80620: Lexicon or pattern \"{lex_pat}\" is not defined."}
+    AXD80630{"ERROR AXD80630: Cannot collate {left} with {right} - both appear in free variation earlier in the pattern."}
+    AXD80640{"ERROR AXD80640: Lexicon {lexicon} cannot be both optional and non-optional in a single pattern."}
+    AXD80650{"ERROR AXD80650: Cannot build collated pattern {pattern}"}
+    AXD80660{"ERROR AXD80660: Cannot compile self-recursive pattern \"{pattern}\""}
+    AXD80670{"ERROR AXD80670: {lexicon}({part}) - part is out of range"}
+    AXD80680{"ERROR AXD80680: Cannot collate {left} with {right} - differing numbers of entries"}
+    AXD80690{"ERROR AXD80690: Cannot use {lexicon} one-sided - it contains a regex"}
+    AXD80700{"ERROR AXD80700: Cannot collate {left} with {right} - {something} contains a regex"}
+    AXD60710{"WARNING AXD60710: One-sided tags are deprecated and will soon be removed (line {line})"}
+    AXD60720{"WARNING AXD60720: The tags of {pattern1} conflict with {pattern2} on line {line}."}
+    AXD60730{"WARNING AXD60730: {pattern} is empty."}
+    AXD60740{"WARNING AXD60740: No non-empty patterns found."}
 }

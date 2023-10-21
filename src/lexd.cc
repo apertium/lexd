@@ -2,7 +2,7 @@
 
 #include <lttoolbox/lt_locale.h>
 #include <unicode/ustdio.h>
-#include <i18n.h>
+#include <lttoolbox/i18n.h>
 #include <libgen.h>
 #include <getopt.h>
 
@@ -10,7 +10,7 @@ using namespace std;
 
 void endProgram(char *name)
 {
-  I18n i18n {LEXD_I18N_DATA, "lexd"};
+  I18n i18n {AXD_I18N_DATA, "axd"};
   if(name != NULL)
   {
     cout << i18n.format("lexd_desc", {"program", "version"}, {basename(name), VERSION});
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
     input = u_fopen(infile.c_str(), "rb", NULL, NULL);
     if(!input)
     {
-      I18n(LEXD_I18N_DATA, "lexd").error("LEXD1001", {"file"}, {infile.c_str()}, true);
+      I18n(AXD_I18N_DATA, "axd").error("AXD80010", {"file"}, {infile.c_str()}, true);
     }
   }
 
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
     output = u_fopen(outfile.c_str(), "wb", NULL, NULL);
     if(!output)
     {
-      I18n(LEXD_I18N_DATA, "lexd").error("LEXD1001", {"file"}, {outfile.c_str()}, true);
+      I18n(AXD_I18N_DATA, "axd").error("AXD80010", {"file"}, {outfile.c_str()}, true);
     }
   }
 
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
   if(stats)
     comp.printStatistics();
   if(!transducer)
-    I18n(LEXD_I18N_DATA, "lexd").error("LEXD1002", {}, {}, false);
+    I18n(AXD_I18N_DATA, "axd").error("AXD60020", {}, {}, false);
   else if(bin)
   {
     // TODO: finish this!

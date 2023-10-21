@@ -17,6 +17,6 @@ $(check_targets): check-%: all tests/feature
 	+ make -C tests/feature O=$* LEXD_TEST_FLAGS="$$(echo '$*' | grep -v plain | sed 's/^\|-/ --/g')" check
 	+ make -C tests/feature O=$* clean
 
-export LTTB_I18N_DATA=$(datadir)/lttoolbox/lttoolbox.dat
+export ALT_I18N_DATA=$(datadir)/lttoolbox/lttoolbox.dat
 export LOCALES_DIR=$(datadir)/$(PACKAGE_NAME)
-export LEXD_I18N_DATA=$(LOCALES_DIR)/lexd.dat
+export AXD_I18N_DATA=$(LOCALES_DIR)/axd.dat

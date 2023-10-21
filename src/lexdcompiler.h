@@ -7,7 +7,7 @@
 #include <lttoolbox/alphabet.h>
 #include <unicode/ustdio.h>
 #include <unicode/unistr.h>
-#include <i18n.h>
+#include <lttoolbox/i18n.h>
 
 #include <map>
 #include <string>
@@ -352,7 +352,7 @@ private:
   bool doneReading = false;
   unsigned int anonymousCount = 0;
   unsigned int transitionCount = 0;
-  I18n i18n {LEXD_I18N_DATA, "lexd"};
+  I18n i18n {AXD_I18N_DATA, "axd"};
 
   Transducer* hyperminTrans;
 
