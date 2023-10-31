@@ -1801,7 +1801,7 @@ LexdCompiler::buildTransducerSingleLexicon()
   int end = buildPatternSingleLexicon(start_pat, 0);
   if(end == -1)
   {
-    i18n.error("AXD60740", {}, {}, false);
+    i18n.error("AXD60740", false);
   }
   else {
     hyperminTrans->setFinal(end);

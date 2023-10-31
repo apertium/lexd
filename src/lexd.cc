@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
   if(stats)
     comp.printStatistics();
   if(!transducer)
-    I18n(AXD_I18N_DATA, "axd").error("AXD60020", {}, {}, false);
+    I18n(AXD_I18N_DATA, "axd").error("AXD60020", false);
   else if(bin)
   {
     // TODO: finish this!
