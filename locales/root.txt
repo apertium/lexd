@@ -13,6 +13,16 @@ root{
               "   -x, --statistics: print lexicon and pattern sizes to stderr\n"}
     on_line{"On line {line}: }
     bad_tag{"Bad tag \"-{tag}\""}
+    patterns{"Patterns: "}
+    lexicons{"Lexicons: "}
+    compiling{"Compiling {pattern}"}
+    minimizing{"Minimizing {pattern}"}
+    done_compiling_in{"Done compiling {pattern} in {seconds} seconds."}
+    fixme{"FIXME"}
+    lexicon_entries{"Lexicon entries: "}
+    pattern_entries{"Pattern entries: "}
+    counts_for_individual_lexicons{"Counts for individual lexicons:"}
+    all_anonymous_lexicons{"All anonymous lexicons: "}
 
     AXD80000{"ERROR AXD80000: Failed to create character iterator with code {code}"}
     AXD80010{"ERROR AXD80010: Unable to access \"{file}\"."}

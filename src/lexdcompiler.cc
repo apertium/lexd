@@ -1058,11 +1058,11 @@ LexdCompiler::isLexiconToken(const pattern_element_t& tok)
   }
   else
   {
-    cerr << "Patterns: ";
+    cerr << i18n.format("patterns");
     for(auto pat: patterns)
       cerr << to_ustring(name(pat.first)) << " ";
     cerr << endl;
-    cerr << "Lexicons: ";
+    cerr << i18n.format("lexicons");
     for(auto l: lexicons)
       cerr << to_ustring(name(l.first)) << " ";
     cerr << endl;
@@ -1201,7 +1201,7 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
     die(i18n.format("AXD80650", {"pattern"}, {name(tok.left.name)}));
   if(patternTransducers.find(tok) == patternTransducers.end())
   {
-    if (verbose) cerr << "Compiling " << to_ustring(printPattern(tok)) << endl;
+    if (verbose) cerr << i18n.format("compiling", {"pattern"}, {printPattern(tok)}) << endl;
     auto start_time = chrono::steady_clock::now();
     Transducer* t = new Transducer();
     patternTransducers[tok] = NULL;
@@ -1242,7 +1242,7 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
     if(!t->hasNoFinals())
     {
       if (verbose)
-        cerr << "Minimizing " << to_ustring(printPattern(tok)) << endl;
+        cerr << i18n.format("minimizing", {"pattern"}, {printPattern(tok)}) << endl;
       t->minimize();
     }
     else if (verbose) {
@@ -1252,8 +1252,7 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
     if (verbose) {
       auto end_time = chrono::steady_clock::now();
       chrono::duration<double> diff = end_time - start_time;
-      cerr << "Done compiling " << to_ustring(printPattern(tok));
-      cerr << " in " << diff.count() << " seconds." << endl;
+      cerr << i18n.format("done_compiling_in", {"pattern", "seconds"}, {printPattern(tok), diff.count()}) << endl;
     }
   }
   else if(patternTransducers[tok] == NULL)
@@ -1317,7 +1316,7 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
 {
   if(patternTransducers.find(tok) == patternTransducers.end())
   {
-    if (verbose) cerr << "Compiling " << to_ustring(printPattern(tok)) << endl;
+    if (verbose) cerr << i18n.format("compiling", {"pattern"}, {printPattern(tok)}) << endl;
     auto start_time = chrono::steady_clock::now();
     Transducer* trans = (shouldHypermin ? hyperminTrans : new Transducer());
     patternTransducers[tok] = NULL;
@@ -1524,7 +1523,7 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
       {
         if(!trans->hasNoFinals()) {
           if (verbose)
-            cerr << "Minimizing " << to_ustring(printPattern(tok)) << endl;
+            cerr << i18n.format("minimizing", {"pattern"}, {printPattern(tok)}) << endl;
           trans->minimize();
         }
       }
@@ -1535,14 +1534,13 @@ LexdCompiler::buildPatternWithFlags(const pattern_element_t &tok, int pattern_st
         trans = NULL;
       else
       {
-        cerr << "FIXME" << endl;
+        cerr << i18n.format("fixme") << endl;
       }
     }
     if (verbose) {
       auto end_time = chrono::steady_clock::now();
       chrono::duration<double> diff = end_time - start_time;
-      cerr << "Done compiling " << to_ustring(printPattern(tok));
-      cerr << " in " << diff.count() << " seconds." << endl;
+      cerr << i18n.format("done_compiling_in", {"pattern", "seconds"}, {printPattern(tok), diff.count()}) << endl;
     }
     patternTransducers[tok] = trans;
   }
@@ -2201,20 +2199,20 @@ LexdCompiler::getLexiconTransducerWithFlags(pattern_element_t& tok, bool free)
 void
 LexdCompiler::printStatistics() const
 {
-  cerr << "Lexicons: " << lexicons.size() << endl;
-  cerr << "Lexicon entries: ";
+  cerr << i18n.format("lexicons") << lexicons.size() << endl;
+  cerr << i18n.format("lexicon_entries");
   unsigned int x = 0;
   for(const auto &lex: lexicons)
     x += lex.second.size();
   cerr << x << endl;
   x = 0;
-  cerr << "Patterns: " << patterns.size() << endl;
-  cerr << "Pattern entries: ";
+  cerr << i18n.format("patterns") << patterns.size() << endl;
+  cerr << i18n.format("pattern_entries");
   for(const auto &pair: patterns)
     x += pair.second.size();
   cerr << x << endl;
   cerr << endl;
-  cerr << "Counts for individual lexicons:" << endl;
+  cerr << i18n.format("counts_for_individual_lexicons") << endl;
   unsigned int anon = 0;
   for(const auto &lex: lexicons)
   {
@@ -2223,5 +2221,5 @@ LexdCompiler::printStatistics() const
 	if(n[0] == ' ') anon += lex.second.size();
 	else cerr << n << ": " << lex.second.size() << endl;
   }
-  cerr << "All anonymous lexicons: " << anon << endl;
+  cerr << i18n.format("all_anonymous_lexicons") << anon << endl;
 }
