@@ -197,7 +197,7 @@ LexdCompiler::finishLexicon()
       die("Lexicon '%S' is empty.", err(name(currentLexiconId)));
     }
     appendLexicon(currentLexiconId, currentLexicon);
-    
+
     currentLexicon.clear();
     currentLexicon_tags.clear();
   }
@@ -632,6 +632,7 @@ LexdCompiler::readToken(char_iter& iter, UnicodeString& line)
     if(iter.span().first == begin_charspan.first)
       die("Syntax error - missing index in parenthesis");
     part = (unsigned int)StringUtils::stoi(to_ustring(line.tempSubStringBetween(begin_charspan.first, iter.span().first)));
+    if (part == 0) die("Invalid column number (0)");
     ++iter;
   }
 
