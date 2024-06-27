@@ -44,6 +44,7 @@ check-pos: $(foreach src,$(sources),$(O)/$(src).txt.strings.check)
 
 negtests = \
   col0 \
+  trailing-bracket \
 
 negsources = $(foreach test,$(negtests),negtest-$(test).lexd)
 

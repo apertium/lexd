@@ -1004,6 +1004,7 @@ LexdCompiler::processNextLine()
     for(unsigned int i = 0; i < currentLexiconPartCount; i++)
     {
       entry.push_back(processLexiconSegment(iter, line, i));
+      if (*iter == "]") die("Unexpected closing bracket.");
     }
     if(*iter == ' ') ++iter;
     if(!iter.at_end())
