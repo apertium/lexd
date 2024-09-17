@@ -174,6 +174,8 @@ struct tag_filter_t {
     return filters;
   }
 
+  vector<vector<pos_tag_filter_t>> distribute_pos(size_t n) const;
+
   private:
   pos_tag_filter_t _pos;
   neg_tag_filter_t _neg;

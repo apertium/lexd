@@ -54,6 +54,24 @@ bool tag_filter_t::try_apply(tags_t &tags) const
   unionset_inplace(tags, pos());
   return true;
 }
+vector<vector<pos_tag_filter_t>> tag_filter_t::distribute_pos(size_t n) const
+{
+  vector<vector<pos_tag_filter_t>> ret;
+  ret.resize(1);
+  ret[0].resize(n);
+  for (auto& tag : _pos) {
+    vector<vector<pos_tag_filter_t>> ret2;
+    for (auto& seq : ret) {
+      for (size_t i = 0; i < n; i++) {
+        auto seq2 = seq;
+        seq2[i].insert(tag);
+        ret2.push_back(seq2);
+      }
+    }
+    ret.swap(ret2);
+  }
+  return ret;
+}
 bool pattern_element_t::compatible(const lex_seg_t &tok) const
 {
   return left.name.empty() || right.name.empty() || tag_filter.compatible(tok.tags);
@@ -1203,35 +1221,43 @@ LexdCompiler::buildPattern(const pattern_element_t &tok)
     tempMatch.swap(matchedParts);
     for(auto &pat_untagged : patterns[tok.left.name])
     {
-      for(unsigned int i = 0; i < pat_untagged.second.size(); i++)
-      {
-        auto pat = pat_untagged;
-        bool taggable = true;
-        for (unsigned int j = 0; j < pat.second.size(); j++) {
-          auto& pair = pat.second[j];
-          if(!pair.tag_filter.combine(tok.tag_filter.neg())) {
-            taggable = false;
-            if (verbose) {
-              cerr << "Warning: The tags of " << to_ustring(printPattern(tok));
-              cerr << " conflict with " << to_ustring(printPattern(pat_untagged.second[j]));
-              cerr << " on line " << pat.first << "." << endl;
-            }
-          }
-        }
-        if(!pat.second[i].tag_filter.combine(tok.tag_filter.pos())) {
+      auto pat_line = pat_untagged.first;
+      auto pat_minus = pat_untagged.second;
+      bool taggable = true;
+      for (auto& it : pat_minus) {
+        if (!it.tag_filter.combine(tok.tag_filter.neg())) {
           taggable = false;
           if (verbose) {
             cerr << "Warning: The tags of " << to_ustring(printPattern(tok));
-            cerr << " conflict with " << to_ustring(printPattern(pat_untagged.second[i]));
-            cerr << " on line " << pat.first << "." << endl;
+            cerr << " conflict with " << to_ustring(printPattern(it));
+            cerr << " on line " << pat_line << "." << endl;
+          }
+          break;
+        }
+      }
+      if (!taggable) continue;
+      size_t len = pat_minus.size();
+      auto pos_tags = tok.tag_filter.distribute_pos(len);
+      for (auto& pos_tag_seq : pos_tags) {
+        taggable = true;
+        auto pat = pat_minus;
+        for (size_t i = 0; i < len; i++) {
+          if (!pat[i].tag_filter.combine(pos_tag_seq[i])) {
+            taggable = false;
+            if (verbose) {
+              cerr << "Warning: The tags of " << to_ustring(printPattern(tok));
+              cerr << " conflict with " << to_ustring(printPattern(pat[i]));
+              cerr << " on line " << pat_line << "." << endl;
+            }
+            break;
           }
         }
         if (!taggable) continue;
 
         matchedParts.clear();
-        lineNumber = pat.first;
-        vector<int> is_free = determineFreedom(pat.second);
-        buildPattern(t->getInitial(), t, pat.second, is_free, 0);
+        lineNumber = pat_line;
+        vector<int> is_free = determineFreedom(pat);
+        buildPattern(t->getInitial(), t, pat, is_free, 0);
       }
     }
     tempMatch.swap(matchedParts);
