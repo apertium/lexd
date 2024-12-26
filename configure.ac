@@ -35,6 +35,10 @@ AS_IF([test "$version_flag" == none], [
 ])
 CXXFLAGS="$CXXFLAGS ${version_flag}"
 
+AC_CHECK_HEADER([utf8cpp/utf8.h], [CPPFLAGS="-I/usr/include/utf8cpp/ $CPPFLAGS"], [
+  AC_CHECK_HEADER([utf8.h], [], [AC_MSG_ERROR([You don't have utfcpp installed.])])
+])
+
 AC_CONFIG_FILES([
                  lexd.pc
                  Makefile
