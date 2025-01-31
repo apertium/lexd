@@ -19,3 +19,10 @@ install-sh
 missing
 stamp-h1
 lexd.pc
+
+/.vscode/
+/locales/Makefile
+/locales/Makefile.in
+*.res
+*.dat
+/configure~

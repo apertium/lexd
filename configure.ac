@@ -43,5 +43,6 @@ AC_CONFIG_FILES([
                  lexd.pc
                  Makefile
                  src/Makefile
+                 locales/Makefile
                  ])
 AC_OUTPUT
