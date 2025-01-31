@@ -129,7 +129,7 @@ Patterns can list different sides of each lexicon in different places. When the 
 ```
 PATTERNS
 :VerbInfl VerbRoot VerbInfl:
-:VerbInfl :VerbRoot VerbRoot VerbInfl: Redup:
+:VerbInfl :VerbRoot VerbRoot VerbInfl: Redup
 
 LEXICON VerbRoot
 bloop
