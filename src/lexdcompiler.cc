@@ -550,6 +550,7 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
     die("Expected %d parts, found %d", currentLexiconPartCount, part_count);
   for(; !iter.at_end(); ++iter)
   {
+    bool have_weight = false;
     if((*iter).startsWith(" ") || *iter == ']')
       break;
     else if(*iter == "[")
@@ -563,10 +564,30 @@ LexdCompiler::processLexiconSegment(char_iter& iter, UnicodeString& line, unsign
     }
     else if((*iter).startsWith(":"))
     {
-      if(inleft)
+      bool got_weight = false;
+      ++iter;
+      if (*iter == ":") {
+        if (have_weight) die("Weight already specified for this segment.");
+        have_weight = true;
+        ++iter;
+        auto begin = iter.span().first;
+        while (iter != iter.end() && (*iter).length() > 0 &&
+               *iter != " " && *iter != "[" && *iter != "]")
+          ++iter;
+        auto weight = line.tempSubStringBetween(begin, iter.span().first);
+        try {
+          seg.weight = StringUtils::stod(to_ustring(weight));
+        } catch (const std::invalid_argument& e) {
+          die("Invalid weight '%S'.", err(weight));
+        }
+        got_weight = true;
+      }
+      --iter;
+      if (got_weight) ;
+      else if (inleft)
         inleft = false;
       else
-        die("Lexicon entry contains multiple colons");
+        die("Lexicon entry contains multiple colons.");
       if ((*iter).length() > 1) readSymbol(iter, line, seg.right);
     }
     else readSymbol(iter, line, (inleft ? seg.left : seg.right));
@@ -1862,7 +1883,7 @@ LexdCompiler::insertEntry(Transducer* trans, const lex_seg_t &seg)
     {
       trans_sym_t l = (i < seg.left.symbols.size()) ? seg.left.symbols[i] : trans_sym_t();
       trans_sym_t r = (i < seg.right.symbols.size()) ? seg.right.symbols[i] : trans_sym_t();
-      state = trans->insertSingleTransduction(alphabet((int)l, (int)r), state);
+      state = trans->insertSingleTransduction(alphabet((int)l, (int)r), state, (i == 0 ? seg.weight : 0.000));
     }
   }
   else
@@ -1949,7 +1970,9 @@ LexdCompiler::insertEntry(Transducer* trans, const lex_seg_t &seg)
       state = trans->insertSingleTransduction((int)symbol, state);
     }
   }
-  trans->setFinal(state);
+  double w = seg.weight;
+  if (!seg.left.symbols.empty() || !seg.right.symbols.empty()) w = 0.000;
+  trans->setFinal(state, w);
 }
 
 void
@@ -2007,7 +2030,10 @@ LexdCompiler::getLexiconTransducer(pattern_element_t tok, unsigned int entry_ind
       if (tok.left.name != tok.right.name)
         die("Cannot collate %S with %S - %S contains a regex", err(name(tok.left.name)), err(name(tok.right.name)), err(name((le.regex != nullptr ? tok.left.name : tok.right.name))));
     }
-    insertEntry(t, {.left=le.left, .right=re.right, .regex=le.regex, .tags=tags});
+    double w = le.weight;
+    if (tok.left.name != tok.right.name || tok.left.part != tok.right.part)
+      w += re.weight;
+    insertEntry(t, {.left=le.left, .right=re.right, .regex=le.regex, .weight=w, .tags=tags});
     did_anything = true;
     if(!free)
     {
@@ -2136,6 +2162,9 @@ LexdCompiler::getLexiconTransducerWithFlags(pattern_element_t& tok, bool free)
         die("Cannot collate %S with %S - %S contains a regex", err(name(tok.left.name)), err(name(tok.right.name)), err(name((le.regex != nullptr ? tok.left.name : tok.right.name))));
       seg.regex = le.regex;
     }
+    seg.weight = le.weight;
+    if (tok.left.name != tok.right.name || tok.left.part != tok.right.part)
+      seg.weight += re.weight;
     if(!free && tok.left.name.valid())
     {
       trans_sym_t flag = getFlag(Unification, tok.left.name, i);
