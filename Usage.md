@@ -394,6 +394,8 @@ Distribution rules are as follows:
 (A B)[-x] = A[-x] B[-x]
 ```
 
+(Note that `(A[x] B[x])` is the intersection of `(A[x] B)` and `(A B[x])`, and is thus included in `(A B)[x]`.)
+
 Union and symmetric difference are implemented with the following
 syntax:
 
