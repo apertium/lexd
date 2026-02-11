@@ -50,7 +50,14 @@ negsources = $(foreach test,$(negtests),negtest-$(test).lexd)
 
 check-neg: $(foreach src,$(negsources),$(O)/$(src).txt.error)
 
-check: check-pos check-neg
+atttests = \
+  weight \
+
+attsources = $(foreach test,$(atttests),test-$(test).lexd)
+
+check-att: $(foreach src,$(attsources),$(O)/$(src).txt.check)
+
+check: check-pos check-neg check-att
 
 O=.
 
@@ -66,7 +73,10 @@ $(O)/%.strings.check: $(O)/%.strings.diff
 	[ -s "$<" ] && cat "$<" && exit 1; touch $@
 $(O)/%.lexd.txt.error: ../../src/lexd %.lexd | $(O)
 	$^ $(LEXD_TEST_FLAGS) > /dev/null 2> $@; [ $$? = 1 ]
+$(O)/%.lexd.txt.check: $(O)/%.lexd.txt %.lexd.txt.$(O).gold
+	diff -U0 $^ > $@; [ $$? != 2 ]
 clean:
 	rm $(foreach src,$(sources),$(O)/$(src).txt.strings.check)
 	rm $(foreach src,$(negsources),$(O)/$(src).txt.error)
+	rm $(foreach src,$(attsources),$(O)/$(src).txt.check)
 	rmdir $(O)
