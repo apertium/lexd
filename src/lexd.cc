@@ -2,6 +2,7 @@
 
 #include <lttoolbox/lt_locale.h>
 #include <unicode/ustdio.h>
+#include <lttoolbox/i18n.h>
 #include <libgen.h>
 #include <getopt.h>
 
@@ -9,20 +10,10 @@ using namespace std;
 
 void endProgram(char *name)
 {
+  I18n i18n {AXD_I18N_DATA, "axd"};
   if(name != NULL)
   {
-    cout << basename(name) << " v" << VERSION << ": compile lexd files to transducers" << endl;
-    cout << "USAGE: " << basename(name) << " [-abcfmtvxUV] [rule_file [output_file]]" << endl;
-    cout << "   -a, --align:      align labels (prefer a:0 b:b to a:b b:0)" << endl;
-    cout << "   -b, --bin:        output as Lttoolbox binary file (default is AT&T format)" << endl;
-    cout << "   -c, --compress:   condense labels (prefer a:b to 0:b a:0 - sets --align)" << endl;
-    cout << "   -f, --flags:      compile using flag diacritics" << endl;
-    cout << "   -m, --minimize:   do hyperminimization (sets -f)" << endl;
-    cout << "   -t, --tags:       compile tags and filters with flag diacritics (sets -f)" << endl;
-    cout << "   -v, --verbose:    compile verbosely" << endl;
-	cout << "   -U, --no-combine: represent multi-codepoint glyphs as multiple transitions" << endl;
-    cout << "   -V, --version:    print version string" << endl;
-    cout << "   -x, --statistics: print lexicon and pattern sizes to stderr" << endl;
+    cout << i18n.format("lexd_desc", {"program", "version"}, {basename(name), VERSION});
   }
   exit(EXIT_FAILURE);
 }
@@ -152,8 +143,7 @@ int main(int argc, char *argv[])
     input = u_fopen(infile.c_str(), "rb", NULL, NULL);
     if(!input)
     {
-      cerr << "Error: Cannot open file '" << infile << "' for reading." << endl;
-      exit(EXIT_FAILURE);
+      I18n(AXD_I18N_DATA, "axd").error("AXD80010", {"file"}, {infile.c_str()}, true);
     }
   }
 
@@ -162,8 +152,7 @@ int main(int argc, char *argv[])
     output = u_fopen(outfile.c_str(), "wb", NULL, NULL);
     if(!output)
     {
-      cerr << "Error: Cannot open file '" << outfile << "' for writing." << endl;
-      exit(EXIT_FAILURE);
+      I18n(AXD_I18N_DATA, "axd").error("AXD80010", {"file"}, {outfile.c_str()}, true);
     }
   }
 
@@ -173,7 +162,7 @@ int main(int argc, char *argv[])
   if(stats)
     comp.printStatistics();
   if(!transducer)
-    cerr << "Warning: output is empty transducer." << endl;
+    I18n(AXD_I18N_DATA, "axd").error("AXD60020", false);
   else if(bin)
   {
     // TODO: finish this!
