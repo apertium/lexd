@@ -21,6 +21,7 @@ tests = \
   lexname-space \
   lextag \
   lexnegtag \
+  multipos \
   nontree \
   oneside \
   opt \
